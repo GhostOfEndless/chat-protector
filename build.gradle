@@ -1,17 +1,27 @@
 plugins {
+    id "org.springframework.boot" version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'io.freefair.lombok' version '8.6'
     id 'java'
 }
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
 
 group = 'org.example'
 version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.9.1'
+    implementation 'org.telegram:telegrambots-client:7.9.1'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.2'
 }
 
 test {
