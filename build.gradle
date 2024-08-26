@@ -18,6 +18,10 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.9.1'
     implementation 'org.telegram:telegrambots-client:7.9.1'

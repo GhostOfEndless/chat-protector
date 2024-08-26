@@ -8,6 +8,7 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 @Slf4j
+@Profile("gigachat")
 @Component
 @RequiredArgsConstructor
 public class GigaChatRestClientImpl implements GigaChatRestClient {
