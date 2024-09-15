@@ -60,11 +60,11 @@ public class MainLayout extends AppLayout {
         SideNav nav = new SideNav();
 
         if (accessChecker.hasAccess(DashboardView.class)) {
-            nav.addItem(new SideNavItem("Dashboard", DashboardView.class, LineAwesomeIcon.CHALKBOARD_SOLID.create()));
+            nav.addItem(new SideNavItem("Статистика", DashboardView.class, LineAwesomeIcon.CHALKBOARD_SOLID.create()));
 
         }
         if (accessChecker.hasAccess(TextModerationSettingsView.class)) {
-            nav.addItem(new SideNavItem("TextModerationSettings", TextModerationSettingsView.class,
+            nav.addItem(new SideNavItem("Текстовые сообщения", TextModerationSettingsView.class,
                     LineAwesomeIcon.ALLERGIES_SOLID.create()));
 
         }
@@ -90,11 +90,11 @@ public class MainLayout extends AppLayout {
             div.getElement().getStyle().set("align-items", "center");
             div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
             userName.add(div);
-            userName.getSubMenu().addItem("Sign out", e -> authenticatedUser.logout());
+            userName.getSubMenu().addItem("Выйти", e -> authenticatedUser.logout());
 
             layout.add(userMenu);
         } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
+            Anchor loginLink = new Anchor("login", "Войти");
             layout.add(loginLink);
         }
 

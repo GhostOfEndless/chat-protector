@@ -4,6 +4,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+/admin-panel/src/main/bundles/
+/admin-panel/build/
 /admin-panel/*.ts
 /admin-panel/*.d.ts
 /admin-panel/*.json

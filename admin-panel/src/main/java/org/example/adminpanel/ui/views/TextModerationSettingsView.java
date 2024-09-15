@@ -11,7 +11,7 @@ import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adminpanel.ui.MainLayout;
 
-@PageTitle("TextModerationSettings")
+@PageTitle("Текстовые сообщения")
 @Route(value = "text-moderation", layout = MainLayout.class)
 @RolesAllowed("USER")
 @Slf4j

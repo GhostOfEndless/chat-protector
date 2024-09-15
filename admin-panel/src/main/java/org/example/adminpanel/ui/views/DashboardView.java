@@ -8,7 +8,7 @@ import com.vaadin.flow.router.RouteAlias;
 import jakarta.annotation.security.RolesAllowed;
 import org.example.adminpanel.ui.MainLayout;
 
-@PageTitle("Dashboard")
+@PageTitle("Статистика")
 @Route(value = "", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @RolesAllowed("USER")
