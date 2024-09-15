@@ -1,2 +1,5 @@
 rootProject.name = 'chat-protector'
 
+include 'update-processor'
+include 'telegram-bot'
+include 'admin-panel'

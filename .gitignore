@@ -3,7 +3,12 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-/src/main/resources/yandex-cloud-configs/text-classification.json
+
+/admin-panel/*.ts
+/admin-panel/*.d.ts
+/admin-panel/*.json
+/admin-panel/node_modules/
+/admin-panel/src/main/frontend/generated/
 
 ### IntelliJ IDEA ###
 .idea/
