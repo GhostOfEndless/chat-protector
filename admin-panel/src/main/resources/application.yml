@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: 8080
   servlet:
     session:
       tracking-modes: cookie
@@ -13,9 +13,9 @@ spring:
   mustache:
     check-template-location: false
   datasource:
-    url: jdbc:postgresql://localhost/postgres
-    username: user
-    password: password
+    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME:localhost}/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: false
@@ -38,4 +38,4 @@ vaadin:
 
 jwt:
   auth:
-    secret: J6GOtcwC2NJI1l0VkHu20PacPFGTxpirBxWwynoHjsc=
+    secret: ${ADMIN_PANEL_JWT_SECRET}

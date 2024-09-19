@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security:3.3.3'
     implementation 'org.springframework.security:spring-security-oauth2-jose:6.3.3'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server:6.3.3'
+    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
 
     //    vaadin
     implementation 'com.vaadin:vaadin:24.4.11'

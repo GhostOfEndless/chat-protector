@@ -1,4 +1,7 @@
 plugins {
+    id 'io.freefair.lombok' version '8.10'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.3.3'
     id 'java'
 }
 
@@ -10,8 +13,14 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    //    spring boot
+//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.3'
+    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter:3.3.3'
+
+    testImplementation ('org.springframework.boot:spring-boot-starter-test:3.3.3') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 }
 
 test {
