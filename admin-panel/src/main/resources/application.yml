@@ -34,7 +34,7 @@ vaadin:
     - com.vaadin
     - org.vaadin
     - dev.hilla
-    - org.example.adminpanel
+    - ru.tbank.adminpanel
 
 jwt:
   auth:

@@ -1,8 +1,8 @@
-package org.example.adminpanel.security;
+package ru.tbank.adminpanel.security;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import org.example.adminpanel.ui.views.LoginView;
+import ru.tbank.adminpanel.ui.views.LoginView;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

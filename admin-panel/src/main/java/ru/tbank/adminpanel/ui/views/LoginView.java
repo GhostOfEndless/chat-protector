@@ -1,4 +1,4 @@
-package org.example.adminpanel.ui.views;
+package ru.tbank.adminpanel.ui.views;
 
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
@@ -9,7 +9,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.internal.RouteUtil;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import org.example.adminpanel.security.AuthenticatedUser;
+import ru.tbank.adminpanel.security.AuthenticatedUser;
 
 @Route("login")
 @PageTitle("Вход | Chat Protector")

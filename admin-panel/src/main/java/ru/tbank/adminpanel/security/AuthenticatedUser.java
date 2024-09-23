@@ -1,4 +1,4 @@
-package org.example.adminpanel.security;
+package ru.tbank.adminpanel.security;
 
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
@@ -7,8 +7,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.adminpanel.entity.AppUser;
-import org.example.adminpanel.repository.AppUserRepository;
+import ru.tbank.adminpanel.entity.AppUser;
+import ru.tbank.adminpanel.repository.AppUserRepository;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 

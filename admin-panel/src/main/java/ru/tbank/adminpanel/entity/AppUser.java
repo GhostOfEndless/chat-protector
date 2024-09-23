@@ -1,4 +1,4 @@
-package org.example.adminpanel.entity;
+package ru.tbank.adminpanel.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

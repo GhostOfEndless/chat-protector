@@ -1,4 +1,4 @@
-package org.example.adminpanel;
+package ru.tbank.adminpanel;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.server.PWA;

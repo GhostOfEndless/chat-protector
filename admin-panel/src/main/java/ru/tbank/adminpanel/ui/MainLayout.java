@@ -1,4 +1,4 @@
-package org.example.adminpanel.ui;
+package ru.tbank.adminpanel.ui;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -12,10 +12,10 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.example.adminpanel.entity.AppUser;
-import org.example.adminpanel.security.AuthenticatedUser;
-import org.example.adminpanel.ui.views.DashboardView;
-import org.example.adminpanel.ui.views.TextModerationSettingsView;
+import ru.tbank.adminpanel.entity.AppUser;
+import ru.tbank.adminpanel.security.AuthenticatedUser;
+import ru.tbank.adminpanel.ui.views.DashboardView;
+import ru.tbank.adminpanel.ui.views.TextModerationSettingsView;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.Optional;

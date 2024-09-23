@@ -1,8 +1,8 @@
-package org.example.adminpanel.security;
+package ru.tbank.adminpanel.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.adminpanel.entity.AppUser;
-import org.example.adminpanel.repository.AppUserRepository;
+import ru.tbank.adminpanel.entity.AppUser;
+import ru.tbank.adminpanel.repository.AppUserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

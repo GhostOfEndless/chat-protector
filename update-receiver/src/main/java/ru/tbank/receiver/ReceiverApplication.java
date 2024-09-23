@@ -1,12 +1,12 @@
-package org.example.processor;
+package ru.tbank.receiver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class UpdateProcessorApplication {
+public class ReceiverApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(UpdateProcessorApplication.class, args);
+        SpringApplication.run(ReceiverApplication.class, args);
     }
 }

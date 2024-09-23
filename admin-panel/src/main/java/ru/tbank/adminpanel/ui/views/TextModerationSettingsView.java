@@ -1,4 +1,4 @@
-package org.example.adminpanel.ui.views;
+package ru.tbank.adminpanel.ui.views;
 
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Composite;
@@ -9,7 +9,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
-import org.example.adminpanel.ui.MainLayout;
+import ru.tbank.adminpanel.ui.MainLayout;
 
 @PageTitle("Текстовые сообщения")
 @Route(value = "text-moderation", layout = MainLayout.class)
