@@ -1,3 +1,14 @@
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+logging:
+  level:
+    org.apache.kafka: warn
