@@ -15,7 +15,9 @@ repositories {
 dependencies {
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation project(":common")
 
     testImplementation ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

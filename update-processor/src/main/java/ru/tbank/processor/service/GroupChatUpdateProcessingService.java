@@ -10,7 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @RequiredArgsConstructor
 public class GroupChatUpdateProcessingService {
 
+    private final ChatConfigService chatConfigService;
+
     public void process(Update update) {
         log.info("Group chat update: {}", update);
+        var config = chatConfigService.getChatConfig(update.getMessage().getChatId());
+        log.info("Config for this chat: {}", config);
     }
 }
