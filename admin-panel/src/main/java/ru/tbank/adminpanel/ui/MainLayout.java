@@ -12,24 +12,30 @@ import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import lombok.extern.slf4j.Slf4j;
 import ru.tbank.adminpanel.entity.AppUser;
 import ru.tbank.adminpanel.security.AuthenticatedUser;
+import ru.tbank.adminpanel.service.ChatConfigService;
 import ru.tbank.adminpanel.ui.views.DashboardView;
 import ru.tbank.adminpanel.ui.views.TextModerationSettingsView;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.Optional;
 
+@Slf4j
 public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
     private final AuthenticatedUser authenticatedUser;
     private final AccessAnnotationChecker accessChecker;
+    private final ChatConfigService chatConfigService;
 
-    public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
+    public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker,
+                      ChatConfigService chatConfigService) {
         this.authenticatedUser = authenticatedUser;
         this.accessChecker = accessChecker;
+        this.chatConfigService = chatConfigService;
 
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
@@ -58,7 +64,7 @@ public class MainLayout extends AppLayout {
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
-
+        log.warn("Available chat configs: {}", chatConfigService.getChatConfigs());
         if (accessChecker.hasAccess(DashboardView.class)) {
             nav.addItem(new SideNavItem("Статистика", DashboardView.class, LineAwesomeIcon.CHALKBOARD_SOLID.create()));
 
@@ -66,7 +72,6 @@ public class MainLayout extends AppLayout {
         if (accessChecker.hasAccess(TextModerationSettingsView.class)) {
             nav.addItem(new SideNavItem("Текстовые сообщения", TextModerationSettingsView.class,
                     LineAwesomeIcon.ALLERGIES_SOLID.create()));
-
         }
 
         return nav;

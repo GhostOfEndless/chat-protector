@@ -1,4 +1,4 @@
-package ru.tbank.adminpanel.security;
+package ru.tbank.adminpanel.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;

@@ -1,4 +1,4 @@
-package ru.tbank.processor.service;
+package ru.tbank.adminpanel.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import ru.tbank.common.entity.ChatConfig;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,13 +56,8 @@ public class ChatConfigService {
         return chatConfigs.computeIfAbsent(chatId, this::fetchFromRedis);
     }
 
-    public void createChatConfig(Long chatId, String chatName) {
-        var newConfig = ChatConfig.builder()
-                .chatId(chatId)
-                .chatName(chatName)
-                .build();
-        updateChatConfig(newConfig);
-        log.info("Default config for chat with id '{}' successfully created!", chatId);
+    public Collection<ChatConfig> getChatConfigs() {
+        return chatConfigs.values();
     }
 
     public void updateChatConfig(ChatConfig chatConfig) {

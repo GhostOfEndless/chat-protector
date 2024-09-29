@@ -1,7 +1,7 @@
 plugins {
     id 'io.freefair.lombok' version '8.10'
     id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.springframework.boot' version '3.3.3'
+    id 'org.springframework.boot' version '3.3.4'
     id 'com.vaadin' version '24.4.11'
     id 'java'
 }
@@ -20,10 +20,10 @@ repositories {
 
 dependencies {
     //    spring boot
-    implementation 'org.springframework.boot:spring-boot-starter-web:3.3.3'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.3'
-    implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.3'
-    implementation 'org.springframework.boot:spring-boot-starter-security:3.3.3'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-oauth2-jose:6.3.3'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server:6.3.3'
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
@@ -36,10 +36,12 @@ dependencies {
 
     //    data
     implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     runtimeOnly 'org.flywaydb:flyway-database-postgresql:10.18.0'
+    implementation project(":common")
 
     //    testing
-    testImplementation ('org.springframework.boot:spring-boot-starter-test:3.3.3') {
+    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }
