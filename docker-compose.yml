@@ -24,19 +24,23 @@ services:
     container_name: init-kafka
     working_dir: /opt/bitnami/kafka/bin
     entrypoint: /bin/bash
+    env_file:
+      - .env
     depends_on:
       kafka:
         condition: service_healthy
     command: |
       -c "
-      kafka-topics.sh --create --if-not-exists --topic text-message-queue --bootstrap-server kafka:9092
-      kafka-topics.sh --create --if-not-exists --topic another-update-queue --bootstrap-server kafka:9092
+      kafka-topics.sh --create --if-not-exists --topic $${KAFKA_UPDATES_TOPIC_NAME} --bootstrap-server kafka:9092
       kafka-topics.sh --describe --bootstrap-server kafka:9092
       "
+
   redis:
+    container_name: redis
     image: redis
     ports:
       - "6379:6379"
+
 #  db:
 #    image: postgres:16.4-alpine
 #    container_name: $POSTGRES_CONTAINER_NAME

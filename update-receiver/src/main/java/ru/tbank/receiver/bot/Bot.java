@@ -31,11 +31,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
     @Override
     public void consume(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            updateSenderService.sendTextMessageUpdate(update);
-        } else {
-            updateSenderService.sendAnotherUpdate(update);
-        }
+        updateSenderService.sendUpdate(update);
     }
 
     @AfterBotRegistration

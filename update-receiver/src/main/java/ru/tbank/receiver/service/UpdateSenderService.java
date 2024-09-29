@@ -10,12 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class UpdateSenderService {
 
     private final KafkaTemplate<String, Update> kafkaTemplate;
+    private final String updatesTopicName;
 
-    public void sendTextMessageUpdate(Update update) {
-        kafkaTemplate.send("text-message-queue", update);
-    }
-
-    public void sendAnotherUpdate(Update update) {
-        kafkaTemplate.send("another-update-queue", update);
+    public void sendUpdate(Update update) {
+        kafkaTemplate.send(updatesTopicName, update);
     }
 }
