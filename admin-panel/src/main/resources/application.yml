@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      tracking-modes: cookie
+
+logging:
+  level:
+    org.atmosphere: warn
+    sql: warn
+
+spring:
+  mustache:
+    check-template-location: false
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME:localhost}/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    schemas:
+      - public
+      - security
+
+vaadin:
+  launch-browser: true
+  allowed-packages:
+    - com.vaadin
+    - org.vaadin
+    - dev.hilla
+    - ru.tbank.adminpanel
+
+jwt:
+  auth:
+    secret: ${ADMIN_PANEL_JWT_SECRET}

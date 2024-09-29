@@ -1,0 +1,74 @@
+services:
+  kafka:
+    image: &kafka-image bitnami/kafka
+    container_name: kafka
+    ports:
+      - '9094:9094'
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_NUM_PARTITIONS: 1
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--bootstrap-server=localhost:9092", "--list" ]
+      start_period: 15s
+      interval: 10s
+
+  init-kafka:
+    image: *kafka-image
+    container_name: init-kafka
+    working_dir: /opt/bitnami/kafka/bin
+    entrypoint: /bin/bash
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: |
+      -c "
+      kafka-topics.sh --create --if-not-exists --topic text-message-queue --bootstrap-server kafka:9092
+      kafka-topics.sh --create --if-not-exists --topic another-update-queue --bootstrap-server kafka:9092
+      kafka-topics.sh --describe --bootstrap-server kafka:9092
+      "
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+#  db:
+#    image: postgres:16.4-alpine
+#    container_name: $POSTGRES_CONTAINER_NAME
+#    restart: unless-stopped
+#    env_file:
+#      - .env
+#    ports:
+#      - "${POSTGRES_PORT}:5432"
+#    environment:
+#      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+#      POSTGRES_USER: $POSTGRES_USER
+#      POSTGRES_DB: $POSTGRES_DB
+#    healthcheck:
+#      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+#      interval: 3s
+#      timeout: 5s
+#      retries: 10
+
+#  admin-panel:
+#    build: ./admin-panel
+#    container_name: $ADMIN_PANEL_CONTAINER_NAME
+#    restart: unless-stopped
+#    env_file:
+#      - .env
+#    ports:
+#      - "${ADMIN_PANEL_HTTP_PORT}:8080"
+#    environment:
+#      ADMIN_PANEL_JWT_SECRET: $ADMIN_PANEL_JWT_SECRET
+#      POSTGRES_CONTAINER_NAME: $POSTGRES_CONTAINER_NAME
+#      POSTGRES_DB: $POSTGRES_DB
+#      POSTGRES_USER: $POSTGRES_USER
+#      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+#    depends_on:
+#      db:
+#        condition: service_healthy
