@@ -5,11 +5,13 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +19,8 @@ import ru.tbank.adminpanel.entity.AppUser;
 import ru.tbank.adminpanel.security.AuthenticatedUser;
 import ru.tbank.adminpanel.service.ChatConfigService;
 import ru.tbank.adminpanel.ui.views.DashboardView;
+import ru.tbank.adminpanel.ui.views.HomeView;
 import ru.tbank.adminpanel.ui.views.TextModerationSettingsView;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import java.util.Optional;
 
@@ -64,15 +66,24 @@ public class MainLayout extends AppLayout {
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
-        log.warn("Available chat configs: {}", chatConfigService.getChatConfigs());
-        if (accessChecker.hasAccess(DashboardView.class)) {
-            nav.addItem(new SideNavItem("Статистика", DashboardView.class, LineAwesomeIcon.CHALKBOARD_SOLID.create()));
+        var configs = chatConfigService.getChatConfigs();
+        var homeNav = new SideNavItem("Домашняя страница", HomeView.class, VaadinIcon.HOME.create());
+        nav.addItem(homeNav);
 
-        }
-        if (accessChecker.hasAccess(TextModerationSettingsView.class)) {
-            nav.addItem(new SideNavItem("Текстовые сообщения", TextModerationSettingsView.class,
-                    LineAwesomeIcon.ALLERGIES_SOLID.create()));
-        }
+        configs.forEach(config -> {
+            var sideNavItem = new SideNavItem(config.getChatName(), (String) null, VaadinIcon.CHAT.create());
+            var routeParams = new RouteParameters("chatID", String.valueOf(config.getChatId()));
+
+            sideNavItem.addItem(new SideNavItem("Статистика", DashboardView.class, routeParams,
+                    VaadinIcon.DASHBOARD.create()));
+
+            if (accessChecker.hasAccess(TextModerationSettingsView.class)) {
+                sideNavItem.addItem(new SideNavItem("Текстовые сообщения", TextModerationSettingsView.class,
+                        routeParams, VaadinIcon.CLIPBOARD_TEXT.create()));
+            }
+
+            nav.addItem(sideNavItem);
+        });
 
         return nav;
     }

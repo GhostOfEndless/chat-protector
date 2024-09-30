@@ -18,6 +18,7 @@ public class GroupChatUpdateProcessingService {
         log.info("Group chat update: {}", update);
         var message = update.getMessage();
         var config = chatConfigService.getChatConfig(update.getMessage().getChatId());
+
         if (Objects.isNull(config)) {
             log.warn("Config is null! Creating ne config");
             chatConfigService.createChatConfig(message.getChatId(), message.getChat().getTitle());
