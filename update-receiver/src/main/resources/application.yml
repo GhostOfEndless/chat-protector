@@ -1,6 +1,10 @@
+#file: noinspection SpringBootApplicationYaml
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
+
+mq:
+  updates-topic-name: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
   kafka:

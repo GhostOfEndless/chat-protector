@@ -1,13 +1,5 @@
 server:
   port: 8080
-  servlet:
-    session:
-      tracking-modes: cookie
-
-logging:
-  level:
-    org.atmosphere: warn
-    sql: warn
 
 spring:
   mustache:
@@ -27,14 +19,9 @@ spring:
     schemas:
       - public
       - security
-
-vaadin:
-  launch-browser: true
-  allowed-packages:
-    - com.vaadin
-    - org.vaadin
-    - dev.hilla
-    - ru.tbank.adminpanel
+  data:
+    redis:
+      port: 6379
 
 jwt:
   auth:
