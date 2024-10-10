@@ -1,7 +1,9 @@
 services:
   kafka:
     image: &kafka-image bitnami/kafka
-    container_name: kafka
+    env_file:
+      - .env
+    container_name: $KAFKA_CONTAINER_NAME
     ports:
       - '9094:9094'
     environment:
@@ -36,7 +38,9 @@ services:
       "
 
   redis:
-    container_name: redis
+    env_file:
+      - .env
+    container_name: $REDIS_CONTAINER_NAME
     image: redis
     ports:
       - '6379:6379'
@@ -57,4 +61,3 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 3s
       timeout: 5s
-      retries: 10
