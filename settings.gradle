@@ -2,6 +2,6 @@ rootProject.name = 'chat-protector'
 
 include 'update-processor'
 include 'update-receiver'
-include 'admin-panel'
+include 'admin-service'
 include 'common'
 
