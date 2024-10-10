@@ -1,4 +1,4 @@
-package ru.tbank.adminpanel.entity;
+package ru.tbank.admin.entity;
 
 public enum Role {
     USER,
