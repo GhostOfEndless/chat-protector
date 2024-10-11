@@ -1,8 +1,7 @@
 services:
   kafka:
     image: &kafka-image bitnami/kafka
-    env_file:
-      - .env
+    env_file: .env
     container_name: $KAFKA_CONTAINER_NAME
     ports:
       - '9094:9094'
@@ -27,8 +26,7 @@ services:
     container_name: init-kafka
     working_dir: /opt/bitnami/kafka/bin
     entrypoint: /bin/bash
-    env_file:
-      - .env
+    env_file: .env
     depends_on:
       kafka:
         condition: service_healthy
@@ -39,8 +37,7 @@ services:
       "
 
   redis:
-    env_file:
-      - .env
+    env_file: .env
     container_name: $REDIS_CONTAINER_NAME
     image: redis
     ports:
@@ -52,10 +49,9 @@ services:
 
   db:
     image: postgres:16.4-alpine
+    env_file: .env
     container_name: $POSTGRES_CONTAINER_NAME
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
       - '5432:5432'
     environment:
