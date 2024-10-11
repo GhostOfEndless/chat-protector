@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import ru.tbank.common.entity.ChatConfig;
+import ru.tbank.common.entity.ChatModerationSettings;
 
 import java.nio.charset.StandardCharsets;
 
@@ -21,10 +21,10 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<String, ChatConfig> redisTemplate() {
-        var template = new RedisTemplate<String, ChatConfig>();
+    public RedisTemplate<String, ChatModerationSettings> redisTemplate() {
+        var template = new RedisTemplate<String, ChatModerationSettings>();
         template.setConnectionFactory(lettuceConnectionFactory());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatConfig.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatModerationSettings.class));
         template.setKeySerializer(new StringRedisSerializer(StandardCharsets.UTF_8));
         return template;
     }

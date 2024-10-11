@@ -1,4 +1,4 @@
-package ru.tbank.admin.service;
+package ru.tbank.processor.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -8,22 +8,22 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
-import ru.tbank.common.entity.ChatConfig;
+import ru.tbank.common.entity.ChatModerationSettings;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatConfigService {
+public class ChatModerationSettingsService {
 
-    private final RedisTemplate<String, ChatConfig> redisTemplate;
+    private final RedisTemplate<String, ChatModerationSettings> redisTemplate;
     private final RedisMessageListenerContainer listenerContainer;
     private final StringRedisTemplate stringRedisTemplate;
-    private final Map<Long, ChatConfig> chatConfigs = new ConcurrentHashMap<>();
+    private final Map<Long, ChatModerationSettings> chatConfigs = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -52,30 +52,35 @@ public class ChatConfigService {
         log.info("Load '{}' chat configs from DB", keys.size());
     }
 
-    public ChatConfig getChatConfig(Long chatId) {
+    public ChatModerationSettings getChatConfig(Long chatId) {
         return chatConfigs.computeIfAbsent(chatId, this::fetchFromRedis);
     }
 
-    public Collection<ChatConfig> getChatConfigs() {
-        return chatConfigs.values();
+    public void createChatConfig(Long chatId, String chatName) {
+        var newConfig = ChatModerationSettings.builder()
+                .chatId(chatId)
+                .chatName(chatName)
+                .build();
+        updateChatConfig(newConfig);
+        log.info("Default config for chat with id '{}' successfully created!", chatId);
     }
 
-    public void updateChatConfig(ChatConfig chatConfig) {
-        var key = "chat:" + chatConfig.getChatId();
-        redisTemplate.opsForValue().set(key, chatConfig);
+    public void updateChatConfig(ChatModerationSettings chatModerationSettings) {
+        var key = "chat:" + chatModerationSettings.getChatId();
+        redisTemplate.opsForValue().set(key, chatModerationSettings);
         stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);
     }
 
-    private ChatConfig fetchFromRedis(Long chatId) {
+    private ChatModerationSettings fetchFromRedis(Long chatId) {
         var key = "chat:" + chatId;
         return redisTemplate.opsForValue().get(key);
     }
 
     private void updateLocalConfig(String chatId) {
-        var updatedConfig = redisTemplate.opsForValue().get(chatId);
-        if (!Objects.isNull(updatedConfig)) {
+        var updatedConfig = Optional.ofNullable(redisTemplate.opsForValue().get(chatId));
+        if (updatedConfig.isPresent()) {
             log.info("Config updated! {}", updatedConfig);
-            chatConfigs.put(updatedConfig.getChatId(), updatedConfig);
+            chatConfigs.put(updatedConfig.get().getChatId(), updatedConfig.get());
         }
     }
 }

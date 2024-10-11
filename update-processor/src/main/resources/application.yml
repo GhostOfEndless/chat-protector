@@ -24,4 +24,5 @@ spring:
 
 logging:
   level:
+    ru.tbank.processor: debug
     org.apache.kafka: warn
