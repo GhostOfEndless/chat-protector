@@ -2,17 +2,15 @@ package ru.tbank.common.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import ru.tbank.common.entity.text.TextModerationSettings;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@ToString
 public class ChatModerationSettings {
 
     @NotNull

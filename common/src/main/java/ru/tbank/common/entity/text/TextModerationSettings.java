@@ -1,13 +1,11 @@
 package ru.tbank.common.entity.text;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
-@ToString
+@Data
+@NoArgsConstructor
 public class TextModerationSettings {
 
     @NotNull
