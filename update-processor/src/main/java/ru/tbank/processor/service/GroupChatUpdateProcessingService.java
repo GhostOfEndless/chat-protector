@@ -48,7 +48,7 @@ public class GroupChatUpdateProcessingService {
     }
 
     private void processTextMessage(Message message, ChatModerationSettings chatModerationSettings) {
-       if (chatModerationSettings.getTextModerationSettings().getTagsFilterSettings().isEnabled() &&
+       if (chatModerationSettings.getTextModerationSettings().getTagsFilterSettings().getEnabled() &&
                message.hasEntities() && isMessageContainsBlockedTags(message)) {
             deleteMessage(message);
        }

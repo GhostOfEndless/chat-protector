@@ -53,7 +53,7 @@ public class ChatModerationSettingsService {
         log.info("Load '{}' chat configs from DB", keys.size());
     }
 
-    public Optional<ChatModerationSettings> getChatConfig(Long chatId) {
+    public Optional<ChatModerationSettings> findChatConfig(Long chatId) {
         return Optional.ofNullable(chatConfigs.computeIfAbsent(chatId, this::fetchFromRedis));
     }
 
@@ -73,10 +73,11 @@ public class ChatModerationSettingsService {
     }
 
     private void updateLocalConfig(String chatId) {
-        var updatedConfig = Optional.ofNullable(redisTemplate.opsForValue().get(chatId));
-        if (updatedConfig.isPresent()) {
-            log.info("Config updated! {}", updatedConfig);
-            chatConfigs.put(updatedConfig.get().getChatId(), updatedConfig.get());
+        var newChatModerationSettings = Optional.ofNullable(redisTemplate.opsForValue().get(chatId));
+        if (newChatModerationSettings.isPresent()) {
+            log.info("Config updated! {}", newChatModerationSettings);
+            chatConfigs.put(newChatModerationSettings.get().getChatId(),
+                    newChatModerationSettings.get());
         }
     }
 }

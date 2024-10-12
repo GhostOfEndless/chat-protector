@@ -6,6 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.auth.AuthenticationRequest;
 import ru.tbank.admin.auth.AuthenticationResponse;
+import ru.tbank.admin.entity.AppUser;
 import ru.tbank.admin.repository.AppUserRepository;
 
 @Service
@@ -23,10 +24,8 @@ public class AuthenticationService {
                         request.password()
                 )
         );
-        var user = repository.findByLogin(request.login()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        AppUser user = repository.findByLogin(request.login()).orElseThrow();
+        String jwtToken = jwtService.generateToken(user);
+        return new AuthenticationResponse(jwtToken);
     }
 }

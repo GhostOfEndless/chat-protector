@@ -16,7 +16,7 @@ public class TextModerationSettingsService {
     private final ChatModerationSettingsService configService;
 
     public TextModerationSettings getSettings(Long chatId) {
-        return configService.getChatConfig(chatId)
+        return configService.findChatConfig(chatId)
                 .orElseThrow(() -> new ChatNotFoundException(chatId))
                 .getTextModerationSettings();
     }
@@ -28,7 +28,7 @@ public class TextModerationSettingsService {
 
     public TextFilterSettings updateFilterSettings(Long chatId, @NotNull FilterType filterType,
                                      @NotNull TextFilterSettingsRequest newSettings) {
-        var chatModerationSettings = configService.getChatConfig(chatId)
+        var chatModerationSettings = configService.findChatConfig(chatId)
                 .orElseThrow(() -> new ChatNotFoundException(chatId));
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();
 
@@ -54,8 +54,8 @@ public class TextModerationSettingsService {
     }
 
     private void updateFilterSettings(TextFilterSettings filterSettings, TextFilterSettingsRequest newSettings) {
-        filterSettings.setEnabled(newSettings.getEnabled());
-        filterSettings.setExclusionMode(newSettings.getExclusionMode());
-        filterSettings.setExclusions(newSettings.getExclusions());
+        filterSettings.setEnabled(newSettings.enabled());
+        filterSettings.setExclusionMode(newSettings.exclusionMode());
+        filterSettings.setExclusions(newSettings.exclusions());
     }
 }

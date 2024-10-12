@@ -1,18 +1,19 @@
 package ru.tbank.common.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
-import ru.tbank.common.entity.text.*;
-
-import java.io.Serializable;
+import ru.tbank.common.entity.text.TextModerationSettings;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
 @ToString
-public class ChatModerationSettings implements Serializable {
+public class ChatModerationSettings {
 
     @NotNull
     private Long chatId;

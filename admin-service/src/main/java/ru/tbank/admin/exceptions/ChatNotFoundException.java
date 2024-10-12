@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class ChatNotFoundException extends RuntimeException {
+public class ChatNotFoundException extends ApplicationRuntimeException {
 
     private final Long chatId;
 
