@@ -2,7 +2,6 @@ package ru.tbank.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -25,16 +24,16 @@ public class BadRequestRestControllerAdvice {
     private final MessageSource messageSource;
 
     @ExceptionHandler(InvalidFilterTypeException.class)
-    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(
-            @NotNull InvalidFilterTypeException exception,
-            Locale locale
-    ) {
+    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(InvalidFilterTypeException exception,
+                                                                          Locale locale) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
                 getMessageByLocale("errors.400.title", locale));
 
         var errorMessage = getMessageByLocale(exception.getMessage(), locale)
                 .formatted(Arrays.stream(FilterType.values())
-                        .map(FilterType::getType)
+                        .map(filterType -> filterType.name()
+                                .toLowerCase()
+                                .replace('_', '-'))
                         .collect(Collectors.joining(", ")));
 
         problemDetail.setProperty("error", errorMessage);
@@ -43,10 +42,8 @@ public class BadRequestRestControllerAdvice {
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleChatNotFoundException(
-            @NotNull ChatNotFoundException exception,
-            Locale locale
-    ) {
+    public ResponseEntity<ProblemDetail> handleChatNotFoundException(ChatNotFoundException exception,
+                                                                     Locale locale) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
                 getMessageByLocale("errors.404.title", locale));
 

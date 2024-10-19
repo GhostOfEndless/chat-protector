@@ -1,7 +1,6 @@
 package ru.tbank.admin.service;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
@@ -21,13 +20,13 @@ public class TextModerationSettingsService {
                 .getTextModerationSettings();
     }
 
-    public TextFilterSettings getFilterSettings(Long chatId, @NotNull FilterType filterType) {
+    public TextFilterSettings getFilterSettings(Long chatId, FilterType filterType) {
         var textModerationSettings = getSettings(chatId);
         return getFilterSettingsByType(textModerationSettings, filterType);
     }
 
-    public TextFilterSettings updateFilterSettings(Long chatId, @NotNull FilterType filterType,
-                                     @NotNull TextFilterSettingsRequest newSettings) {
+    public TextFilterSettings updateFilterSettings(Long chatId, FilterType filterType,
+                                                   TextFilterSettingsRequest newSettings) {
         var chatModerationSettings = configService.findChatConfig(chatId)
                 .orElseThrow(() -> new ChatNotFoundException(chatId));
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();
@@ -43,6 +42,7 @@ public class TextModerationSettingsService {
 
         return filterSettings;
     }
+
     private TextFilterSettings getFilterSettingsByType(TextModerationSettings settings, FilterType filterType) {
         return switch (filterType) {
             case TAGS -> settings.getTagsFilterSettings();
