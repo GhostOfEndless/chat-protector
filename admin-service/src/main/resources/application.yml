@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  mustache:
+    check-template-location: false
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  data:
+    redis:
+      port: 6379
+      host: ${$REDIS_CONTAINER_NAME:localhost}
+
+jwt:
+  secret: ${ADMIN_SERVICE_JWT_SECRET}
+  ttl: 3600 # in seconds

@@ -1,4 +1,4 @@
-package ru.tbank.processor.config;
+package ru.tbank.admin.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -10,9 +10,9 @@ spring:
   data:
     redis:
       port: 6379
-
+      host: ${$REDIS_CONTAINER_NAME:localhost}
   kafka:
-    bootstrap-servers: localhost:9094
+    bootstrap-servers: ${KAFKA_CONTAINER_NAME:localhost}:9094
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -24,4 +24,5 @@ spring:
 
 logging:
   level:
+    ru.tbank.processor: debug
     org.apache.kafka: warn

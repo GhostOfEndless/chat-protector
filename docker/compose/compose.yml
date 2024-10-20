@@ -1,0 +1,63 @@
+# noinspection ComposeUnknownKeys
+include:
+  - compose-environment.yml
+
+services:
+  admin-service:
+    build:
+      context: ../..
+      dockerfile: docker/admin-service.Dockerfile
+    container_name: admin-service
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8080:8080"
+    environment:
+      ADMIN_PANEL_JWT_SECRET: $ADMIN_SERVICE_JWT_SECRET
+      POSTGRES_CONTAINER_NAME: $POSTGRES_CONTAINER_NAME
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  update-receiver:
+    build:
+      context: ../..
+      dockerfile: docker/update-receiver.Dockerfile
+    container_name: update-receiver
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      KAFKA_UPDATES_TOPIC_NAME: $KAFKA_UPDATES_TOPIC_NAME
+      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+      KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+      init-kafka:
+        condition: service_completed_successfully
+
+  update-processor:
+    build:
+      context: ../..
+      dockerfile: docker/update-processor.Dockerfile
+    container_name: update-processor
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      KAFKA_UPDATES_TOPIC_NAME: $KAFKA_UPDATES_TOPIC_NAME
+      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+      REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
+      KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+      init-kafka:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy

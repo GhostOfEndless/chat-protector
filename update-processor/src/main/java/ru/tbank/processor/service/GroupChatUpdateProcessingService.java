@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-import ru.tbank.common.entity.ChatConfig;
+import ru.tbank.common.entity.ChatModerationSettings;
 
 import java.util.Objects;
 
@@ -19,16 +19,16 @@ import java.util.Objects;
 public class GroupChatUpdateProcessingService {
 
     private final TelegramClient telegramClient;
-    private final ChatConfigService chatConfigService;
+    private final ChatModerationSettingsService chatModerationSettingsService;
 
     public void process(Update update) {
         var message = update.getMessage();
-        var config = chatConfigService.getChatConfig(update.getMessage().getChatId());
+        var config = chatModerationSettingsService.getChatConfig(message.getChatId());
 
         if (Objects.isNull(config)) {
             log.warn("Config is null! Creating ne config");
-            chatConfigService.createChatConfig(message.getChatId(), message.getChat().getTitle());
-            config = chatConfigService.getChatConfig(message.getChatId());
+            chatModerationSettingsService.createChatConfig(message.getChatId(), message.getChat().getTitle());
+            config = chatModerationSettingsService.getChatConfig(message.getChatId());
         }
 
         log.debug("Config for this chat: {}", config);
@@ -47,9 +47,9 @@ public class GroupChatUpdateProcessingService {
         }
     }
 
-    private void processTextMessage(Message message, ChatConfig chatConfig) {
-       if (chatConfig.isBlockTags() && message.hasEntities() &&
-                isMessageContainsBlockedTags(message)) {
+    private void processTextMessage(Message message, ChatModerationSettings chatModerationSettings) {
+       if (chatModerationSettings.getTextModerationSettings().getTagsFilterSettings().isEnabled() &&
+               message.hasEntities() && isMessageContainsBlockedTags(message)) {
             deleteMessage(message);
        }
     }
