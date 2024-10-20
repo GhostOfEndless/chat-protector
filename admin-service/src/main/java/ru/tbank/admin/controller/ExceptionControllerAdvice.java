@@ -6,20 +6,18 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
 import ru.tbank.common.entity.FilterType;
 
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Slf4j
-@RestControllerAdvice
+@ControllerAdvice
 @RequiredArgsConstructor
-public class BadRequestRestControllerAdvice {
+public class ExceptionControllerAdvice {
 
     private final MessageSource messageSource;
 
@@ -27,14 +25,11 @@ public class BadRequestRestControllerAdvice {
     public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(InvalidFilterTypeException exception,
                                                                           Locale locale) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                getMessageByLocale("errors.400.title", locale));
+                messageSource.getMessage("errors.400.title", new Object[0],
+                        "errors.400.title", locale));
 
-        var errorMessage = getMessageByLocale(exception.getMessage(), locale)
-                .formatted(Arrays.stream(FilterType.values())
-                        .map(filterType -> filterType.name()
-                                .toLowerCase()
-                                .replace('_', '-'))
-                        .collect(Collectors.joining(", ")));
+        var errorMessage = messageSource.getMessage(exception.getMessage(),
+                new Object[]{FilterType.getAvailableTypes()}, exception.getMessage(), locale);
 
         problemDetail.setProperty("error", errorMessage);
         return ResponseEntity.badRequest()
@@ -45,19 +40,12 @@ public class BadRequestRestControllerAdvice {
     public ResponseEntity<ProblemDetail> handleChatNotFoundException(ChatNotFoundException exception,
                                                                      Locale locale) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
-                getMessageByLocale("errors.404.title", locale));
+                messageSource.getMessage("errors.404.title", new Object[0],
+                        "errors.404.title", locale));
 
-        var errorMessage = getMessageByLocale(exception.getMessage(), locale)
-                .formatted(exception.getChatId());
-
-        problemDetail.setProperty("error", errorMessage);
+        problemDetail.setProperty("error", messageSource.getMessage(exception.getMessage(),
+                new Object[]{String.valueOf(exception.getChatId())}, exception.getMessage(), locale));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(problemDetail);
-    }
-
-
-    private String getMessageByLocale(String messageCode, Locale locale) {
-        return messageSource.getMessage(messageCode, new Object[0],
-                messageCode, locale);
     }
 }

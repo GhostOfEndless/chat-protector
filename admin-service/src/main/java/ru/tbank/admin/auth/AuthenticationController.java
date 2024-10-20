@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tbank.admin.service.AuthenticationService;
+import ru.tbank.admin.service.security.AuthenticationService;
 
 @RestController
 @RequiredArgsConstructor

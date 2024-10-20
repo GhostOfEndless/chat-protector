@@ -20,5 +20,5 @@ spring:
       host: ${$REDIS_CONTAINER_NAME:localhost}
 
 jwt:
-  auth:
-    secret: ${ADMIN_PANEL_JWT_SECRET}
+  secret: ${ADMIN_SERVICE_JWT_SECRET}
+  ttl: 3600 # in seconds

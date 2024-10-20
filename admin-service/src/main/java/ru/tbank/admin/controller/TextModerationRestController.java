@@ -3,7 +3,7 @@ package ru.tbank.admin.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
-import ru.tbank.admin.service.TextModerationSettingsService;
+import ru.tbank.admin.service.settings.TextModerationSettingsService;
 import ru.tbank.common.entity.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;

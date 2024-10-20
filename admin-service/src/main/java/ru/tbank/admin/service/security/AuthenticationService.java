@@ -1,4 +1,4 @@
-package ru.tbank.admin.service;
+package ru.tbank.admin.service.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,4 +1,4 @@
-package ru.tbank.admin.service;
+package ru.tbank.admin.service.settings;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package ru.tbank.admin.service;
+package ru.tbank.admin.service.settings;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

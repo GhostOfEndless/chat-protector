@@ -1,7 +1,7 @@
 package ru.tbank.admin.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +23,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return login -> appUserRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(login));
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public String jwtSecretKey(@Value("${jwt.auth.secret}") String jwtSecret) {
-        return jwtSecret;
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
