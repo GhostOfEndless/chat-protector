@@ -14,11 +14,6 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
-  flyway:
-    enabled: true
-    schemas:
-      - public
-      - security
   data:
     redis:
       port: 6379

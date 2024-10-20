@@ -27,11 +27,10 @@ dependencies {
 
     //    data
     implementation 'org.postgresql:postgresql:42.7.4'
-    runtimeOnly 'org.flywaydb:flyway-database-postgresql:10.18.0'
     implementation project(":common")
 
     //    testing
-    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }

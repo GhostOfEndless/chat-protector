@@ -20,8 +20,8 @@ services:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
     depends_on:
-      db:
-        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
 
@@ -37,8 +37,8 @@ services:
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
       KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
     depends_on:
-      db:
-        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
       init-kafka:
         condition: service_completed_successfully
 
@@ -55,8 +55,8 @@ services:
       REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
       KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
     depends_on:
-      db:
-        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
       init-kafka:
         condition: service_completed_successfully
       redis:

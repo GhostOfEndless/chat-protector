@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: &kafka-image bitnami/kafka
+    image: &kafka-image bitnami/kafka:3.8
     env_file: .env
     container_name: $KAFKA_CONTAINER_NAME
     ports:
@@ -20,6 +20,8 @@ services:
       start_period: 15s
       interval: 3s
       timeout: 5s
+    networks:
+      - backend
 
   init-kafka:
     image: *kafka-image
@@ -30,6 +32,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+    networks:
+      - backend
     command: |
       -c "
       kafka-topics.sh --create --if-not-exists --topic $${KAFKA_UPDATES_TOPIC_NAME} --bootstrap-server kafka:9092
@@ -39,16 +43,18 @@ services:
   redis:
     env_file: .env
     container_name: $REDIS_CONTAINER_NAME
-    image: redis
+    image: redis:7.4.1
     ports:
       - '6379:6379'
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 3s
       timeout: 5s
+    networks:
+      - backend
 
-  db:
-    image: postgres:16.4-alpine
+  postgres:
+    image: postgres:17
     env_file: .env
     container_name: $POSTGRES_CONTAINER_NAME
     restart: unless-stopped
@@ -62,3 +68,29 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 3s
       timeout: 5s
+    networks:
+      - backend
+
+  liquibase:
+    image: liquibase:4.29.2
+    container_name: liquibase
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: [
+      "--url=jdbc:postgresql://${POSTGRES_CONTAINER_NAME}:5432/${POSTGRES_DB}",
+      "--username=${POSTGRES_USER}",
+      "--password=${POSTGRES_PASSWORD}",
+      "--search-path=/liquibase/changelog/",
+      "--driver=org.postgresql.Driver",
+      "--changeLogFile=db-changelog.yml",
+      "update"
+    ]
+    volumes:
+      - ../../migrations/db/changelog:/liquibase/changelog/
+    networks:
+      - backend
+
+networks:
+  backend: { }

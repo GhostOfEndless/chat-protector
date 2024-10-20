@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: security-changelog.sql
+  - include:
+      file: init-data-changelog.sql
