@@ -8,25 +8,29 @@ import ru.tbank.common.entity.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 
+/**
+ * REST контроллер для управления настройками модерации текста в чатах.
+ * Предоставляет API для получения и обновления настроек текстовой фильтрации.
+ * Все эндпоинты требуют прав администратора.
+ */
 @RestController
-@RequestMapping("/api/v1/settings/chats/{chatId}/text-moderation")
 @RequiredArgsConstructor
 public class TextModerationRestController {
 
     private final TextModerationSettingsService configService;
 
-    @GetMapping
+    @GetMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation")
     public TextModerationSettings getTextModerationSettings(@PathVariable("chatId") Long id) {
         return configService.getSettings(id);
     }
 
-    @GetMapping("/{filterType}")
+    @GetMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
     public TextFilterSettings getTextFilterSettings(@PathVariable("chatId") Long id,
                                                     @PathVariable("filterType") FilterType filterType) {
         return configService.getFilterSettings(id, filterType);
     }
 
-    @PatchMapping("/{filterType}")
+    @PatchMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
     public TextFilterSettings updateChatConfig(@PathVariable("chatId") Long id,
                                                @PathVariable("filterType") FilterType filterType,
                                                @RequestBody TextFilterSettingsRequest payload) {

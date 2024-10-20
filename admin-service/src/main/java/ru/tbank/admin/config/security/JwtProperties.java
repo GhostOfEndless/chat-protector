@@ -1,8 +1,11 @@
 package ru.tbank.admin.config.security;
 
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 
+import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -12,4 +15,9 @@ public record JwtProperties(
         @DurationUnit(ChronoUnit.SECONDS)
         Duration ttl
 ) {
+
+    public SecretKey getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 }

@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.tbank.admin.service.security.JwtService;
+import ru.tbank.admin.service.security.ClaimsExtractorService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -33,10 +33,10 @@ import java.nio.charset.StandardCharsets;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_TYPE = "Bearer ";
+    private final ClaimsExtractorService claimsExtractorService;
     private final UserDetailsService userDetailsService;
     private final MessageSource messageSource;
     private final ObjectMapper objectMapper;
-    private final JwtService jwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             var jwt = authHeader.substring(BEARER_TYPE.length());
-            var userLogin = jwtService.extractUsername(jwt);
+            var userLogin = claimsExtractorService.extractUsername(jwt);
 
             if (userLogin != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 setAuthentication(jwt, request);
@@ -87,8 +87,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(String jwt, HttpServletRequest request) {
-        if (!jwtService.isTokenExpired(jwt)) {
-            var userDetails = userDetailsService.loadUserByUsername(jwtService.extractUsername(jwt));
+        if (!claimsExtractorService.isTokenExpired(jwt)) {
+            var userDetails = userDetailsService.loadUserByUsername(claimsExtractorService.extractUsername(jwt));
             var authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
