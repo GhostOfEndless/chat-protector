@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TextFilterSettings {
 
-    private Boolean enabled = false;
+    private boolean enabled;
     private List<String> exclusions = new ArrayList<>();
     private FilterMode exclusionMode = FilterMode.WHITE_LIST;
 

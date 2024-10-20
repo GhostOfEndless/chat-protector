@@ -3,7 +3,6 @@ package ru.tbank.admin.service.settings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
-import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.common.entity.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
@@ -15,9 +14,7 @@ public class TextModerationSettingsService {
     private final ChatModerationSettingsService configService;
 
     public TextModerationSettings getSettings(Long chatId) {
-        return configService.findChatConfig(chatId)
-                .orElseThrow(() -> new ChatNotFoundException(chatId))
-                .getTextModerationSettings();
+        return configService.getChatConfig(chatId).getTextModerationSettings();
     }
 
     public TextFilterSettings getFilterSettings(Long chatId, FilterType filterType) {
@@ -27,8 +24,7 @@ public class TextModerationSettingsService {
 
     public TextFilterSettings updateFilterSettings(Long chatId, FilterType filterType,
                                                    TextFilterSettingsRequest newSettings) {
-        var chatModerationSettings = configService.findChatConfig(chatId)
-                .orElseThrow(() -> new ChatNotFoundException(chatId));
+        var chatModerationSettings = configService.getChatConfig(chatId);
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();
 
         // TODO: необходимо добавить валидацию списка исключений в зависимости от типа фильтра

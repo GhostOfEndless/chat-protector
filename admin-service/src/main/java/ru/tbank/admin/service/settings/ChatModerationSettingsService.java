@@ -8,9 +8,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
+import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.common.entity.ChatModerationSettings;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,26 +39,12 @@ public class ChatModerationSettingsService {
         );
     }
 
-    private void loadAllChatConfigs() {
-        var keys = redisTemplate.keys("chat:*");
-
-        Objects.requireNonNull(keys).forEach(key -> {
-            var config = redisTemplate.opsForValue().get(key);
-            if (!Objects.isNull(config)) {
-                chatConfigs.put(config.getChatId(), config);
-                log.info("Loaded chat config for chat id: {}", config.getChatId());
-            }
-        });
-
-        log.info("Load '{}' chat configs from DB", keys.size());
-    }
-
     public Optional<ChatModerationSettings> findChatConfig(Long chatId) {
         return Optional.ofNullable(chatConfigs.computeIfAbsent(chatId, this::fetchFromRedis));
     }
 
-    public Collection<ChatModerationSettings> getChatConfigs() {
-        return chatConfigs.values();
+    public ChatModerationSettings getChatConfig(Long chatId) {
+        return findChatConfig(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
     }
 
     public void updateChatConfig(ChatModerationSettings chatModerationSettings) {
@@ -79,5 +65,19 @@ public class ChatModerationSettingsService {
             chatConfigs.put(newChatModerationSettings.get().getChatId(),
                     newChatModerationSettings.get());
         }
+    }
+
+    private void loadAllChatConfigs() {
+        var keys = redisTemplate.keys("chat:*");
+
+        Objects.requireNonNull(keys).forEach(key -> {
+            var config = redisTemplate.opsForValue().get(key);
+            if (!Objects.isNull(config)) {
+                chatConfigs.put(config.getChatId(), config);
+                log.info("Loaded chat config for chat id: {}", config.getChatId());
+            }
+        });
+
+        log.info("Load '{}' chat configs from DB", keys.size());
     }
 }
