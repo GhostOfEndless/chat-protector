@@ -8,21 +8,25 @@ services:
       context: ../..
       dockerfile: docker/admin-service.Dockerfile
     container_name: admin-service
+    networks:
+      - app-tier
     restart: unless-stopped
     env_file: .env
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       ADMIN_PANEL_JWT_SECRET: $ADMIN_SERVICE_JWT_SECRET
-      POSTGRES_CONTAINER_NAME: $POSTGRES_CONTAINER_NAME
       POSTGRES_DB: $POSTGRES_DB
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
+      POSTGRES_HOST: postgres
+      REDIS_MASTER_HOST: redis-master
+      REDIS_SLAVE_1_HOST: redis-slave-1
+      REDIS_SLAVE_2_HOST: redis-slave-2
     depends_on:
       liquibase:
         condition: service_completed_successfully
-      redis:
+      redis-master:
         condition: service_healthy
 
   update-receiver:
@@ -30,12 +34,14 @@ services:
       context: ../..
       dockerfile: docker/update-receiver.Dockerfile
     container_name: update-receiver
+    networks:
+      - app-tier
     restart: unless-stopped
     env_file: .env
     environment:
       KAFKA_UPDATES_TOPIC_NAME: $KAFKA_UPDATES_TOPIC_NAME
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
-      KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
     depends_on:
       liquibase:
         condition: service_completed_successfully
@@ -47,17 +53,21 @@ services:
       context: ../..
       dockerfile: docker/update-processor.Dockerfile
     container_name: update-processor
+    networks:
+      - app-tier
     restart: unless-stopped
     env_file: .env
     environment:
       KAFKA_UPDATES_TOPIC_NAME: $KAFKA_UPDATES_TOPIC_NAME
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
-      REDIS_CONTAINER_NAME: $REDIS_CONTAINER_NAME
-      KAFKA_CONTAINER_NAME: $KAFKA_CONTAINER_NAME
+      REDIS_MASTER_HOST: redis-master
+      REDIS_SLAVE_1_HOST: redis-slave-1
+      REDIS_SLAVE_2_HOST: redis-slave-2
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
     depends_on:
       liquibase:
         condition: service_completed_successfully
       init-kafka:
         condition: service_completed_successfully
-      redis:
+      redis-master:
         condition: service_healthy

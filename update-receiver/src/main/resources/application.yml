@@ -1,14 +1,13 @@
 #file: noinspection SpringBootApplicationYaml
 telegram:
-  bot:
     token: ${TELEGRAM_BOT_TOKEN}
 
-mq:
-  updates-topic-name: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
+kafka:
+  updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
   kafka:
-    bootstrap-servers: ${KAFKA_CONTAINER_NAME:localhost}:9094
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

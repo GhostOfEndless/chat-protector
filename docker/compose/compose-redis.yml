@@ -1,0 +1,60 @@
+# noinspection ComposeUnknownKeys
+include:
+  - compose-network.yml
+
+services:
+  redis-master:
+    image: &redis-image redis:7.4.1
+    container_name: redis-master
+    networks:
+      - app-tier
+    restart: unless-stopped
+    volumes:
+      - redis_master:/data
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 3s
+      timeout: 5s
+
+  redis-slave-1:
+    image: *redis-image
+    container_name: redis-slave-1
+    networks:
+      - app-tier
+    restart: unless-stopped
+    volumes:
+      - redis_slave_1:/data
+    ports:
+      - '7000:7000'
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    command: redis-server --port 7000 --slaveof redis-master 6379
+
+  redis-slave-2:
+    image: *redis-image
+    container_name: redis-slave-2
+    networks:
+      - app-tier
+    restart: unless-stopped
+    volumes:
+      - redis_slave_2:/data
+    ports:
+      - '7001:7001'
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    command: redis-server --port 7001 --slaveof redis-master 6379
+
+volumes:
+  redis_master:
+    name: redis_master
+    driver: local
+  redis_slave_1:
+    name: redis_slave_1
+    driver: local
+  redis_slave_2:
+    name: redis_slave_2
+    driver: local

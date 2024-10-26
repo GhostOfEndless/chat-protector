@@ -5,7 +5,7 @@ spring:
   mustache:
     check-template-location: false
   datasource:
-    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
     username: ${POSTGRES_USER:user}
     password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -14,10 +14,18 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
-  data:
-    redis:
-      port: 6379
-      host: ${$REDIS_CONTAINER_NAME:localhost}
+
+redis:
+  master:
+    host: ${REDIS_MASTER_HOST:localhost}
+    port: 6379
+  slaves:
+    - host: ${REDIS_SLAVE_1_HOST:localhost}
+      port: 7000
+    - host: ${REDIS_SLAVE_2_HOST:localhost}
+      port: 7001
+  chat-configs-db: 0
+  users-state-db: 1
 
 jwt:
   secret: ${ADMIN_SERVICE_JWT_SECRET}
