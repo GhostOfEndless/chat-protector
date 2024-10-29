@@ -1,7 +1,7 @@
 package ru.tbank.processor.service.filter.text.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.text.TextModerationSettings;
@@ -11,6 +11,7 @@ import ru.tbank.processor.service.filter.text.TextEntityType;
 import ru.tbank.processor.service.filter.text.TextFilter;
 
 @Slf4j
+@NullMarked
 @Component
 public class TagsFilter extends TextFilter {
 
@@ -19,11 +20,8 @@ public class TagsFilter extends TextFilter {
     }
 
     @Override
-    public TextProcessingResult process(@NonNull Message message, @NonNull TextModerationSettings moderationSettings) {
-        var filterSettings = moderationSettings.getTagsFilterSettings();
-        var checkResult = filterSettings.isEnabled() && message.hasEntities()
-                && isContainsBlockedEntity(message, filterSettings, TextEntityType.HASHTAG);
-
-        return checkResult ? TextProcessingResult.TAG_FOUND : TextProcessingResult.OK;
+    public TextProcessingResult process(Message message, TextModerationSettings moderationSettings) {
+        return processBasicEntity(message, moderationSettings.getTagsFilterSettings(),
+                TextEntityType.HASHTAG, TextProcessingResult.TAG_FOUND);
     }
 }

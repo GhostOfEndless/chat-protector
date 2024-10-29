@@ -1,7 +1,7 @@
 package ru.tbank.processor.service.filter.text.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.FilterMode;
@@ -13,6 +13,7 @@ import ru.tbank.processor.service.filter.text.TextEntityType;
 import ru.tbank.processor.service.filter.text.TextFilter;
 
 @Slf4j
+@NullMarked
 @Component
 public class LinksFilter extends TextFilter {
 
@@ -21,7 +22,7 @@ public class LinksFilter extends TextFilter {
     }
 
     @Override
-    public TextProcessingResult process(@NonNull Message message, @NonNull TextModerationSettings moderationSettings) {
+    public TextProcessingResult process(Message message, TextModerationSettings moderationSettings) {
         var filterSettings = moderationSettings.getLinksFilterSettings();
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.URL);
@@ -30,7 +31,7 @@ public class LinksFilter extends TextFilter {
     }
 
     @Override
-    protected boolean isContainsBlockedEntity(@NonNull Message message, @NonNull TextFilterSettings filterSettings,
+    protected boolean isContainsBlockedEntity(Message message, TextFilterSettings filterSettings,
                                               TextEntityType entityType) {
         return message.getEntities().stream()
                 .filter(entity -> entity.getType().equals(entityType.name().toLowerCase()))
