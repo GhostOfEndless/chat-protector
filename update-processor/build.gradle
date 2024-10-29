@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.jspecify:jspecify:1.0.0'
     implementation project(":common")
 
     testImplementation ('org.springframework.boot:spring-boot-starter-test') {
