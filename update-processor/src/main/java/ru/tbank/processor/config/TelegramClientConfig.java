@@ -1,19 +1,19 @@
 package ru.tbank.processor.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Configuration
+@RequiredArgsConstructor
 public class TelegramClientConfig {
 
-    @Value("${telegram.bot.token}")
-    private String token;
+    private final TelegramProperties telegramProperties;
 
     @Bean
     public TelegramClient telegramClient() {
-        return new OkHttpTelegramClient(token);
+        return new OkHttpTelegramClient(telegramProperties.token());
     }
 }

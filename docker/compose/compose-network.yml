@@ -1,0 +1,4 @@
+networks:
+  app-tier:
+    name: app-tier
+    driver: bridge

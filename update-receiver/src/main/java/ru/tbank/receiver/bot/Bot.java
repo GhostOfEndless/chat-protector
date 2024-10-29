@@ -9,6 +9,7 @@ import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.receiver.config.TelegramProperties;
 import ru.tbank.receiver.service.UpdateSenderService;
 
 @Slf4j
@@ -16,12 +17,12 @@ import ru.tbank.receiver.service.UpdateSenderService;
 @RequiredArgsConstructor
 public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-    private final String telegramBotToken;
+    private final TelegramProperties telegramProperties;
     private final UpdateSenderService updateSenderService;
 
     @Override
     public String getBotToken() {
-        return telegramBotToken;
+        return telegramProperties.token();
     }
 
     @Override

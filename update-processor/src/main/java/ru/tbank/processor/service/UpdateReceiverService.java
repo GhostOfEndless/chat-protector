@@ -14,7 +14,7 @@ public class UpdateReceiverService {
     private final PersonalUpdateProcessingService personalUpdateProcessingService;
     private final GroupChatUpdateProcessingService groupChatUpdateProcessingService;
 
-    @KafkaListener(topics = "${mq.updates-topic-name}", groupId = "update_consumer")
+    @KafkaListener(topics = "${kafka.updates-topic}", groupId = "update_consumer")
     public void listenUpdate(Update update) {
         if (update.hasMessage()) {
             if (update.getMessage().isGroupMessage()) {

@@ -1,18 +1,17 @@
 #file: noinspection SpringBootApplicationYaml
 telegram:
-  bot:
     token: ${TELEGRAM_BOT_TOKEN}
 
-mq:
-  updates-topic-name: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
+kafka:
+  updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
   data:
     redis:
       port: 6379
-      host: ${$REDIS_CONTAINER_NAME:localhost}
+      host: localhost
   kafka:
-    bootstrap-servers: ${KAFKA_CONTAINER_NAME:localhost}:9094
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -21,6 +20,18 @@ spring:
           json:
             trusted:
               packages: "org.telegram.telegrambots.meta.api.objects"
+
+redis:
+  master:
+    host: ${REDIS_MASTER_HOST:localhost}
+    port: 6379
+  slaves:
+    - host: ${REDIS_SLAVE_1_HOST:localhost}
+      port: 7000
+    - host: ${REDIS_SLAVE_2_HOST:localhost}
+      port: 7001
+  chat-configs-db: 0
+  users-state-db: 1
 
 logging:
   level:
