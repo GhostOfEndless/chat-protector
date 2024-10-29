@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+import ru.tbank.common.entity.ChatModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
 import ru.tbank.processor.service.filter.text.TextFilter;
 
@@ -45,13 +46,15 @@ public class GroupChatUpdateProcessingService {
         log.debug("Config for this chat: {}", config);
         log.debug("Start processing message with id={}", message.getMessageId());
 
-        for (TextFilter filter : textFilters) {
-            if (filter.process(message, config.getTextModerationSettings()) != TextProcessingResult.OK) {
-                // TODO: сюда нужно добавить сохранение в БД сообщения и причину удаления
-                deleteMessage(message);
-                break;
-            }
-        }
+        ChatModerationSettings finalConfig = config;
+        textFilters.stream()
+                .map(filter -> filter.process(message, finalConfig.getTextModerationSettings()))
+                .filter(result -> result != TextProcessingResult.OK)
+                .findFirst()
+                .ifPresent(result -> {
+                    // TODO: сюда нужно добавить сохранение в БД сообщения и причину удаления
+                    deleteMessage(message);
+                });
 
         log.debug("Processed message id={}", message.getMessageId());
     }

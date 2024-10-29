@@ -5,5 +5,7 @@ public enum TextEntityType {
     HASHTAG,
     MENTION,
     URL,
-    PHONE_NUMBER
+    PHONE_NUMBER,
+    BOT_COMMAND,
+    CUSTOM_EMOJI
 }

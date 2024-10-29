@@ -46,6 +46,8 @@ public class TextModerationSettingsService {
             case EMAILS -> settings.getEmailsFilterSettings();
             case PHONE_NUMBERS -> settings.getPhoneNumbersFilterSettings();
             case MENTIONS -> settings.getMentionsFilterSettings();
+            case BOT_COMMANDS -> settings.getBotCommandsFilterSettings();
+            case CUSTOM_EMOJIS -> settings.getCustomEmojisFilterSettings();
         };
     }
 

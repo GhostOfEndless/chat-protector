@@ -1,6 +1,5 @@
 package ru.tbank.processor.service.filter.text.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -12,21 +11,20 @@ import ru.tbank.processor.service.filter.text.FilterCost;
 import ru.tbank.processor.service.filter.text.TextEntityType;
 import ru.tbank.processor.service.filter.text.TextFilter;
 
-@Slf4j
 @Component
-public class LinksFilter extends TextFilter {
+public class BotCommandsFilter extends TextFilter {
 
-    public LinksFilter() {
+    public BotCommandsFilter() {
         super(FilterCost.VERY_LOW);
     }
 
     @Override
     public TextProcessingResult process(@NonNull Message message, @NonNull TextModerationSettings moderationSettings) {
-        var filterSettings = moderationSettings.getLinksFilterSettings();
+        var filterSettings = moderationSettings.getBotCommandsFilterSettings();
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
-                && isContainsBlockedEntity(message, filterSettings, TextEntityType.URL);
+                && isContainsBlockedEntity(message, filterSettings, TextEntityType.BOT_COMMAND);
 
-        return checkResult? TextProcessingResult.LINK_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.TAG_FOUND : TextProcessingResult.OK;
     }
 
     @Override
@@ -35,8 +33,8 @@ public class LinksFilter extends TextFilter {
         return message.getEntities().stream()
                 .filter(entity -> entity.getType().equals(entityType.name().toLowerCase()))
                 .anyMatch(entity -> {
-                    var entityLink = entity.getText().replaceFirst("^https?://", "");
-                    var checkResult = filterSettings.getExclusions().stream().anyMatch(entityLink::startsWith);
+                    var checkResult = filterSettings.getExclusions().stream()
+                            .anyMatch(exclusion -> entity.getText().startsWith(exclusion));
                     return (filterSettings.getExclusionMode() == FilterMode.WHITE_LIST) != checkResult;
                 });
     }
