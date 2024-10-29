@@ -22,6 +22,6 @@ public class PhoneNumberFilter extends TextFilter {
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.PHONE_NUMBER);
 
-        return checkResult? TextProcessingResult.PHONE_NUMBER_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.PHONE_NUMBER_FOUND : TextProcessingResult.OK;
     }
 }

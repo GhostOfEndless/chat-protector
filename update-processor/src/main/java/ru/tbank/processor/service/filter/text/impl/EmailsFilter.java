@@ -22,6 +22,6 @@ public class EmailsFilter extends TextFilter {
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.EMAIL);
 
-        return checkResult? TextProcessingResult.EMAIL_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.EMAIL_FOUND : TextProcessingResult.OK;
     }
 }

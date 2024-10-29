@@ -22,6 +22,6 @@ public class MentionsFilter extends TextFilter {
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.MENTION);
 
-        return checkResult? TextProcessingResult.MENTION_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.MENTION_FOUND : TextProcessingResult.OK;
     }
 }

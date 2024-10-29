@@ -26,7 +26,7 @@ public class LinksFilter extends TextFilter {
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.URL);
 
-        return checkResult? TextProcessingResult.LINK_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.LINK_FOUND : TextProcessingResult.OK;
     }
 
     @Override

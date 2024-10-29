@@ -24,6 +24,6 @@ public class TagsFilter extends TextFilter {
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.HASHTAG);
 
-        return checkResult? TextProcessingResult.TAG_FOUND: TextProcessingResult.OK;
+        return checkResult ? TextProcessingResult.TAG_FOUND : TextProcessingResult.OK;
     }
 }
