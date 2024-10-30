@@ -1,33 +1,73 @@
 plugins {
-    id 'io.freefair.lombok' version '8.10'
+    id 'java'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'org.springframework.boot' version '3.3.4'
-    id 'java'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.14'
 }
 
 group = 'ru.tbank.processor'
 version = '1.0-SNAPSHOT'
+
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = url = url = "jdbc:postgresql://${System.getenv("DB_HOST") ?: "localhost"}:" +
+                    "${System.getenv("DB_PORT") ?: "5432"}/${System.getenv("DB_NAME") ?: "postgres"}"
+            user = System.getenv('DB_USER') ?: 'user'
+            password = System.getenv('DB_PASSWORD') ?: 'password'
+        }
+
+        generator {
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'moderation'
+            }
+            target {
+                packageName = 'ru.tbank.processor.generated'
+            }
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    // spring starters
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+
+    // data
+    implementation 'org.postgresql:postgresql:42.7.4'
+    jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // other
+    implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.jspecify:jspecify:1.0.0'
 
     testImplementation ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 }
 
-bootJar {
-    mainClass = 'ru.tbank.processor.ProcessorApplication'
-}
-
 test {
     useJUnitPlatform()
+}
+
+tasks.compileJava {
+    dependsOn(tasks.jooqCodegen)
 }

@@ -6,10 +6,11 @@ kafka:
   updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
-  data:
-    redis:
-      port: 6379
-      host: localhost
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:user}
+    password: ${POSTGRES_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
     consumer:
@@ -37,3 +38,4 @@ logging:
   level:
     ru.tbank.processor: debug
     org.apache.kafka: warn
+    org.jooq: warn

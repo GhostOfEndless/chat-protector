@@ -2,6 +2,7 @@ package ru.tbank.processor.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -15,7 +16,7 @@ public class UpdateReceiverService {
     private final GroupChatUpdateProcessingService groupChatUpdateProcessingService;
 
     @KafkaListener(topics = "${kafka.updates-topic}", groupId = "update_consumer")
-    public void listenUpdate(Update update) {
+    public void listenUpdate(@NonNull Update update) {
         if (update.hasMessage()) {
             if (update.getMessage().isGroupMessage()) {
                 groupChatUpdateProcessingService.process(update);
