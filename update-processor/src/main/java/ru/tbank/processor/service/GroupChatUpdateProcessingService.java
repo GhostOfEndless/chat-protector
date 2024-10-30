@@ -7,6 +7,7 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
+import ru.tbank.common.entity.dto.DeletedTextMessageDTO;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
 import ru.tbank.processor.service.filter.text.TextFilter;
@@ -23,6 +24,7 @@ public class GroupChatUpdateProcessingService {
 
     private final TelegramClientService telegramClientService;
     private final ChatModerationSettingsService chatModerationSettingsService;
+    private final DeletedTextMessageService deletedTextMessageService;
     private final List<TextFilter> textFilters;
 
     @PostConstruct
@@ -53,8 +55,9 @@ public class GroupChatUpdateProcessingService {
                 .filter(result -> result != TextProcessingResult.OK)
                 .findFirst()
                 .ifPresent(result -> {
-                    // TODO: сюда нужно добавить сохранение в БД сообщения и причину удаления
                     telegramClientService.deleteMessage(message);
+                    var deletedTextMessage = DeletedTextMessageDTO.buildDto(message, result);
+                    deletedTextMessageService.create(deletedTextMessage);
                 });
 
         log.debug("Processed message id={}", message.getMessageId());
