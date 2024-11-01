@@ -1,6 +1,5 @@
-package ru.tbank.processor.service.filter.text.impl;
+package ru.tbank.processor.service.group.filter.text.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -8,28 +7,23 @@ import ru.tbank.common.entity.FilterMode;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
-import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.filter.text.FilterCost;
-import ru.tbank.processor.service.filter.text.TextEntityType;
-import ru.tbank.processor.service.filter.text.TextFilter;
+import ru.tbank.processor.service.group.filter.text.FilterCost;
+import ru.tbank.processor.service.group.filter.text.TextEntityType;
+import ru.tbank.processor.service.group.filter.text.TextFilter;
 
-@Slf4j
 @NullMarked
 @Component
-public class CustomEmojisFilter extends TextFilter {
+public class BotCommandsFilter extends TextFilter {
 
-    private final TelegramClientService telegramClientService;
-
-    public CustomEmojisFilter(TelegramClientService telegramClientService) {
-        super(FilterCost.MEDIUM);
-        this.telegramClientService = telegramClientService;
+    public BotCommandsFilter() {
+        super(FilterCost.VERY_LOW);
     }
 
     @Override
     public TextProcessingResult process(Message message, TextModerationSettings moderationSettings) {
-        var filterSettings = moderationSettings.getCustomEmojisFilterSettings();
+        var filterSettings = moderationSettings.getBotCommandsFilterSettings();
         var checkResult = filterSettings.isEnabled() && message.hasEntities()
-                && isContainsBlockedEntity(message, filterSettings, TextEntityType.CUSTOM_EMOJI);
+                && isContainsBlockedEntity(message, filterSettings, TextEntityType.BOT_COMMAND);
 
         return checkResult ? TextProcessingResult.TAG_FOUND : TextProcessingResult.OK;
     }
@@ -40,8 +34,8 @@ public class CustomEmojisFilter extends TextFilter {
         return message.getEntities().stream()
                 .filter(entity -> entity.getType().equals(entityType.name().toLowerCase()))
                 .anyMatch(entity -> {
-                    var stickerSet = telegramClientService.getEmojiPack(entity.getCustomEmojiId());
-                    var checkResult = filterSettings.getExclusions().contains(stickerSet.getFirst().getSetName());
+                    var checkResult = filterSettings.getExclusions().stream()
+                            .anyMatch(exclusion -> entity.getText().startsWith(exclusion));
                     return (filterSettings.getExclusionMode() == FilterMode.WHITE_LIST) != checkResult;
                 });
     }

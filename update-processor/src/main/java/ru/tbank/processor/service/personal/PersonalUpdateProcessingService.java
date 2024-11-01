@@ -1,4 +1,4 @@
-package ru.tbank.processor.service;
+package ru.tbank.processor.service.personal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

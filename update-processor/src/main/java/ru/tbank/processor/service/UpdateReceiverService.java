@@ -6,6 +6,8 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.processor.service.group.GroupChatUpdateProcessingService;
+import ru.tbank.processor.service.personal.PersonalUpdateProcessingService;
 
 @Slf4j
 @Service

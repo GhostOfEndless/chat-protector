@@ -32,6 +32,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
 
     @Override
     public void consume(Update update) {
+        log.debug("New update is: {}", update);
         updateSenderService.sendUpdate(update);
     }
 
