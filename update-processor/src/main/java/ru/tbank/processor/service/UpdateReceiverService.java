@@ -20,11 +20,15 @@ public class UpdateReceiverService {
     @KafkaListener(topics = "${kafka.updates-topic}", groupId = "update_consumer")
     public void listenUpdate(@NonNull Update update) {
         if (update.hasMessage()) {
-            if (update.getMessage().isGroupMessage()) {
+            if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
                 groupChatUpdateProcessingService.process(update);
             } else if (update.getMessage().isUserMessage()) {
                 personalUpdateProcessingService.process(update);
+            } else {
+                log.warn("Unhandled type of message! {}", update);
             }
+        } else if (update.hasCallbackQuery()) {
+            personalUpdateProcessingService.process(update);
         } else {
             log.warn("Unknown update type! {}", update);
         }

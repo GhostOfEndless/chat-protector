@@ -1,19 +1,24 @@
 package ru.tbank.processor.service.personal;
 
-public enum UserState {
-    START,
-    ACCOUNT,
-    CHATS,
-    CHAT,
-    CHAT_ADDITION,
-    ADMINS,
-    FILTERS,
-    ADMIN,
-    ADMIN_ADDITION,
-    TEXT_FILTERS,
-    TEXT_FILTER;
+import lombok.Getter;
 
-    public boolean matches(String userState) {
-        return this.name().equals(userState);
+@Getter
+public enum UserState {
+    START(UserRole.USER.ordinal()),
+    ACCOUNT(UserRole.ADMIN.ordinal()),
+    CHATS(UserRole.ADMIN.ordinal()),
+    CHAT(UserRole.ADMIN.ordinal()),
+    CHAT_ADDITION(UserRole.OWNER.ordinal()),
+    ADMINS(UserRole.OWNER.ordinal()),
+    FILTERS(UserRole.ADMIN.ordinal()),
+    ADMIN(UserRole.OWNER.ordinal()),
+    ADMIN_ADDITION(UserRole.OWNER.ordinal()),
+    TEXT_FILTERS(UserRole.ADMIN.ordinal()),
+    TEXT_FILTER(UserRole.ADMIN.ordinal());
+
+    private final int allowedRoleLevel;
+
+    UserState(int allowedRoleLevel) {
+        this.allowedRoleLevel = allowedRoleLevel;
     }
 }

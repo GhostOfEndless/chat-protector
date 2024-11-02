@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.dto.DeletedTextMessageDTO;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
+import ru.tbank.processor.service.AppUserService;
 import ru.tbank.processor.service.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.group.filter.text.TextFilter;
@@ -27,6 +28,7 @@ public class GroupChatUpdateProcessingService {
     private final TelegramClientService telegramClientService;
     private final ChatModerationSettingsService chatModerationSettingsService;
     private final DeletedTextMessageService deletedTextMessageService;
+    private final AppUserService appUserService;
     private final List<TextFilter> textFilters;
 
     @PostConstruct
@@ -35,6 +37,8 @@ public class GroupChatUpdateProcessingService {
     }
 
     public void process(Update update) {
+        // TODO: логику необходимо поменять так, чтобы конфиг создавался только при добавлении бота
+        //  в чат пользователем с ролью owner, иначе бот самостоятельно удаляется из чата
         var message = update.getMessage();
         var config = chatModerationSettingsService.getChatConfig(message.getChatId());
 
@@ -59,7 +63,10 @@ public class GroupChatUpdateProcessingService {
                 .ifPresent(result -> {
                     telegramClientService.deleteMessage(message);
                     var deletedTextMessage = DeletedTextMessageDTO.buildDto(message, result);
-                    deletedTextMessageService.create(deletedTextMessage);
+                    var user = message.getFrom();
+                    appUserService.saveRegularUser(user.getId(), user.getFirstName(),
+                            user.getLastName(), user.getUserName());
+                    deletedTextMessageService.save(deletedTextMessage);
                 });
 
         log.debug("Processed message id={}", message.getMessageId());

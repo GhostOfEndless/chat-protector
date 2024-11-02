@@ -17,10 +17,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DeletedTextMessageService {
 
-    private static final DeletedTextMessage table = DeletedTextMessage.DELETED_TEXT_MESSAGE;
+    private final DeletedTextMessage table = DeletedTextMessage.DELETED_TEXT_MESSAGE;
     private final DSLContext dslContext;
 
-    public DeletedTextMessageRecord create(@NonNull DeletedTextMessageDTO deletedTextMessage) {
+    public DeletedTextMessageRecord save(@NonNull DeletedTextMessageDTO deletedTextMessage) {
         DeletedTextMessageRecord record = dslContext.newRecord(table);
 
         // setup fields
@@ -28,8 +28,6 @@ public class DeletedTextMessageService {
         record.setMessageId(deletedTextMessage.messageId());
         record.setMessageText(deletedTextMessage.messageText());
         record.setUserId(deletedTextMessage.userId());
-        record.setUserFullName(deletedTextMessage.userFullName());
-        record.setUserUsername(deletedTextMessage.username());
         record.setReason(deletedTextMessage.reason());
         record.store();
 
