@@ -45,15 +45,12 @@ public class TelegramClientService {
         }
     }
 
-    public void sendMessage(Long chatId, String message) {
-        try {
-            var sendMessage = SendMessage.builder()
-                    .chatId(chatId)
-                    .text(message)
-                    .build();
-            telegramClient.execute(sendMessage); // Sending our message object to user
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-        }
+
+    public Message sendMessage(Long chatId, String message) throws TelegramApiException {
+        var sendMessage = SendMessage.builder()
+                .chatId(chatId)
+                .text(message)
+                .build();
+        return telegramClient.execute(sendMessage); // Sending our message object to user
     }
 }

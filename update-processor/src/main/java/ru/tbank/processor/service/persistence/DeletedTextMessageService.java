@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.group;
+package ru.tbank.processor.service.persistence;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,6 @@ import org.jooq.DSLContext;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import ru.tbank.common.entity.dto.DeletedTextMessageDTO;
-import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.DeletedTextMessage;
 import ru.tbank.processor.generated.tables.records.DeletedTextMessageRecord;
 
@@ -20,7 +19,7 @@ public class DeletedTextMessageService {
     private final DeletedTextMessage table = DeletedTextMessage.DELETED_TEXT_MESSAGE;
     private final DSLContext dslContext;
 
-    public DeletedTextMessageRecord save(@NonNull DeletedTextMessageDTO deletedTextMessage) {
+    public void save(@NonNull DeletedTextMessageDTO deletedTextMessage) {
         DeletedTextMessageRecord record = dslContext.newRecord(table);
 
         // setup fields
@@ -30,11 +29,6 @@ public class DeletedTextMessageService {
         record.setUserId(deletedTextMessage.userId());
         record.setReason(deletedTextMessage.reason());
         record.store();
-
-        Long id = record.getId();
-
-        return findById(id).orElseThrow(
-                () -> new EntityNotFoundException("DeletedTextMessage record with id=%d not found".formatted(id)));
     }
 
     public Optional<DeletedTextMessageRecord> findById(Long id) {

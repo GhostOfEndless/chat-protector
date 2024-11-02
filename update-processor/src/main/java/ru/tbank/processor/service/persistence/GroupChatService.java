@@ -1,4 +1,4 @@
-package ru.tbank.processor.service;
+package ru.tbank.processor.service.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;

@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.processor.service.UpdateProcessingService;
+import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
+import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PersonalUpdateProcessingService {
+public class PersonalUpdateProcessingService implements UpdateProcessingService {
 
     private final HashMap<UserState, PersonalUpdateHandler> updateHandlerMap = new HashMap<>();
     private final List<PersonalUpdateHandler> updateHandlers;
@@ -25,8 +28,9 @@ public class PersonalUpdateProcessingService {
         updateHandlers.forEach(handler -> updateHandlerMap.put(handler.getProcessedUserState(), handler));
     }
 
+    @Override
     public void process(@NonNull Update update) {
-        Long userId = parseUserIdFromUpdate(update);
+        Long userId = TelegramUtils.parseUserIdFromUpdate(update);
 
         if (userId != 0) {
             var personalChatRecord = personalChatService.findByUserId(userId);
@@ -39,16 +43,5 @@ public class PersonalUpdateProcessingService {
         }
 
         log.debug("Personal chat update: {}", update);
-    }
-
-    private @NonNull Long parseUserIdFromUpdate(@NonNull Update update) {
-        if (update.hasMessage()) {
-            return update.getMessage().getFrom().getId();
-        } else if (update.hasCallbackQuery()) {
-            return update.getCallbackQuery().getFrom().getId();
-        } else {
-            log.warn("Unsupported update type");
-            return 0L;
-        }
     }
 }
