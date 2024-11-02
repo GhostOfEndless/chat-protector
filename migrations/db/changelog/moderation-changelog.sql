@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS moderation.group_chat
 (
     id            BIGINT PRIMARY KEY,
     name          TEXT      NOT NULL,
-    addition_date TIMESTAMP NOT NULL
+    addition_date TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 --changeset ghostofendless:4

@@ -12,6 +12,7 @@ import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
 import ru.tbank.processor.service.AppUserService;
 import ru.tbank.processor.service.ChatModerationSettingsService;
+import ru.tbank.processor.service.GroupChatService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.group.filter.text.TextFilter;
 
@@ -29,6 +30,7 @@ public class GroupChatUpdateProcessingService {
     private final ChatModerationSettingsService chatModerationSettingsService;
     private final DeletedTextMessageService deletedTextMessageService;
     private final AppUserService appUserService;
+    private final GroupChatService groupChatService;
     private final List<TextFilter> textFilters;
 
     @PostConstruct
@@ -46,6 +48,7 @@ public class GroupChatUpdateProcessingService {
             log.warn("Config is null! Creating the default config...");
             chatModerationSettingsService.createChatConfig(message.getChatId(), message.getChat().getTitle());
             config = chatModerationSettingsService.getChatConfig(message.getChatId());
+            groupChatService.save(message.getChatId(), message.getChat().getTitle());
         }
 
         log.debug("Config for this chat: {}", config);
