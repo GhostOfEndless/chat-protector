@@ -27,8 +27,8 @@ public class AppUserService {
 
         newRecord.setId(userId);
         newRecord.setFirstName(firstName);
-        newRecord.setLastName(lastName);
-        newRecord.setUsername(username);
+        newRecord.setLastName(lastName == null? "": lastName);
+        newRecord.setUsername(username == null? "": username);
         newRecord.store();
 
         return findById(userId).orElseThrow(

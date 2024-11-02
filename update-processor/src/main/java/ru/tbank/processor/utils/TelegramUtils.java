@@ -9,17 +9,6 @@ import ru.tbank.processor.excpetion.UnsupportedUpdateType;
 @Slf4j
 public class TelegramUtils {
 
-    public static @NonNull Long parseUserIdFromUpdate(@NonNull Update update) {
-        if (update.hasMessage()) {
-            return update.getMessage().getFrom().getId();
-        } else if (update.hasCallbackQuery()) {
-            return update.getCallbackQuery().getFrom().getId();
-        } else {
-            log.warn("Unsupported update type");
-            return 0L;
-        }
-    }
-
     public static UpdateType determineUpdateType(@NonNull Update update) {
         if (update.hasMessage()) {
             if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {

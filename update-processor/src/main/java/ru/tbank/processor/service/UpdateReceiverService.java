@@ -23,7 +23,7 @@ public class UpdateReceiverService {
         switch (updatePlace) {
             case PERSONAL_MESSAGE, CALLBACK -> personalUpdateProcessingService.process(update);
             case GROUP_MESSAGE -> groupChatUpdateProcessingService.process(update);
-            case UNKNOWN -> log.warn("Unknown update place! {}", update);
+            case UNKNOWN -> log.warn("Unknown update type! {}", update);
         }
     }
 }

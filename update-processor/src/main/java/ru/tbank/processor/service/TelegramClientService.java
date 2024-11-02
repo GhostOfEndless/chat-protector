@@ -51,6 +51,6 @@ public class TelegramClientService {
                 .chatId(chatId)
                 .text(message)
                 .build();
-        return telegramClient.execute(sendMessage); // Sending our message object to user
+        return telegramClient.execute(sendMessage);
     }
 }

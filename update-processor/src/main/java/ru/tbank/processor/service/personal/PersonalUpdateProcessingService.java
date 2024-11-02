@@ -30,7 +30,7 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
 
     @Override
     public void process(@NonNull Update update) {
-        Long userId = TelegramUtils.parseUserIdFromUpdate(update);
+        Long userId = TelegramUtils.getUserFromUpdate(update).getId();
 
         if (userId != 0) {
             var personalChatRecord = personalChatService.findByUserId(userId);
