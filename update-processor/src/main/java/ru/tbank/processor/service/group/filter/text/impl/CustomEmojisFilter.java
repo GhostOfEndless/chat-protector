@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import ru.tbank.common.entity.FilterMode;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
@@ -28,21 +27,24 @@ public class CustomEmojisFilter extends TextFilter {
     @Override
     public TextProcessingResult process(Message message, TextModerationSettings moderationSettings) {
         var filterSettings = moderationSettings.getCustomEmojisFilterSettings();
-        var checkResult = filterSettings.isEnabled() && message.hasEntities()
+        boolean checkResult = filterSettings.isEnabled()
+                && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.CUSTOM_EMOJI);
 
-        return checkResult ? TextProcessingResult.TAG_FOUND : TextProcessingResult.OK;
+        return checkResult
+                ? TextProcessingResult.CUSTOM_EMOJI_FOUND
+                : TextProcessingResult.OK;
     }
 
     @Override
     protected boolean isContainsBlockedEntity(Message message, TextFilterSettings filterSettings,
                                               TextEntityType entityType) {
         return message.getEntities().stream()
-                .filter(entity -> entity.getType().equals(entityType.name().toLowerCase()))
+                .filter(entity -> entityType.isTypeOf(entity.getType()))
                 .anyMatch(entity -> {
                     var stickerSet = telegramClientService.getEmojiPack(entity.getCustomEmojiId());
-                    var checkResult = filterSettings.getExclusions().contains(stickerSet.getFirst().getSetName());
-                    return (filterSettings.getExclusionMode() == FilterMode.WHITE_LIST) != checkResult;
+                    boolean contains = filterSettings.getExclusions().contains(stickerSet.getFirst().getSetName());
+                    return calcCheckResult(filterSettings.getExclusionMode(), contains);
                 });
     }
 }

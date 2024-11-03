@@ -7,5 +7,9 @@ public enum TextEntityType {
     URL,
     PHONE_NUMBER,
     BOT_COMMAND,
-    CUSTOM_EMOJI
+    CUSTOM_EMOJI;
+
+    public boolean isTypeOf(String type) {
+        return this.name().toLowerCase().equals(type);
+    }
 }
