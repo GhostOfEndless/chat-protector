@@ -22,20 +22,31 @@ public abstract class TextFilter implements Comparable<TextFilter> {
             TextEntityType entityType,
             TextProcessingResult foundEntityResult
     ) {
-        var checkResult = textFilterSettings.isEnabled() && message.hasEntities()
+        boolean checkResult = textFilterSettings.isEnabled()
+                && message.hasEntities()
                 && isContainsBlockedEntity(message, textFilterSettings, entityType);
 
-        return checkResult ? foundEntityResult : TextProcessingResult.OK;
+        return checkResult
+                ? foundEntityResult
+                : TextProcessingResult.OK;
     }
 
     protected boolean isContainsBlockedEntity(Message message, TextFilterSettings filterSettings,
                                               TextEntityType entityType) {
         return message.getEntities().stream()
-                .filter(entity -> entity.getType().equals(entityType.name().toLowerCase()))
+                .filter(entity -> entityType.isTypeOf(entity.getType()))
                 .anyMatch(entity -> {
-                    var checkResult = filterSettings.getExclusions().contains(entity.getText());
-                    return (filterSettings.getExclusionMode() == FilterMode.WHITE_LIST) != checkResult;
+                    boolean contains = filterSettings.getExclusions().stream()
+                            .anyMatch(exclusion -> entity.getText().startsWith(exclusion));
+                    return calcCheckResult(filterSettings.getExclusionMode(), contains);
                 });
+    }
+
+    protected boolean calcCheckResult(FilterMode mode, boolean contains) {
+        return switch (mode) {
+            case BLACK_LIST -> contains;
+            case WHITE_LIST -> !contains;
+        };
     }
 
     @Override
