@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -46,10 +47,12 @@ public class TelegramClientService {
     }
 
 
-    public Message sendMessage(Long chatId, String message) throws TelegramApiException {
+    public Message sendMessage(Long chatId, String message, InlineKeyboardMarkup replyMarkup)
+            throws TelegramApiException {
         var sendMessage = SendMessage.builder()
                 .chatId(chatId)
                 .text(message)
+                .replyMarkup(replyMarkup)
                 .build();
         return telegramClient.execute(sendMessage);
     }

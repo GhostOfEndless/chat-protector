@@ -19,17 +19,21 @@ public class PersonalChatService {
         var storedUser = findByUserId(userId);
 
         if (storedUser.isPresent()) {
-            dslContext.update(table)
-                    .set(table.STATE, state)
-                    .set(table.LAST_MESSAGE_ID, lastMessageId)
-                    .where(table.USER_ID.eq(userId))
-                    .execute();
+            update(userId, state, lastMessageId);
         } else {
             dslContext.insertInto(table)
                     .columns(table.USER_ID, table.LAST_MESSAGE_ID, table.STATE)
                     .values(userId, lastMessageId, state)
                     .execute();
         }
+    }
+
+    public void update(Long userId, String state, Integer lastMessageId) {
+        dslContext.update(table)
+                .set(table.STATE, state)
+                .set(table.LAST_MESSAGE_ID, lastMessageId)
+                .where(table.USER_ID.eq(userId))
+                .execute();
     }
 
     public Optional<PersonalChatRecord> findByUserId(Long userId) {
