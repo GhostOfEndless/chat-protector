@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -42,5 +43,14 @@ public class TelegramClientService {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
+    }
+
+
+    public Message sendMessage(Long chatId, String message) throws TelegramApiException {
+        var sendMessage = SendMessage.builder()
+                .chatId(chatId)
+                .text(message)
+                .build();
+        return telegramClient.execute(sendMessage);
     }
 }

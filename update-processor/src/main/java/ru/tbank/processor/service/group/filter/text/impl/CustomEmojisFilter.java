@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.filter.text.impl;
+package ru.tbank.processor.service.group.filter.text.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -8,9 +8,9 @@ import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
 import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.filter.text.FilterCost;
-import ru.tbank.processor.service.filter.text.TextEntityType;
-import ru.tbank.processor.service.filter.text.TextFilter;
+import ru.tbank.processor.service.group.filter.text.FilterCost;
+import ru.tbank.processor.service.group.filter.text.TextEntityType;
+import ru.tbank.processor.service.group.filter.text.TextFilter;
 
 @Slf4j
 @NullMarked

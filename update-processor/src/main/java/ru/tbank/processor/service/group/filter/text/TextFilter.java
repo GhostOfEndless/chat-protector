@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.filter.text;
+package ru.tbank.processor.service.group.filter.text;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
