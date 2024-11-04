@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.personal.handlers.impl;
+package ru.tbank.processor.service.personal.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

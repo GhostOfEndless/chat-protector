@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
 import ru.tbank.processor.utils.UpdateType;

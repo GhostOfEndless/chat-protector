@@ -12,10 +12,10 @@ import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
-import ru.tbank.processor.service.personal.UserRole;
-import ru.tbank.processor.service.personal.UserState;
-import ru.tbank.processor.service.personal.handlers.impl.ButtonTextCode;
-import ru.tbank.processor.service.personal.handlers.impl.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.ButtonTextCode;
+import ru.tbank.processor.service.personal.enums.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.utils.TelegramUtils;
 import ru.tbank.processor.utils.UpdateType;
 
@@ -62,7 +62,25 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected void sendCallback(
+    protected boolean isRemovedExpiredMessage(
+            AppUserRecord userRecord,
+            String callbackQueryId,
+            Integer chatLastMessageId,
+            Integer callbackMessageId
+    ) {
+        if (!callbackMessageId.equals(chatLastMessageId)) {
+            removeMessageWithCallback(
+                    callbackMessageId,
+                    userRecord,
+                    CallbackTextCode.MESSAGE_EXPIRED,
+                    callbackQueryId
+            );
+            return true;
+        }
+        return false;
+    }
+
+    protected void sendCallbackForPressedButton(
             CallbackTextCode callbackTextCode,
             String callbackQueryId,
             ButtonTextCode pressedButton,

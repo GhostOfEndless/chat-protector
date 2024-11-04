@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import ru.tbank.processor.service.personal.handlers.impl.ButtonTextCode;
-import ru.tbank.processor.service.personal.handlers.impl.CallbackTextCode;
-import ru.tbank.processor.service.personal.handlers.impl.MessageTextCode;
+import ru.tbank.processor.service.personal.enums.ButtonTextCode;
+import ru.tbank.processor.service.personal.enums.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.MessageTextCode;
 
 import java.util.Locale;
 

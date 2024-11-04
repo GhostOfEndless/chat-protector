@@ -3,6 +3,7 @@ package ru.tbank.processor.service.personal.handlers.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -12,8 +13,11 @@ import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
-import ru.tbank.processor.service.personal.UserRole;
-import ru.tbank.processor.service.personal.UserState;
+import ru.tbank.processor.service.personal.enums.ButtonTextCode;
+import ru.tbank.processor.service.personal.enums.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.MessageTextCode;
+import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.UpdateType;
 
@@ -42,22 +46,7 @@ public class StartStateHandler extends PersonalUpdateHandler {
             }
         } else if (updateType == UpdateType.CALLBACK) {
             var callbackQuery = update.getCallbackQuery();
-            var callbackMessageId = callbackQuery.getMessage().getMessageId();
-            var chatLastMessageId = personalChatService.findByUserId(userRecord.getId())
-                    .orElse(new PersonalChatRecord())
-                    .getLastMessageId();
-
-            if (callbackMessageId.equals(chatLastMessageId)) {
-                var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
-                processCallbackButton(userRecord, pressedButton, callbackQuery.getId(), chatLastMessageId);
-            } else {
-                removeMessageWithCallback(
-                        callbackMessageId,
-                        userRecord,
-                        CallbackTextCode.MESSAGE_EXPIRED,
-                        callbackQuery.getId()
-                );
-            }
+            processCallbackButton(callbackQuery, userRecord);
         }
     }
 
@@ -86,44 +75,49 @@ public class StartStateHandler extends PersonalUpdateHandler {
     }
 
     private void processCallbackButton(
-            AppUserRecord userRecord,
-            ButtonTextCode pressedButton,
-            String callbackQueryId,
-            Integer lastMessageId
+            CallbackQuery callbackQuery,
+            AppUserRecord userRecord
     ) {
-        UserRole userRole = UserRole.valueOf(userRecord.getRole());
-        switch (pressedButton) {
-            case START_BUTTON_CHATS -> {
-                if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    // TODO: тут необходимо реализовать логику перехода пользователя на следующее состояние
-                    log.debug("User {} clicked button 'chats', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
-                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
-                    return;
-                }
-            }
-            case START_BUTTON_ADMINS -> {
-                if (UserRole.OWNER.isEqualOrLowerThan(userRole)) {
-                    log.debug("User {} clicked button 'admins', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
-                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
-                    return;
-                }
-            }
-            case START_BUTTON_ACCOUNT -> {
-                if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    log.debug("User {} clicked button 'account', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
-                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
-                    return;
-                }
-            }
+        var callbackQueryId = callbackQuery.getId();
+        var callbackMessageId = callbackQuery.getMessage().getMessageId();
+        var chatLastMessageId = personalChatService.findByUserId(userRecord.getId())
+                .orElse(new PersonalChatRecord())
+                .getLastMessageId();
+
+
+        if (isRemovedExpiredMessage(userRecord, callbackQueryId, chatLastMessageId, callbackMessageId)) {
+            return;
         }
 
-        log.warn("Permission denied for command '{}' for user: {}", pressedButton, userRecord);
-        removeMessageWithCallback(
-                lastMessageId,
-                userRecord,
-                CallbackTextCode.PERMISSION_DENIED,
-                callbackQueryId
-        );
+        var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
+        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+
+        boolean hasPermission = switch (pressedButton) {
+            case START_BUTTON_CHATS ->
+                    // TODO: тут будет логика перехода пользователя на следующее состояние
+                    UserRole.ADMIN.isEqualOrLowerThan(userRole);
+            case START_BUTTON_ADMINS ->
+                    UserRole.ADMIN.isEqualOrLowerThan(userRole);
+            case START_BUTTON_ACCOUNT ->
+                    UserRole.ADMIN.isEqualOrLowerThan(userRole);
+        };
+
+        if (hasPermission) {
+            sendCallbackForPressedButton(
+                    CallbackTextCode.BUTTON_PRESSED,
+                    callbackQueryId,
+                    pressedButton,
+                    userRecord.getLocale()
+            );
+        } else {
+            log.warn("Permission denied for command '{}' for user: {}", pressedButton, userRecord);
+            removeMessageWithCallback(
+                    chatLastMessageId,
+                    userRecord,
+                    CallbackTextCode.PERMISSION_DENIED,
+                    callbackQueryId
+            );
+        }
     }
 
     private void sendStartStateMessage(
