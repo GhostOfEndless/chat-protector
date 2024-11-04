@@ -1,16 +1,13 @@
 package ru.tbank.processor.service.personal.handlers.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
+import ru.tbank.processor.generated.tables.records.PersonalChatRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.AppUserService;
@@ -18,7 +15,9 @@ import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.UserRole;
 import ru.tbank.processor.service.personal.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
+import ru.tbank.processor.utils.UpdateType;
 
+import java.util.Collections;
 import java.util.List;
 
 @NullMarked
@@ -36,68 +35,100 @@ public class StartStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected void processUpdate(@NonNull Update update, @NonNull AppUserRecord userRecord) {
+    protected void processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        if (updateType == UpdateType.PERSONAL_MESSAGE) {
+            if (update.getMessage().getText().startsWith("/start")) {
+                processStartCommand(userRecord);
+            }
+        } else if (updateType == UpdateType.CALLBACK) {
+            var callbackQuery = update.getCallbackQuery();
+            var callbackMessageId = callbackQuery.getMessage().getMessageId();
+            var chatLastMessageId = personalChatService.findByUserId(userRecord.getId())
+                    .orElse(new PersonalChatRecord())
+                    .getLastMessageId();
+
+            if (callbackMessageId.equals(chatLastMessageId)) {
+                var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
+                processCallbackButton(userRecord, pressedButton, callbackQuery.getId(), chatLastMessageId);
+            } else {
+                removeMessageWithCallback(
+                        callbackMessageId,
+                        userRecord,
+                        CallbackTextCode.MESSAGE_EXPIRED,
+                        callbackQuery.getId()
+                );
+            }
+        }
+    }
+
+    private void processStartCommand(AppUserRecord userRecord) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
-        if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            processStartCommand(userRole, userRecord);
-        } else if (update.hasCallbackQuery()) {
-            var pressedButton = TextSourceCode.valueOf(update.getCallbackQuery().getData());
-            processCallbackButton(userRole, userRecord, pressedButton);
-        }
-    }
-
-    private void processStartCommand(UserRole userRole, AppUserRecord userRecord) {
         switch (userRole) {
-            // TODO: тут нужно добавить сообщение для USER
-            case ADMIN -> sendMessage(
-                    TextSourceCode.START_MESSAGE_ADMIN,
+            case USER -> sendStartStateMessage(MessageTextCode.START_MESSAGE_USER, Collections.emptyList(), userRecord);
+            case ADMIN -> sendStartStateMessage(
+                    MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
-                            TextSourceCode.START_BUTTON_CHATS,
-                            TextSourceCode.START_BUTTON_ACCOUNT
+                            ButtonTextCode.START_BUTTON_CHATS,
+                            ButtonTextCode.START_BUTTON_ACCOUNT
                     ),
                     userRecord
             );
-            case OWNER -> sendMessage(
-                    TextSourceCode.START_MESSAGE_OWNER,
+            case OWNER -> sendStartStateMessage(
+                    MessageTextCode.START_MESSAGE_OWNER,
                     List.of(
-                            TextSourceCode.START_BUTTON_ADMINS,
-                            TextSourceCode.START_BUTTON_CHATS,
-                            TextSourceCode.START_BUTTON_ACCOUNT
+                            ButtonTextCode.START_BUTTON_ADMINS,
+                            ButtonTextCode.START_BUTTON_CHATS,
+                            ButtonTextCode.START_BUTTON_ACCOUNT
                     ),
                     userRecord
             );
         }
     }
 
-    private void processCallbackButton(UserRole userRole, AppUserRecord userRecord, TextSourceCode pressedButton) {
+    private void processCallbackButton(
+            AppUserRecord userRecord,
+            ButtonTextCode pressedButton,
+            String callbackQueryId,
+            Integer lastMessageId
+    ) {
+        UserRole userRole = UserRole.valueOf(userRecord.getRole());
         switch (pressedButton) {
             case START_BUTTON_CHATS -> {
                 if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    log.debug("User {} clicked button 'chats'", userRecord);
-                } else {
-                    log.warn("Permission denied for command 'chats' for user: {}", userRecord);
+                    // TODO: тут необходимо реализовать логику перехода пользователя на следующее состояние
+                    log.debug("User {} clicked button 'chats', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
+                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
+                    return;
                 }
             }
             case START_BUTTON_ADMINS -> {
                 if (UserRole.OWNER.isEqualOrLowerThan(userRole)) {
-                    log.debug("User {} clicked button 'admins'", userRecord);
-                } else {
-                    log.warn("Permission denied for command 'admins' for user: {}", userRecord);
+                    log.debug("User {} clicked button 'admins', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
+                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
+                    return;
                 }
             }
             case START_BUTTON_ACCOUNT -> {
                 if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    log.debug("User {} clicked button 'account'", userRecord);
-                } else {
-                    log.warn("Permission denied for command 'account' for user: {}", userRecord);
+                    log.debug("User {} clicked button 'account', lastMessageId={}", userRecord.getFirstName(), lastMessageId);
+                    sendCallback(CallbackTextCode.BUTTON_PRESSED, callbackQueryId, pressedButton, userRecord.getLocale());
+                    return;
                 }
             }
         }
+
+        log.warn("Permission denied for command '{}' for user: {}", pressedButton, userRecord);
+        removeMessageWithCallback(
+                lastMessageId,
+                userRecord,
+                CallbackTextCode.PERMISSION_DENIED,
+                callbackQueryId
+        );
     }
 
-    private void sendMessage(
-            TextSourceCode messageText,
-            List<TextSourceCode> buttonsText,
+    private void sendStartStateMessage(
+            MessageTextCode messageText,
+            List<ButtonTextCode> buttonsText,
             AppUserRecord userRecord
     ) {
         var keyboardMarkup = buildKeyboard(buttonsText, userRecord.getLocale());
@@ -105,27 +136,12 @@ public class StartStateHandler extends PersonalUpdateHandler {
         try {
             Message sentMessage = telegramClientService.sendMessage(
                     userRecord.getId(),
-                    textResourceService.getTextSource(
-                            messageText,
-                            null,
-                            userRecord.getLocale()),
-                    keyboardMarkup);
-
+                    textResourceService.getMessageText(messageText, userRecord.getLocale()),
+                    keyboardMarkup
+            );
             personalChatService.save(userRecord.getId(), UserState.START.name(), sentMessage.getMessageId());
         } catch (TelegramApiException e) {
-             log.error("Telegram API Error: {}", e.getMessage());
+            log.error("Telegram API Error: {}", e.getMessage());
         }
-    }
-
-    private InlineKeyboardMarkup buildKeyboard(List<TextSourceCode> buttonsText, String userLocale) {
-        var listOfRows = buttonsText.stream()
-                .map(textCode -> new InlineKeyboardRow(
-                        InlineKeyboardButton.builder()
-                                .text(textResourceService.getTextSource(textCode, userLocale))
-                                .callbackData(textCode.name())
-                                .build()))
-                .toList();
-
-        return new InlineKeyboardMarkup(listOfRows);
     }
 }

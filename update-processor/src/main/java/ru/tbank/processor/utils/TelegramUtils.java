@@ -20,7 +20,7 @@ public class TelegramUtils {
                 return UpdateType.UNKNOWN;
             }
         } else if (update.hasCallbackQuery()) {
-            return UpdateType.PERSONAL_MESSAGE;
+            return UpdateType.CALLBACK;
         } else {
             log.warn("Unknown update type! {}", update);
             return UpdateType.UNKNOWN;

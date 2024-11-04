@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import ru.tbank.processor.service.personal.handlers.impl.TextSourceCode;
+import ru.tbank.processor.service.personal.handlers.impl.ButtonTextCode;
+import ru.tbank.processor.service.personal.handlers.impl.CallbackTextCode;
+import ru.tbank.processor.service.personal.handlers.impl.MessageTextCode;
 
 import java.util.Locale;
 
@@ -14,16 +16,31 @@ public class TextResourceService {
 
     private final MessageSource messageSource;
 
-    public String getTextSource(@NonNull TextSourceCode code, Object[] args, String languageTag) {
-        return messageSource.getMessage(
-                code.getResourceName(),
-                args,
-                code.getResourceName(),
-                Locale.forLanguageTag(languageTag)
-        );
+    public String getMessageText(@NonNull MessageTextCode code, Object[] args, String languageTag) {
+        return getTextSource(code.getResourceName(), args, languageTag);
     }
 
-    public String getTextSource(@NonNull TextSourceCode code, String languageTag) {
-        return getTextSource(code, null, languageTag);
+    public String getButtonText(@NonNull ButtonTextCode code, Object[] args, String languageTag) {
+        return getTextSource(code.getResourceName(), args, languageTag);
+    }
+
+    public String getCallbackText(@NonNull CallbackTextCode code, Object[] args, String languageTag) {
+        return getTextSource(code.getResourceName(), args, languageTag);
+    }
+
+    public String getMessageText(@NonNull MessageTextCode code, String languageTag) {
+        return getTextSource(code.getResourceName(), null, languageTag);
+    }
+
+    public String getButtonText(@NonNull ButtonTextCode code, String languageTag) {
+        return getTextSource(code.getResourceName(), null, languageTag);
+    }
+
+    public String getCallbackText(@NonNull CallbackTextCode code, String languageTag) {
+        return getTextSource(code.getResourceName(), null, languageTag);
+    }
+
+    private String getTextSource(String resourceCode, Object[] args, String languageTag) {
+        return messageSource.getMessage(resourceCode, args, resourceCode, Locale.forLanguageTag(languageTag));
     }
 }

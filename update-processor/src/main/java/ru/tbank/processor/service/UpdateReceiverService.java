@@ -18,11 +18,11 @@ public class UpdateReceiverService {
 
     @KafkaListener(topics = "${kafka.updates-topic}", groupId = "update_consumer")
     public void listenUpdate(@NonNull Update update) {
-        var updatePlace = TelegramUtils.determineUpdateType(update);
+        var updateType = TelegramUtils.determineUpdateType(update);
 
-        switch (updatePlace) {
-            case PERSONAL_MESSAGE, CALLBACK -> personalUpdateProcessingService.process(update);
-            case GROUP_MESSAGE -> groupChatUpdateProcessingService.process(update);
+        switch (updateType) {
+            case PERSONAL_MESSAGE, CALLBACK -> personalUpdateProcessingService.process(updateType, update);
+            case GROUP_MESSAGE -> groupChatUpdateProcessingService.process(updateType, update);
             case UNKNOWN -> log.warn("Unknown update type! {}", update);
         }
     }

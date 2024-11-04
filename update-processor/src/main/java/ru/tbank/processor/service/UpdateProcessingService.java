@@ -1,9 +1,9 @@
 package ru.tbank.processor.service;
 
-import org.jspecify.annotations.NonNull;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.processor.utils.UpdateType;
 
 public interface UpdateProcessingService {
 
-    void process(@NonNull Update update);
+    void process(UpdateType updateType, Update update);
 }
