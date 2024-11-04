@@ -65,8 +65,8 @@ public class StartStateHandler extends PersonalUpdateHandler {
             case OWNER -> sendStartStateMessage(
                     MessageTextCode.START_MESSAGE_OWNER,
                     List.of(
-                            ButtonTextCode.START_BUTTON_ADMINS,
                             ButtonTextCode.START_BUTTON_CHATS,
+                            ButtonTextCode.START_BUTTON_ADMINS,
                             ButtonTextCode.START_BUTTON_ACCOUNT
                     ),
                     userRecord
@@ -97,7 +97,7 @@ public class StartStateHandler extends PersonalUpdateHandler {
                     // TODO: тут будет логика перехода пользователя на следующее состояние
                     UserRole.ADMIN.isEqualOrLowerThan(userRole);
             case START_BUTTON_ADMINS ->
-                    UserRole.ADMIN.isEqualOrLowerThan(userRole);
+                    UserRole.OWNER.isEqualOrLowerThan(userRole);
             case START_BUTTON_ACCOUNT ->
                     UserRole.ADMIN.isEqualOrLowerThan(userRole);
         };

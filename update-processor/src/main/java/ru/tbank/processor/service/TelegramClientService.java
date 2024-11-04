@@ -54,6 +54,7 @@ public class TelegramClientService {
                 .chatId(chatId)
                 .text(message)
                 .replyMarkup(replyMarkup)
+                .parseMode("MarkdownV2")
                 .build();
         return telegramClient.execute(sendMessage);
     }
