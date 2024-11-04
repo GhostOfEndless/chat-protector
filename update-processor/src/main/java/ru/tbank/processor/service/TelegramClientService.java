@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -33,11 +35,11 @@ public class TelegramClientService {
         }
     }
 
-    public void deleteMessage(Message message) {
+    public void deleteMessage(Long chatId, Integer messageId) {
         try {
             var deleteMessage = DeleteMessage.builder()
-                    .chatId(message.getChatId())
-                    .messageId(message.getMessageId())
+                    .chatId(chatId)
+                    .messageId(messageId)
                     .build();
             telegramClient.execute(deleteMessage);
         } catch (TelegramApiException e) {
@@ -46,11 +48,27 @@ public class TelegramClientService {
     }
 
 
-    public Message sendMessage(Long chatId, String message) throws TelegramApiException {
+    public Message sendMessage(Long chatId, String message, InlineKeyboardMarkup replyMarkup)
+            throws TelegramApiException {
         var sendMessage = SendMessage.builder()
                 .chatId(chatId)
                 .text(message)
+                .replyMarkup(replyMarkup)
+                .parseMode("MarkdownV2")
                 .build();
         return telegramClient.execute(sendMessage);
+    }
+
+    public void sendCallbackAnswer(String text, String callbackQueryId, boolean isAlert) {
+        try {
+            var callbackAnswer = AnswerCallbackQuery.builder()
+                    .callbackQueryId(callbackQueryId)
+                    .showAlert(isAlert)
+                    .text(text)
+                    .build();
+            telegramClient.execute(callbackAnswer);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
     }
 }

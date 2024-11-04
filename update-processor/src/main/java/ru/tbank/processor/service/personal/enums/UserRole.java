@@ -1,4 +1,6 @@
-package ru.tbank.processor.service.personal;
+package ru.tbank.processor.service.personal.enums;
+
+import org.jspecify.annotations.NonNull;
 
 public enum UserRole {
     USER,
@@ -11,5 +13,9 @@ public enum UserRole {
         } catch (IllegalArgumentException e) {
             return 0;
         }
+    }
+
+    public boolean isEqualOrLowerThan(@NonNull UserRole userRole) {
+        return this.ordinal() <= userRole.ordinal();
     }
 }

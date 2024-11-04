@@ -3,13 +3,14 @@ package ru.tbank.processor.service.personal;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
+import ru.tbank.processor.utils.UpdateType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,14 +30,14 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     }
 
     @Override
-    public void process(@NonNull Update update) {
+    public void process(UpdateType updateType, Update update) {
         Long userId = TelegramUtils.getUserFromUpdate(update).getId();
 
         if (userId != 0) {
             var personalChatRecord = personalChatService.findByUserId(userId);
             personalChatRecord.ifPresentOrElse(
-                    it -> updateHandlerMap.get(UserState.valueOf(it.getState())).handle(update, userId),
-                    () -> updateHandlerMap.get(UserState.START).handle(update, userId)
+                    it -> updateHandlerMap.get(UserState.valueOf(it.getState())).handle(updateType, update, userId),
+                    () -> updateHandlerMap.get(UserState.START).handle(updateType, update, userId)
             );
         } else {
             log.warn("Unable to get user id from update!");

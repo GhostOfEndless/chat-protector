@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.personal;
+package ru.tbank.processor.service.personal.enums;
 
 import lombok.Getter;
 
