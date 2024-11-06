@@ -16,6 +16,8 @@ import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
+import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.utils.TelegramUtils;
 import ru.tbank.processor.utils.UpdateType;
 
@@ -50,13 +52,18 @@ public abstract class PersonalUpdateHandler {
 
     protected abstract void processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord);
 
-    protected InlineKeyboardMarkup buildKeyboard(List<ButtonTextCode> buttonsText, String userLocale) {
-        var listOfRows = buttonsText.stream()
-                .map(textCode -> new InlineKeyboardRow(
+    protected abstract void goToState(AppUserRecord userRecord, Integer messageId);
+
+    protected abstract MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord);
+
+    protected InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
+        var listOfRows = callbackButtons.stream()
+                .map(callbackButton -> new InlineKeyboardRow(
                         InlineKeyboardButton.builder()
-                                .text(textResourceService.getButtonText(textCode, userLocale))
-                                .callbackData(textCode.name())
-                                .build()))
+                                .text(textResourceService.getButtonText(callbackButton.text(), userLocale))
+                                .callbackData(callbackButton.code())
+                                .build())
+                )
                 .toList();
 
         return new InlineKeyboardMarkup(listOfRows);
