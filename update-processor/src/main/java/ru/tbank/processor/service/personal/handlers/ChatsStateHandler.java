@@ -1,10 +1,9 @@
-package ru.tbank.processor.service.personal.handlers.impl;
+package ru.tbank.processor.service.personal.handlers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -15,10 +14,8 @@ import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
-import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
-import ru.tbank.processor.utils.UpdateType;
 
 import java.util.stream.Collectors;
 
@@ -40,20 +37,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected void processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
-        if (updateType == UpdateType.CALLBACK) {
-
-        }
-    }
-
-    @Override
-    protected void goToState(AppUserRecord userRecord, Integer messageId) {
-
-    }
-
-    @Override
-    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord) {
-        UserRole userRole = UserRole.valueOf(userRecord.getRole()); // убрать role
+    protected MessagePayload buildMessagePayloadForUser(UserRole userRole) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = groupChats.stream()
                 .map(groupChatRecord -> new CallbackButtonPayload(
@@ -84,8 +68,13 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         };
     }
 
-    private void processCallbackButton(CallbackQuery callbackQuery) {
+    @Override
+    protected void processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
+        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        boolean hasPermission = false;
+
+
     }
 }
