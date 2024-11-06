@@ -14,14 +14,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
-import ru.tbank.processor.utils.TelegramUtils;
+import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.UpdateType;
 
 import java.util.List;
@@ -31,7 +30,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public abstract class PersonalUpdateHandler {
 
-    protected final AppUserService appUserService;
     protected final PersonalChatService personalChatService;
     protected final TelegramClientService telegramClientService;
     protected final TextResourceService textResourceService;
@@ -39,40 +37,13 @@ public abstract class PersonalUpdateHandler {
     @Getter
     protected final UserState processedUserState;
 
-    public final void handle(UpdateType updateType, Update update, Long userId) {
-        var user = TelegramUtils.getUserFromUpdate(update);
-        var userRecord = appUserService.findById(userId).orElseGet(
-                () -> appUserService.saveRegularUser(
-                        userId,
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUserName()
-                ));
-
-        if (UserRole.getRoleLevel(userRecord.getRole()) >= processedUserState.getAllowedRoleLevel()) {
-            processUpdate(updateType, update, userRecord);
-        }
+    public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        return processUpdate(updateType, update, userRecord);
     }
 
-    protected final void processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
-        switch (updateType) {
-            case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
-            case CALLBACK -> processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
-        }
-    }
-
-    protected void processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        telegramClientService.sendCallbackAnswer("Кнопка нажата", callbackQuery.getId(), false);
-    }
-
-    protected void processTextMessageUpdate(Update update, AppUserRecord userRecord) {
-    }
-
-    protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole);
-
-    protected final void goToState(AppUserRecord userRecord, Integer messageId) {
+    public final void goToState(AppUserRecord userRecord, Integer messageId, Object[] args) {
         var userRole = UserRole.valueOf(userRecord.getRole());
-        var messagePayload = buildMessagePayloadForUser(userRole);
+        var messagePayload = buildMessagePayloadForUser(userRole, args);
         var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
 
         try {
@@ -97,6 +68,24 @@ public abstract class PersonalUpdateHandler {
         }
     }
 
+    protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        return switch (updateType) {
+            case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
+            case CALLBACK -> processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+            default -> new ProcessingResult(processedUserState, 0, new Object[]{});
+        };
+    }
+
+    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
+        return new ProcessingResult(processedUserState, 0, new Object[]{});
+    }
+
+    protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
+        return new ProcessingResult(processedUserState, 0, new Object[]{});
+    }
+
+    protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
+
     protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
         var listOfRows = callbackButtons.stream()
                 .map(callbackButton -> new InlineKeyboardRow(
@@ -110,17 +99,11 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected final void removeMessageWithCallback(
-            Integer messageId,
-            AppUserRecord userRecord,
-            CallbackTextCode callbackTextCode,
-            String callbackQueryId
-    ) {
+    protected final void showPermissionDeniedCallback(String userLocale, String callbackQueryId) {
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(callbackTextCode, userRecord.getLocale()),
+                textResourceService.getCallbackText(CallbackTextCode.PERMISSION_DENIED, userLocale),
                 callbackQueryId,
                 true
         );
-        telegramClientService.deleteMessage(userRecord.getId(), messageId);
     }
 }

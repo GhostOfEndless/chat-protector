@@ -8,15 +8,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
-import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
+import ru.tbank.processor.service.personal.payload.ProcessingResult;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,21 +25,16 @@ import java.util.List;
 @Component
 public final class StartStateHandler extends PersonalUpdateHandler {
 
-    private final ChatsStateHandler chatsStateHandler;
-
     public StartStateHandler(
-            AppUserService appUserService,
             PersonalChatService personalChatService,
             TelegramClientService telegramClientService,
-            TextResourceService textResourceService,
-            ChatsStateHandler chatsStateHandler
+            TextResourceService textResourceService
     ) {
-        super(appUserService, personalChatService, telegramClientService, textResourceService, UserState.START);
-        this.chatsStateHandler = chatsStateHandler;
+        super(personalChatService, telegramClientService, textResourceService, UserState.START);
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole) {
+    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         return switch (userRole) {
             case USER -> new MessagePayload(
                     MessageTextCode.START_MESSAGE_USER,
@@ -65,49 +59,47 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected void processTextMessageUpdate(Update update, AppUserRecord userRecord) {
+    protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            goToState(userRecord, 0);
+            goToState(userRecord, 0, new Object[]{});
         }
+
+        return new ProcessingResult(processedUserState, 0, new Object[]{});
     }
 
     @Override
-    protected void processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
+    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
         var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
-        boolean hasPermission = false;
 
-        switch (pressedButton) {
+        return switch (pressedButton) {
             case START_BUTTON_CHATS -> {
                 if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    chatsStateHandler.goToState(userRecord, callbackMessageId);
-                    hasPermission = true;
+                    yield new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+                } else {
+                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
+                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
                 }
             }
             case START_BUTTON_ADMINS -> {
                 if (UserRole.OWNER.isEqualOrLowerThan(userRole)) {
-                    hasPermission = true;
-                    // производим какую-то операцию
+                    yield new ProcessingResult(UserState.ADMINS, callbackMessageId, new Object[]{});
+                } else {
+                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
+                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
                 }
             }
             case START_BUTTON_ACCOUNT -> {
                 if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    hasPermission = true;
-                    // производим какую-то операцию
+                    yield new ProcessingResult(UserState.ADMIN, callbackMessageId, new Object[]{});
+                } else {
+                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
+                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
                 }
             }
-        }
-
-        if (!hasPermission) {
-            log.warn("Permission denied for command '{}' for user with id: {}", pressedButton, userRecord.getId());
-            removeMessageWithCallback(
-                    callbackMessageId,
-                    userRecord,
-                    CallbackTextCode.PERMISSION_DENIED,
-                    callbackQueryId
-            );
-        }
+            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
+        };
     }
 }
