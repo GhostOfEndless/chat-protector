@@ -69,9 +69,19 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        int lastMessageId = personalChatService.findByUserId(userRecord.getId())
+                .orElseThrow()
+                .getLastMessageId();
+
         return switch (updateType) {
             case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
-            case CALLBACK -> processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+            case CALLBACK -> {
+                if (update.getCallbackQuery().getMessage().getMessageId() != lastMessageId) {
+                    showMessageExpiredCallback(userRecord.getLocale(), update.getCallbackQuery().getId());
+                    yield new ProcessingResult(processedUserState, 0, new Object[]{});
+                }
+                yield  processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+            }
             default -> new ProcessingResult(processedUserState, 0, new Object[]{});
         };
     }
@@ -81,6 +91,10 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
+        if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
+            return new ProcessingResult(UserState.START, 0, new Object[]{});
+        }
+
         return new ProcessingResult(processedUserState, 0, new Object[]{});
     }
 
@@ -102,6 +116,14 @@ public abstract class PersonalUpdateHandler {
     protected final void showPermissionDeniedCallback(String userLocale, String callbackQueryId) {
         telegramClientService.sendCallbackAnswer(
                 textResourceService.getCallbackText(CallbackTextCode.PERMISSION_DENIED, userLocale),
+                callbackQueryId,
+                true
+        );
+    }
+
+    protected final void showMessageExpiredCallback(String userLocale, String callbackQueryId) {
+        telegramClientService.sendCallbackAnswer(
+                textResourceService.getCallbackText(CallbackTextCode.MESSAGE_EXPIRED, userLocale),
                 callbackQueryId,
                 true
         );

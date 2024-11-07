@@ -1,6 +1,7 @@
 package ru.tbank.processor.service.personal.handlers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -18,8 +19,6 @@ import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 
 import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @NullMarked
 @Slf4j
@@ -51,12 +50,18 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         return switch (userRole) {
             case ADMIN -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
+                yield MessagePayload.builder()
+                        .messageText(MessageTextCode.CHATS_MESSAGE_ADMIN)
+                        .buttons(groupChatsButtons)
+                        .build();
             }
             case OWNER -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
+                yield MessagePayload.builder()
+                        .messageText(MessageTextCode.CHATS_MESSAGE_OWNER)
+                        .buttons(groupChatsButtons)
+                        .build();
             }
             default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
         };
@@ -64,11 +69,12 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
+        super.processCallbackButtonUpdate(callbackQuery, userRecord);
         var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
 
-        if (isNumeric(callbackQuery.getData())) {
+        if (NumberUtils.isParsable(callbackQuery.getData())) {
             if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
                 long chatId = Long.parseLong(callbackQuery.getData());
                 return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});

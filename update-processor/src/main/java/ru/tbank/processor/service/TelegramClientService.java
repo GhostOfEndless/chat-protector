@@ -67,6 +67,7 @@ public class TelegramClientService {
                     .replyMarkup(replyMarkup)
                     .chatId(chatId)
                     .text(message)
+                    .parseMode("MarkdownV2")
                     .build();
             telegramClient.execute(editMessage);
         } catch (TelegramApiException e) {

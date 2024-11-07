@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -36,35 +35,24 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         return switch (userRole) {
-            case USER -> new MessagePayload(
-                    MessageTextCode.START_MESSAGE_USER,
-                    Collections.emptyList()
-            );
-            case ADMIN -> new MessagePayload(
-                    MessageTextCode.START_MESSAGE_ADMIN,
-                    List.of(
+            case USER -> MessagePayload.builder()
+                    .messageText(MessageTextCode.START_MESSAGE_USER)
+                    .buttons(Collections.emptyList())
+                    .build();
+            case ADMIN -> MessagePayload.builder()
+                    .messageText(MessageTextCode.START_MESSAGE_ADMIN)
+                    .buttons(List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    )
-            );
-            case OWNER -> new MessagePayload(
-                    MessageTextCode.START_MESSAGE_OWNER,
-                    List.of(
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)))
+                    .build();
+            case OWNER -> MessagePayload.builder()
+                    .messageText(MessageTextCode.START_MESSAGE_OWNER)
+                    .buttons(List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    )
-            );
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)))
+                    .build();
         };
-    }
-
-    @Override
-    protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
-        if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            goToState(userRecord, 0, new Object[]{});
-        }
-
-        return new ProcessingResult(processedUserState, 0, new Object[]{});
     }
 
     @Override
