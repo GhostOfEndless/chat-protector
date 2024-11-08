@@ -22,17 +22,17 @@ import java.util.List;
 @NullMarked
 @Slf4j
 @Component
-public class FiltersStateHandler extends PersonalUpdateHandler {
+public class TextFiltersStateHandler extends PersonalUpdateHandler {
 
     private final GroupChatService groupChatService;
 
-    public FiltersStateHandler(
+    public TextFiltersStateHandler(
             PersonalChatService personalChatService,
             TelegramClientService telegramClientService,
             TextResourceService textResourceService,
             GroupChatService groupChatService
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.FILTERS);
+        super(personalChatService, telegramClientService, textResourceService, UserState.TEXT_FILTERS);
         this.groupChatService = groupChatService;
     }
 
@@ -43,9 +43,15 @@ public class FiltersStateHandler extends PersonalUpdateHandler {
 
         if (groupChatRecord.isPresent()) {
             return MessagePayload.builder()
-                    .messageText(MessageTextCode.FILTERS_MESSAGE)
+                    .messageText(MessageTextCode.TEXT_FILTERS_MESSAGE)
                     .buttons(List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.FILTERS_BUTTON_TEXT_FILTERS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_TAGS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_EMAILS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_LINKS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_MENTIONS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_BOT_COMMANDS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, chatId),
+                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_PHONE_NUMBERS, chatId),
                             CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
                     ))
                     .build();
@@ -75,15 +81,8 @@ public class FiltersStateHandler extends PersonalUpdateHandler {
         }
 
         return switch (pressedButton) {
-            case BUTTON_BACK -> new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
-            case FILTERS_BUTTON_TEXT_FILTERS -> {
-                if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    yield new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId});
-                } else {
-                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
-                }
-            }
+            case BUTTON_BACK -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
+            // TODO: обработать переходы на различные текстовые фильтры
             default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
         };
     }
