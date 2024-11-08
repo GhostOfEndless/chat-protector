@@ -35,23 +35,25 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         return switch (userRole) {
-            case USER -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_USER)
-                    .buttons(Collections.emptyList())
-                    .build();
-            case ADMIN -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_ADMIN)
-                    .buttons(List.of(
+            case USER -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_USER,
+                    Collections.emptyList()
+            );
+            case ADMIN -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_ADMIN,
+                    List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)))
-                    .build();
-            case OWNER -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_OWNER)
-                    .buttons(List.of(
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
+                    )
+            );
+            case OWNER -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_OWNER,
+                    List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)))
-                    .build();
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
+                    )
+            );
         };
     }
 

@@ -17,8 +17,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-
-import java.util.stream.Collectors;
+import ru.tbank.processor.utils.TelegramUtils;
 
 @NullMarked
 @Slf4j
@@ -40,28 +39,17 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         var groupChats = groupChatService.findAll();
-        var groupChatsButtons = groupChats.stream()
-                .map(groupChatRecord -> new CallbackButtonPayload(
-                        groupChatRecord.getName(),
-                        String.valueOf(groupChatRecord.getId())
-                ))
-                .collect(Collectors.toList());
+        var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
 
         return switch (userRole) {
             case ADMIN -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield MessagePayload.builder()
-                        .messageText(MessageTextCode.CHATS_MESSAGE_ADMIN)
-                        .buttons(groupChatsButtons)
-                        .build();
+                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
             }
             case OWNER -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield MessagePayload.builder()
-                        .messageText(MessageTextCode.CHATS_MESSAGE_OWNER)
-                        .buttons(groupChatsButtons)
-                        .build();
+                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
             }
             default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
         };
