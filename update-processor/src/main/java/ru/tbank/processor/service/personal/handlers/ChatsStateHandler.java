@@ -57,31 +57,29 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        super.processCallbackButtonUpdate(callbackQuery, userRecord);
-        var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
-        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        String callbackData = callbackQuery.getData();
 
         if (NumberUtils.isParsable(callbackQuery.getData())) {
-            if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                long chatId = Long.parseLong(callbackQuery.getData());
-                return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
-            } else {
-                showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
-            }
+            return checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> {
+                        long chatId = Long.parseLong(callbackData);
+                        return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
+                    },
+                    callbackQuery
+            );
         } else {
-            var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
+            var pressedButton = ButtonTextCode.valueOf(callbackData);
             return switch (pressedButton) {
                 case BUTTON_BACK -> new ProcessingResult(UserState.START, callbackMessageId, new Object[]{});
-                case CHATS_BUTTON_CHAT_ADDITION -> {
-                    if (UserRole.OWNER.isEqualOrLowerThan(userRole)) {
-                        yield new ProcessingResult(UserState.CHAT_ADDITION, callbackMessageId, new Object[]{});
-                    } else {
-                        showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                        yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
-                    }
-                }
+                case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
+                        UserRole.OWNER,
+                        userRecord,
+                        () -> new ProcessingResult(UserState.CHAT_ADDITION, callbackMessageId, new Object[]{}),
+                        callbackQuery
+                );
                 default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
             };
         }

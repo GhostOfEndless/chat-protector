@@ -24,6 +24,7 @@ import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.UpdateType;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Slf4j
 @NullMarked
@@ -99,6 +100,21 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
+
+    protected final ProcessingResult checkPermissionAndProcess(
+            UserRole requiredRole,
+            AppUserRecord userRecord,
+            Supplier<ProcessingResult> supplier,
+            CallbackQuery callbackQuery
+    ) {
+        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        if (!requiredRole.isEqualOrLowerThan(userRole)) {
+            showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
+            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), new Object[]{});
+        }
+
+        return supplier.get();
+    }
 
     protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
         var listOfRows = callbackButtons.stream()
