@@ -35,60 +35,53 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         return switch (userRole) {
-            case USER -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_USER)
-                    .buttons(Collections.emptyList())
-                    .build();
-            case ADMIN -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_ADMIN)
-                    .buttons(List.of(
+            case USER -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_USER,
+                    Collections.emptyList()
+            );
+            case ADMIN -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_ADMIN,
+                    List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    ))
-                    .build();
-            case OWNER -> MessagePayload.builder()
-                    .messageText(MessageTextCode.START_MESSAGE_OWNER)
-                    .buttons(List.of(
+                    )
+            );
+            case OWNER -> new MessagePayload(
+                    MessageTextCode.START_MESSAGE_OWNER,
+                    List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    ))
-                    .build();
+                    )
+            );
         };
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
         var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
-        UserRole userRole = UserRole.valueOf(userRecord.getRole());
 
         return switch (pressedButton) {
-            case START_BUTTON_CHATS -> {
-                if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    yield new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
-                } else {
-                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
-                }
-            }
-            case START_BUTTON_ADMINS -> {
-                if (UserRole.OWNER.isEqualOrLowerThan(userRole)) {
-                    yield new ProcessingResult(UserState.ADMINS, callbackMessageId, new Object[]{});
-                } else {
-                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
-                }
-            }
-            case START_BUTTON_ACCOUNT -> {
-                if (UserRole.ADMIN.isEqualOrLowerThan(userRole)) {
-                    yield new ProcessingResult(UserState.ADMIN, callbackMessageId, new Object[]{});
-                } else {
-                    showPermissionDeniedCallback(userRecord.getLocale(), callbackQueryId);
-                    yield new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
-                }
-            }
+            case START_BUTTON_CHATS -> checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{}),
+                    callbackQuery
+            );
+            case START_BUTTON_ADMINS -> checkPermissionAndProcess(
+                    UserRole.OWNER,
+                    userRecord,
+                    () -> new ProcessingResult(UserState.ADMINS, callbackMessageId, new Object[]{}),
+                    callbackQuery
+            );
+
+            case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> new ProcessingResult(UserState.ADMIN, callbackMessageId, new Object[]{}),
+                    callbackQuery
+            );
             default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
         };
     }

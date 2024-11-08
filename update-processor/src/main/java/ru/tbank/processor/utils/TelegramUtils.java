@@ -1,15 +1,21 @@
 package ru.tbank.processor.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.excpetion.UnsupportedUpdateType;
+import ru.tbank.processor.generated.tables.records.GroupChatRecord;
+import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@NullMarked
 @Slf4j
 public class TelegramUtils {
 
-    public static UpdateType determineUpdateType(@NonNull Update update) {
+    public static UpdateType determineUpdateType(Update update) {
         if (update.hasMessage()) {
             if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
                 return UpdateType.GROUP_MESSAGE;
@@ -33,5 +39,14 @@ public class TelegramUtils {
             case CALLBACK -> update.getCallbackQuery().getFrom();
             case UNKNOWN -> throw new UnsupportedUpdateType("Couldn't get user from update %s".formatted(update));
         };
+    }
+
+    public static List<CallbackButtonPayload> buildChatButtons(List<GroupChatRecord> groupChatRecords) {
+        return groupChatRecords.stream()
+                .map(groupChatRecord -> new CallbackButtonPayload(
+                        groupChatRecord.getName(),
+                        String.valueOf(groupChatRecord.getId())
+                ))
+                .collect(Collectors.toList());
     }
 }

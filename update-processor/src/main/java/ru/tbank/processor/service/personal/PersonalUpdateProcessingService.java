@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.processor.excpetion.UserIdParsingException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.AppUserService;
@@ -36,24 +37,24 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     public void process(UpdateType updateType, Update update) {
         Long userId = TelegramUtils.getUserFromUpdate(update).getId();
 
-        if (userId != 0) {
-            var personalChatRecord = personalChatService.findByUserId(userId);
-            var user = TelegramUtils.getUserFromUpdate(update);
-            var userRecord = appUserService.findById(userId).orElseGet(
-                    () -> appUserService.saveRegularUser(
-                            userId,
-                            user.getFirstName(),
-                            user.getLastName(),
-                            user.getUserName()
-                    ));
-
-            personalChatRecord.ifPresentOrElse(
-                    it -> handleUpdate(updateType, update, userRecord, UserState.valueOf(it.getState())),
-                    () -> handleUpdate(updateType, update, userRecord, UserState.START)
-            );
-        } else {
-            log.warn("Unable to get user id from update!");
+        if (userId == 0) {
+            throw new UserIdParsingException("Unable to get user id from update!");
         }
+
+        var personalChatRecord = personalChatService.findByUserId(userId);
+        var user = TelegramUtils.getUserFromUpdate(update);
+        var userRecord = appUserService.findById(userId).orElseGet(
+                () -> appUserService.saveRegularUser(
+                        userId,
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getUserName()
+                ));
+
+        personalChatRecord.ifPresentOrElse(
+                it -> handleUpdate(updateType, update, userRecord, UserState.valueOf(it.getState())),
+                () -> handleUpdate(updateType, update, userRecord, UserState.START)
+        );
 
         log.debug("Personal chat update: {}", update);
     }
