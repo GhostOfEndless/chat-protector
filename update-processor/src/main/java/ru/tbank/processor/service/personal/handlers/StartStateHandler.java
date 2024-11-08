@@ -37,14 +37,16 @@ public final class StartStateHandler extends PersonalUpdateHandler {
         return switch (userRole) {
             case USER -> new MessagePayload(
                     MessageTextCode.START_MESSAGE_USER,
-                    Collections.emptyList()
+                    Collections.emptyList(),
+                    new String[]{}
             );
             case ADMIN -> new MessagePayload(
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    )
+                    ),
+                    new String[]{}
             );
             case OWNER -> new MessagePayload(
                     MessageTextCode.START_MESSAGE_OWNER,
@@ -52,7 +54,8 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    )
+                    ),
+                    new String[]{}
             );
         };
     }
@@ -67,12 +70,14 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{}),
+                    new Object[]{},
                     callbackQuery
             );
             case START_BUTTON_ADMINS -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> new ProcessingResult(UserState.ADMINS, callbackMessageId, new Object[]{}),
+                    new Object[]{},
                     callbackQuery
             );
 
@@ -80,6 +85,7 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.ADMIN, callbackMessageId, new Object[]{}),
+                    new Object[]{},
                     callbackQuery
             );
             default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});

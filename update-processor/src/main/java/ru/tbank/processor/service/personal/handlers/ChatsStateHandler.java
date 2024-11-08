@@ -44,12 +44,12 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         return switch (userRole) {
             case ADMIN -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
+                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons, new String[]{});
             }
             case OWNER -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
+                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons, new String[]{});
             }
             default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
         };
@@ -68,6 +68,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                         long chatId = Long.parseLong(callbackData);
                         return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
                     },
+                    new Object[]{},
                     callbackQuery
             );
         } else {
@@ -78,6 +79,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                         UserRole.OWNER,
                         userRecord,
                         () -> new ProcessingResult(UserState.CHAT_ADDITION, callbackMessageId, new Object[]{}),
+                        new Object[]{},
                         callbackQuery
                 );
                 default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});

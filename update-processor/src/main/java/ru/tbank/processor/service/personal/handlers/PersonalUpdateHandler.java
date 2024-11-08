@@ -109,12 +109,13 @@ public abstract class PersonalUpdateHandler {
             UserRole requiredRole,
             AppUserRecord userRecord,
             Supplier<ProcessingResult> supplier,
+            Object[] args,
             CallbackQuery callbackQuery
     ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
             showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
-            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), new Object[]{});
+            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
         }
 
         return supplier.get();

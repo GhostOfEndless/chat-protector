@@ -22,7 +22,7 @@ import java.util.List;
 @NullMarked
 @Slf4j
 @Component
-public class TextFiltersStateHandler extends PersonalUpdateHandler {
+public final class TextFiltersStateHandler extends PersonalUpdateHandler {
 
     private final GroupChatService groupChatService;
 
@@ -39,42 +39,40 @@ public class TextFiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-        var groupChatRecord = groupChatService.findById(chatId);
 
-        if (groupChatRecord.isPresent()) {
-            return MessagePayload.builder()
-                    .messageText(MessageTextCode.TEXT_FILTERS_MESSAGE)
-                    .buttons(List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_TAGS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_EMAILS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_LINKS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_MENTIONS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_BOT_COMMANDS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_PHONE_NUMBERS, chatId),
-                            CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
-                    ))
-                    .build();
-        } else {
-            return MessagePayload.builder()
-                    .messageText(MessageTextCode.CHAT_MESSAGE_NOT_FOUND)
-                    .buttons(List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-                    ))
-                    .build();
-        }
+        return groupChatService.findById(chatId)
+                .map(chatRecord -> new MessagePayload(
+                        MessageTextCode.TEXT_FILTERS_MESSAGE,
+                        List.of(
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_TAGS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_EMAILS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_LINKS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_MENTIONS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_BOT_COMMANDS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_PHONE_NUMBERS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
+                        ),
+                        new String[]{}
+                ))
+                .orElseGet(() -> new MessagePayload(
+                        MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
+                        List.of(
+                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        ),
+                        new String[]{}
+                ));
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        String callbackQueryId = callbackQuery.getId();
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
         String[] callbackData = callbackQuery.getData().split(":");
 
-        var pressedButton = ButtonTextCode.valueOf(callbackData[0]);
-        long chatId = callbackData.length == 2 ? Long.parseLong(callbackData[1]) : 0;
-
-        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackData[0]);
+        long chatId = callbackData.length == 2
+                ? Long.parseLong(callbackData[1])
+                : 0;
 
         if (chatId == 0) {
             return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
