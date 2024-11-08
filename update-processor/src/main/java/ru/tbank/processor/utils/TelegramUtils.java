@@ -6,7 +6,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.excpetion.UnsupportedUpdateType;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
+import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.ChatIdCallbackData;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,5 +50,16 @@ public class TelegramUtils {
                         String.valueOf(groupChatRecord.getId())
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public static ChatIdCallbackData parseCallbackWithChatId(String callbackData) {
+        String[] callbackDataArr = callbackData.split(":");
+
+        ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackDataArr [0]);
+        long chatId = callbackDataArr .length == 2
+                ? Long.parseLong(callbackDataArr [1])
+                : 0;
+
+        return new ChatIdCallbackData(pressedButton, chatId);
     }
 }

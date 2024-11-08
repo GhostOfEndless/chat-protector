@@ -16,6 +16,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
+import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -55,30 +56,20 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
                         ),
                         new String[]{}
                 ))
-                .orElseGet(() -> new MessagePayload(
-                        MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
-                        List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-                        ),
-                        new String[]{}
-                ));
+                .orElseGet(chatNotFoundMessage);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        String[] callbackData = callbackQuery.getData().split(":");
-
-        ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackData[0]);
-        long chatId = callbackData.length == 2
-                ? Long.parseLong(callbackData[1])
-                : 0;
+        var callbackData = TelegramUtils.parseCallbackWithChatId(callbackQuery.getData());
+        var chatId = callbackData.chatId();
 
         if (chatId == 0) {
             return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
         }
 
-        return switch (pressedButton) {
+        return switch (callbackData.pressedButton()) {
             case BUTTON_BACK -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
             // TODO: обработать переходы на различные текстовые фильтры
             default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
