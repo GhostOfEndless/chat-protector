@@ -58,7 +58,11 @@ public abstract class PersonalUpdateHandler {
                 telegramClientService.editMessage(
                         userRecord.getId(),
                         messageId,
-                        textResourceService.getMessageText(messagePayload.messageText(), userRecord.getLocale()),
+                        textResourceService.getMessageText(
+                                messagePayload.messageText(),
+                                messagePayload.messageArgs(),
+                                userRecord.getLocale()
+                        ),
                         keyboardMarkup
                 );
                 personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);

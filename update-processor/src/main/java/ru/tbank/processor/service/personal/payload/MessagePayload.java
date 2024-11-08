@@ -8,5 +8,6 @@ import java.util.List;
 @Builder
 public record MessagePayload(
         MessageTextCode messageText,
-        List<CallbackButtonPayload> buttons
+        List<CallbackButtonPayload> buttons,
+        String[] messageArgs
 ) { }

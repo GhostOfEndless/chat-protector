@@ -69,7 +69,6 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        super.processCallbackButtonUpdate(callbackQuery, userRecord);
         var callbackQueryId = callbackQuery.getId();
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
