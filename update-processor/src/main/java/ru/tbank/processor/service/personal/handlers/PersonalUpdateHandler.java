@@ -2,30 +2,37 @@ package ru.tbank.processor.service.personal.handlers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
-import ru.tbank.processor.utils.TelegramUtils;
+import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.MessagePayload;
+import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.UpdateType;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+@Slf4j
 @NullMarked
 @RequiredArgsConstructor
 public abstract class PersonalUpdateHandler {
 
-    protected final AppUserService appUserService;
     protected final PersonalChatService personalChatService;
     protected final TelegramClientService telegramClientService;
     protected final TextResourceService textResourceService;
@@ -33,81 +40,123 @@ public abstract class PersonalUpdateHandler {
     @Getter
     protected final UserState processedUserState;
 
-    public void handle(UpdateType updateType, Update update, Long userId) {
-        var user = TelegramUtils.getUserFromUpdate(update);
-        var userRecord = appUserService.findById(userId).orElseGet(
-                () -> appUserService.saveRegularUser(
-                        userId,
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUserName()
-                ));
+    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> new MessagePayload(
+            MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
+            List.of(
+                    CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+            ),
+            new String[]{}
+    );
 
-        if (UserRole.getRoleLevel(userRecord.getRole()) >= processedUserState.getAllowedRoleLevel()) {
-            processUpdate(updateType, update, userRecord);
+    public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        return processUpdate(updateType, update, userRecord);
+    }
+
+    public final void goToState(AppUserRecord userRecord, Integer messageId, Object[] args) {
+        var userRole = UserRole.valueOf(userRecord.getRole());
+        var messagePayload = buildMessagePayloadForUser(userRole, args);
+        var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
+
+        try {
+            if (messageId == 0) {
+                Message sentMessage = telegramClientService.sendMessage(
+                        userRecord.getId(),
+                        textResourceService.getMessageText(messagePayload.messageText(), userRecord.getLocale()),
+                        keyboardMarkup
+                );
+                personalChatService.save(userRecord.getId(), processedUserState.name(), sentMessage.getMessageId());
+            } else {
+                telegramClientService.editMessage(
+                        userRecord.getId(),
+                        messageId,
+                        textResourceService.getMessageText(
+                                messagePayload.messageText(),
+                                messagePayload.messageArgs(),
+                                userRecord.getLocale()
+                        ),
+                        keyboardMarkup
+                );
+                personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);
+            }
+        } catch (TelegramApiException e) {
+            log.error("Telegram API Error: {}", e.getMessage());
         }
     }
 
-    protected abstract void processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord);
+    protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
+        int lastMessageId = personalChatService.findByUserId(userRecord.getId())
+                .orElseThrow()
+                .getLastMessageId();
 
-    protected InlineKeyboardMarkup buildKeyboard(List<ButtonTextCode> buttonsText, String userLocale) {
-        var listOfRows = buttonsText.stream()
-                .map(textCode -> new InlineKeyboardRow(
+        return switch (updateType) {
+            case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
+            case CALLBACK -> {
+                if (update.getCallbackQuery().getMessage().getMessageId() != lastMessageId) {
+                    showMessageExpiredCallback(userRecord.getLocale(), update.getCallbackQuery().getId());
+                    yield new ProcessingResult(processedUserState, 0, new Object[]{});
+                }
+                yield  processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+            }
+            default -> new ProcessingResult(processedUserState, 0, new Object[]{});
+        };
+    }
+
+    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
+        return new ProcessingResult(processedUserState, 0, new Object[]{});
+    }
+
+    protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
+        if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
+            return new ProcessingResult(UserState.START, 0, new Object[]{});
+        }
+
+        return new ProcessingResult(processedUserState, 0, new Object[]{});
+    }
+
+    protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
+
+    protected final ProcessingResult checkPermissionAndProcess(
+            UserRole requiredRole,
+            AppUserRecord userRecord,
+            Supplier<ProcessingResult> supplier,
+            Object[] args,
+            CallbackQuery callbackQuery
+    ) {
+        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        if (!requiredRole.isEqualOrLowerThan(userRole)) {
+            showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
+            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
+        }
+
+        return supplier.get();
+    }
+
+    protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
+        var listOfRows = callbackButtons.stream()
+                .map(callbackButton -> new InlineKeyboardRow(
                         InlineKeyboardButton.builder()
-                                .text(textResourceService.getButtonText(textCode, userLocale))
-                                .callbackData(textCode.name())
-                                .build()))
+                                .text(textResourceService.getButtonText(callbackButton.text(), userLocale))
+                                .callbackData(callbackButton.code())
+                                .build())
+                )
                 .toList();
 
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected boolean isRemovedExpiredMessage(
-            AppUserRecord userRecord,
-            String callbackQueryId,
-            Integer chatLastMessageId,
-            Integer callbackMessageId
-    ) {
-        if (!callbackMessageId.equals(chatLastMessageId)) {
-            removeMessageWithCallback(
-                    callbackMessageId,
-                    userRecord,
-                    CallbackTextCode.MESSAGE_EXPIRED,
-                    callbackQueryId
-            );
-            return true;
-        }
-        return false;
-    }
-
-    protected void sendCallbackForPressedButton(
-            CallbackTextCode callbackTextCode,
-            String callbackQueryId,
-            ButtonTextCode pressedButton,
-            String userLocale
-    ) {
+    protected final void showPermissionDeniedCallback(String userLocale, String callbackQueryId) {
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(
-                        callbackTextCode,
-                        new Object[]{textResourceService.getButtonText(pressedButton, userLocale)},
-                        userLocale
-                ),
-                callbackQueryId,
-                false
-        );
-    }
-
-    protected void removeMessageWithCallback(
-            Integer messageId,
-            AppUserRecord userRecord,
-            CallbackTextCode callbackTextCode,
-            String callbackQueryId
-    ) {
-        telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(callbackTextCode, userRecord.getLocale()),
+                textResourceService.getCallbackText(CallbackTextCode.PERMISSION_DENIED, userLocale),
                 callbackQueryId,
                 true
         );
-        telegramClientService.deleteMessage(userRecord.getId(), messageId);
+    }
+
+    protected final void showMessageExpiredCallback(String userLocale, String callbackQueryId) {
+        telegramClientService.sendCallbackAnswer(
+                textResourceService.getCallbackText(CallbackTextCode.MESSAGE_EXPIRED, userLocale),
+                callbackQueryId,
+                true
+        );
     }
 }

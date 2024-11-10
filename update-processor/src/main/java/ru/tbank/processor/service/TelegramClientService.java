@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
@@ -57,6 +58,21 @@ public class TelegramClientService {
                 .parseMode("MarkdownV2")
                 .build();
         return telegramClient.execute(sendMessage);
+    }
+
+    public void editMessage(Long chatId, Integer messageId, String message, InlineKeyboardMarkup replyMarkup) {
+        try {
+            var editMessage = EditMessageText.builder()
+                    .messageId(messageId)
+                    .replyMarkup(replyMarkup)
+                    .chatId(chatId)
+                    .text(message)
+                    .parseMode("MarkdownV2")
+                    .build();
+            telegramClient.execute(editMessage);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
     }
 
     public void sendCallbackAnswer(String text, String callbackQueryId, boolean isAlert) {

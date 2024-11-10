@@ -7,6 +7,7 @@ import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.GroupChat;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,6 +32,10 @@ public class GroupChatService {
 
         return findById(chatId).orElseThrow(
                 () -> new EntityNotFoundException("User with id=%d not found".formatted(chatId)));
+    }
+
+    public List<GroupChatRecord> findAll() {
+        return dslContext.selectFrom(table).fetch();
     }
 
     public Optional<GroupChatRecord> findById(Long chatId) {
