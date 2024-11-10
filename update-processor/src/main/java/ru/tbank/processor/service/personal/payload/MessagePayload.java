@@ -6,5 +6,6 @@ import java.util.List;
 
 public record MessagePayload(
         MessageTextCode messageText,
-        List<CallbackButtonPayload> buttons
+        List<CallbackButtonPayload> buttons,
+        String[] messageArgs
 ) { }

@@ -15,7 +15,9 @@ import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
+import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
@@ -38,6 +40,14 @@ public abstract class PersonalUpdateHandler {
     @Getter
     protected final UserState processedUserState;
 
+    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> new MessagePayload(
+            MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
+            List.of(
+                    CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+            ),
+            new String[]{}
+    );
+
     public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
         return processUpdate(updateType, update, userRecord);
     }
@@ -59,7 +69,11 @@ public abstract class PersonalUpdateHandler {
                 telegramClientService.editMessage(
                         userRecord.getId(),
                         messageId,
-                        textResourceService.getMessageText(messagePayload.messageText(), userRecord.getLocale()),
+                        textResourceService.getMessageText(
+                                messagePayload.messageText(),
+                                messagePayload.messageArgs(),
+                                userRecord.getLocale()
+                        ),
                         keyboardMarkup
                 );
                 personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);
@@ -105,12 +119,13 @@ public abstract class PersonalUpdateHandler {
             UserRole requiredRole,
             AppUserRecord userRecord,
             Supplier<ProcessingResult> supplier,
+            Object[] args,
             CallbackQuery callbackQuery
     ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
             showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
-            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), new Object[]{});
+            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
         }
 
         return supplier.get();
