@@ -42,6 +42,7 @@ repositories {
 dependencies {
     // spring starters
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
@@ -54,6 +55,10 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // metrics
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // other
     implementation 'org.telegram:telegrambots-client:7.10.0'

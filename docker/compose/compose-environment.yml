@@ -3,6 +3,7 @@ include:
   - compose-network.yml
   - compose-kafka.yml
   - compose-redis.yml
+  - compose-metrics.yml
 
 services:
   postgres:

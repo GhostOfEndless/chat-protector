@@ -1,6 +1,16 @@
 #file: noinspection SpringBootApplicationYaml
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "prometheus" ]
+
+
 telegram:
-    token: ${TELEGRAM_BOT_TOKEN}
+  token: ${TELEGRAM_BOT_TOKEN}
 
 kafka:
   updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
