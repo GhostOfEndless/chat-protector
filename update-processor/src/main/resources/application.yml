@@ -6,7 +6,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: [ "prometheus" ]
+        include: [ "prometheus", "health" ]
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 
 telegram:

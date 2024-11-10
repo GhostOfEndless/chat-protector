@@ -1,5 +1,6 @@
 package ru.tbank.processor.service.group;
 
+import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         Collections.sort(textFilters);
     }
 
+    @Timed("groupMessageProcessing")
     @Override
     public void process(UpdateType updateType, Update update) {
         // TODO: логику необходимо поменять так, чтобы конфиг создавался только при добавлении бота
