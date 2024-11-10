@@ -27,6 +27,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - ../../metrics/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ../../metrics/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ../../grafana/dashboards:/var/lib/grafana/dashboards
 
 volumes:
   prometheus:
