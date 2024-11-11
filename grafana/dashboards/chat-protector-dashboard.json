@@ -119,7 +119,100 @@
           "useBackend": false
         }
       ],
-      "title": "Обработка сообщений в личных чатах",
+      "title": "Время обработки обновлений в личных чатах",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(rate(telegramApiUpdate_seconds_count[1m])) * 60",
+          "interval": "",
+          "legendFormat": "Число обновлений, n",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Число обновлений от Telegram в минуту",
       "type": "timeseries"
     },
     {
@@ -211,7 +304,7 @@
           "refId": "A"
         }
       ],
-      "title": "Обработка сообщений в групповых чатах",
+      "title": "Время обработки обновлений в групповых чатах",
       "type": "timeseries"
     }
   ],
@@ -229,6 +322,6 @@
   "timezone": "browser",
   "title": "Chat Protector",
   "uid": "ae3k7msgtst8ga",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }

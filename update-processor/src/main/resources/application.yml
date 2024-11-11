@@ -1,6 +1,6 @@
 #file: noinspection SpringBootApplicationYaml
 server:
-  port: 8081
+  port: ${PROCESSOR_APP_PORT:8082}
 
 management:
   endpoints:
@@ -11,7 +11,6 @@ management:
     metrics:
       export:
         enabled: true
-
 
 telegram:
   token: ${TELEGRAM_BOT_TOKEN}

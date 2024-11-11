@@ -17,7 +17,11 @@ public class UpdateReceiverService {
     private final UpdateProcessingService groupChatUpdateProcessingService;
 
     @KafkaListener(topics = "${kafka.updates-topic}", groupId = "update_consumer")
-    public void listenUpdate(@NonNull Update update) {
+    public void listenUpdates(@NonNull Update update) {
+        processUpdate(update);
+    }
+
+    private void processUpdate(Update update) {
         var updateType = TelegramUtils.determineUpdateType(update);
 
         switch (updateType) {

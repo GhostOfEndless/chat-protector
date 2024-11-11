@@ -2,6 +2,7 @@ package ru.tbank.receiver.bot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.BotSession;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
@@ -37,7 +38,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
     }
 
     @AfterBotRegistration
-    public void afterRegistration(BotSession botSession) {
+    public void afterRegistration(@NonNull BotSession botSession) {
         log.info("Registered bot running state is: {}", botSession.isRunning());
     }
 }

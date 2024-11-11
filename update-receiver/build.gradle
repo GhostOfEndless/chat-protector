@@ -15,8 +15,19 @@ repositories {
 dependencies {
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // telegram
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
     implementation 'org.telegram:telegrambots-client:7.10.0'
+
+    // metrics
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // other
+    implementation 'org.jspecify:jspecify:1.0.0'
 
     testImplementation ('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

@@ -52,6 +52,7 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         processTextMessage(message, chatSettings.getTextModerationSettings());
     }
 
+    @Timed("groupTextMessageProcessing")
     private void processTextMessage(Message message, TextModerationSettings settings) {
         log.debug("Start processing message with id={}", message.getMessageId());
 
