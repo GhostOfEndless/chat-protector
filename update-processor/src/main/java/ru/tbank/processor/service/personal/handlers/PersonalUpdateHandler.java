@@ -87,30 +87,31 @@ public abstract class PersonalUpdateHandler {
         return switch (updateType) {
             case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
             case CALLBACK -> {
-                if (update.getCallbackQuery().getMessage().getMessageId() != lastMessageId) {
+                var callbackMessageId = update.getCallbackQuery().getMessage().getMessageId();
+                if (callbackMessageId != lastMessageId) {
                     showAlertCallback(
                             CallbackTextCode.MESSAGE_EXPIRED,
                             userRecord.getLocale(),
                             update.getCallbackQuery().getId()
                     );
-                    yield new ProcessingResult(processedUserState, 0, new Object[]{});
+                    yield ProcessingResult.create(processedUserState, 0);
                 }
                 yield processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
             }
-            default -> new ProcessingResult(processedUserState, 0, new Object[]{});
+            default -> ProcessingResult.create(processedUserState, 0);
         };
     }
 
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        return new ProcessingResult(processedUserState, 0, new Object[]{});
+        return ProcessingResult.create(processedUserState, 0);
     }
 
     protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            return new ProcessingResult(UserState.START, 0, new Object[]{});
+            return ProcessingResult.create(UserState.START, 0);
         }
 
-        return new ProcessingResult(processedUserState, 0, new Object[]{});
+        return ProcessingResult.create(processedUserState, 0);
     }
 
     protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
@@ -121,20 +122,10 @@ public abstract class PersonalUpdateHandler {
             Supplier<ProcessingResult> supplier,
             CallbackQuery callbackQuery
     ) {
-        return checkPermissionAndProcess(requiredRole, userRecord, supplier, new Object[]{}, callbackQuery);
-    }
-
-    protected final ProcessingResult checkPermissionAndProcess(
-            UserRole requiredRole,
-            AppUserRecord userRecord,
-            Supplier<ProcessingResult> supplier,
-            Object[] args,
-            CallbackQuery callbackQuery
-    ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
             showAlertCallback(CallbackTextCode.PERMISSION_DENIED, userRecord.getLocale(), callbackQuery.getId());
-            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
+            return ProcessingResult.create(processedUserState, callbackQuery.getMessage().getMessageId());
         }
 
         return supplier.get();

@@ -73,7 +73,7 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
                     () -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId}),
                     callbackQuery
             );
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
+            default -> ProcessingResult.create(UserState.START, callbackMessageId);
         };
     }
 }

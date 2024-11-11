@@ -91,7 +91,6 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         showRegularCallback(CallbackTextCode.FILTER_ENABLE, userRecord.getLocale(), callbackQuery.getId());
                         return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId, filterType});
                     },
-                    new Object[]{chatId, filterType},
                     callbackQuery
             );
             case TEXT_FILTER_BUTTON_DISABLE -> checkPermissionAndProcess(
@@ -102,10 +101,9 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         showRegularCallback(CallbackTextCode.FILTER_DISABLE, userRecord.getLocale(), callbackQuery.getId());
                         return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId, filterType});
                     },
-                    new Object[]{chatId, filterType},
                     callbackQuery
             );
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId, filterType});
+            default -> ProcessingResult.create(UserState.START, callbackMessageId);
         };
     }
 }

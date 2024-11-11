@@ -80,13 +80,12 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
                             callbackMessageId,
                             new Object[]{chatId, filterType}
                     ),
-                    new Object[]{chatId},
                     callbackQuery
             );
         } else if (pressedButton == ButtonTextCode.BUTTON_BACK) {
             return new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
         } else {
-            return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
+            return ProcessingResult.create(UserState.START, callbackMessageId);
         }
     }
 }

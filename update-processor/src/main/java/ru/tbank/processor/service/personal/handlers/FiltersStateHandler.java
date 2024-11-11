@@ -68,10 +68,9 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId}),
-                    new Object[]{chatId},
                     callbackQuery
             );
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
+            default -> ProcessingResult.create(UserState.START, callbackMessageId);
         };
     }
 }
