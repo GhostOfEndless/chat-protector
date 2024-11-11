@@ -35,6 +35,8 @@ services:
       context: ../..
       dockerfile: docker/update-receiver.Dockerfile
     container_name: update-receiver
+    ports:
+      - '8081:8081'
     networks:
       - app-tier
     restart: unless-stopped
@@ -61,6 +63,8 @@ services:
         POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       network: host
     container_name: update-processor
+    ports:
+      - '8082:8082'
     networks:
       - app-tier
     restart: unless-stopped
