@@ -88,7 +88,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                     userRecord,
                     () -> {
                         log.debug("Filter type to enable is: {}", filterType.name());
-                        // TODO: добавить реализацию управлением фильтром
+                        // TODO: добавить реализацию управления фильтром
                         showAnswerCallback(
                                 CallbackTextCode.FILTER_ENABLE,
                                 userRecord.getLocale(),
@@ -108,7 +108,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                     userRecord,
                     () -> {
                         log.debug("Filter type to disable is: {}", filterType.name());
-                        // TODO: добавить реализацию управлением фильтром
+                        // TODO: добавить реализацию управления фильтром
                         showAnswerCallback(
                                 CallbackTextCode.FILTER_DISABLE,
                                 userRecord.getLocale(),

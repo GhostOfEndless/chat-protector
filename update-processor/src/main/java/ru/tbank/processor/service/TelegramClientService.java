@@ -24,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TelegramClientService {
 
+    private static final String MESSAGE_TEXT_PARSE_MODE = "MarkdownV2";
     private final TelegramClient telegramClient;
 
     public List<Sticker> getEmojiPack(String customEmojiId) {
@@ -55,7 +56,7 @@ public class TelegramClientService {
                 .chatId(chatId)
                 .text(message)
                 .replyMarkup(replyMarkup)
-                .parseMode("MarkdownV2")
+                .parseMode(MESSAGE_TEXT_PARSE_MODE)
                 .build();
         return telegramClient.execute(sendMessage);
     }
@@ -67,7 +68,7 @@ public class TelegramClientService {
                 .replyMarkup(replyMarkup)
                 .chatId(chatId)
                 .text(message)
-                .parseMode("MarkdownV2")
+                .parseMode(MESSAGE_TEXT_PARSE_MODE)
                 .build();
         telegramClient.execute(editMessage);
     }
