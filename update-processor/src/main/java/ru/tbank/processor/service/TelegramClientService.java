@@ -60,19 +60,16 @@ public class TelegramClientService {
         return telegramClient.execute(sendMessage);
     }
 
-    public void editMessage(Long chatId, Integer messageId, String message, InlineKeyboardMarkup replyMarkup) {
-        try {
-            var editMessage = EditMessageText.builder()
-                    .messageId(messageId)
-                    .replyMarkup(replyMarkup)
-                    .chatId(chatId)
-                    .text(message)
-                    .parseMode("MarkdownV2")
-                    .build();
-            telegramClient.execute(editMessage);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-        }
+    public void editMessage(Long chatId, Integer messageId, String message, InlineKeyboardMarkup replyMarkup)
+            throws TelegramApiException {
+        var editMessage = EditMessageText.builder()
+                .messageId(messageId)
+                .replyMarkup(replyMarkup)
+                .chatId(chatId)
+                .text(message)
+                .parseMode("MarkdownV2")
+                .build();
+        telegramClient.execute(editMessage);
     }
 
     public void sendCallbackAnswer(String text, String callbackQueryId, boolean isAlert) {

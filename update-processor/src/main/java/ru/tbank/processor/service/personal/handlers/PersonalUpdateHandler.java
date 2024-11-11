@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -40,12 +39,9 @@ public abstract class PersonalUpdateHandler {
     @Getter
     protected final UserState processedUserState;
 
-    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> new MessagePayload(
+    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> MessagePayload.create(
             MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
-            List.of(
-                    CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-            ),
-            new String[]{}
+            List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
     );
 
     public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
@@ -57,25 +53,25 @@ public abstract class PersonalUpdateHandler {
         var messagePayload = buildMessagePayloadForUser(userRole, args);
         var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
 
+        var messageArgs = messagePayload.messageArgs()
+                .stream()
+                .map(argument -> argument.isResource()
+                        ? textResourceService.getText(argument.text(), userRecord.getLocale())
+                        : argument.text()
+                )
+                .toArray();
+        var messageText = textResourceService.getMessageText(
+                messagePayload.messageText(),
+                messageArgs,
+                userRecord.getLocale()
+        );
+
         try {
             if (messageId == 0) {
-                Message sentMessage = telegramClientService.sendMessage(
-                        userRecord.getId(),
-                        textResourceService.getMessageText(messagePayload.messageText(), userRecord.getLocale()),
-                        keyboardMarkup
-                );
+                var sentMessage = telegramClientService.sendMessage(userRecord.getId(), messageText, keyboardMarkup);
                 personalChatService.save(userRecord.getId(), processedUserState.name(), sentMessage.getMessageId());
             } else {
-                telegramClientService.editMessage(
-                        userRecord.getId(),
-                        messageId,
-                        textResourceService.getMessageText(
-                                messagePayload.messageText(),
-                                messagePayload.messageArgs(),
-                                userRecord.getLocale()
-                        ),
-                        keyboardMarkup
-                );
+                telegramClientService.editMessage(userRecord.getId(), messageId, messageText, keyboardMarkup);
                 personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);
             }
         } catch (TelegramApiException e) {
@@ -92,10 +88,14 @@ public abstract class PersonalUpdateHandler {
             case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
             case CALLBACK -> {
                 if (update.getCallbackQuery().getMessage().getMessageId() != lastMessageId) {
-                    showMessageExpiredCallback(userRecord.getLocale(), update.getCallbackQuery().getId());
+                    showAlertCallback(
+                            CallbackTextCode.MESSAGE_EXPIRED,
+                            userRecord.getLocale(),
+                            update.getCallbackQuery().getId()
+                    );
                     yield new ProcessingResult(processedUserState, 0, new Object[]{});
                 }
-                yield  processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+                yield processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
             }
             default -> new ProcessingResult(processedUserState, 0, new Object[]{});
         };
@@ -119,12 +119,21 @@ public abstract class PersonalUpdateHandler {
             UserRole requiredRole,
             AppUserRecord userRecord,
             Supplier<ProcessingResult> supplier,
+            CallbackQuery callbackQuery
+    ) {
+        return checkPermissionAndProcess(requiredRole, userRecord, supplier, new Object[]{}, callbackQuery);
+    }
+
+    protected final ProcessingResult checkPermissionAndProcess(
+            UserRole requiredRole,
+            AppUserRecord userRecord,
+            Supplier<ProcessingResult> supplier,
             Object[] args,
             CallbackQuery callbackQuery
     ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
-            showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
+            showAlertCallback(CallbackTextCode.PERMISSION_DENIED, userRecord.getLocale(), callbackQuery.getId());
             return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
         }
 
@@ -135,7 +144,7 @@ public abstract class PersonalUpdateHandler {
         var listOfRows = callbackButtons.stream()
                 .map(callbackButton -> new InlineKeyboardRow(
                         InlineKeyboardButton.builder()
-                                .text(textResourceService.getButtonText(callbackButton.text(), userLocale))
+                                .text(textResourceService.getText(callbackButton.text(), userLocale))
                                 .callbackData(callbackButton.code())
                                 .build())
                 )
@@ -144,17 +153,25 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected final void showPermissionDeniedCallback(String userLocale, String callbackQueryId) {
+    protected final void showRegularCallback(
+            CallbackTextCode callbackTextCode,
+            String userLocale,
+            String callbackQueryId
+    ) {
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(CallbackTextCode.PERMISSION_DENIED, userLocale),
+                textResourceService.getCallbackText(callbackTextCode, userLocale),
                 callbackQueryId,
-                true
+                false
         );
     }
 
-    protected final void showMessageExpiredCallback(String userLocale, String callbackQueryId) {
+    protected final void showAlertCallback(
+            CallbackTextCode callbackTextCode,
+            String userLocale,
+            String callbackQueryId
+    ) {
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(CallbackTextCode.MESSAGE_EXPIRED, userLocale),
+                textResourceService.getCallbackText(callbackTextCode, userLocale),
                 callbackQueryId,
                 true
         );

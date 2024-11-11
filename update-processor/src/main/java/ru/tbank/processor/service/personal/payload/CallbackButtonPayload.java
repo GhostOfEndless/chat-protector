@@ -15,4 +15,11 @@ public record CallbackButtonPayload(
     public static CallbackButtonPayload create(ButtonTextCode textCode, Long chatId) {
         return new CallbackButtonPayload(textCode.getResourceName(), "%s:%d".formatted(textCode.name(), chatId));
     }
+
+    public static CallbackButtonPayload create(ButtonTextCode textCode, Long chatId, String additionalData) {
+        return new CallbackButtonPayload(
+                textCode.getResourceName(),
+                "%s:%d:%s".formatted(textCode.name(), chatId, additionalData)
+        );
+    }
 }

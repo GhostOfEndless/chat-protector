@@ -14,6 +14,7 @@ import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.MessageArgument;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
@@ -44,30 +45,32 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
                 .map(chatRecord -> new MessagePayload(
                         MessageTextCode.CHAT_MESSAGE,
                         List.of(
+                                MessageArgument.createTextArgument(chatRecord.getName())
+                        ),
+                        List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-                        ),
-                        new String[]{chatRecord.getName()}))
+                        )))
                 .orElseGet(chatNotFoundMessage);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithChatId(callbackQuery.getData());
+        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
         var chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            // TODO: Добавить callback, что такого чата не существует
+            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 
         return switch (callbackData.pressedButton()) {
-            case ButtonTextCode.BUTTON_BACK -> new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            case ButtonTextCode.BUTTON_BACK -> ProcessingResult.create(UserState.CHATS, callbackMessageId);
             case ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId}),
-                    new Object[]{},
                     callbackQuery
             );
             default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});

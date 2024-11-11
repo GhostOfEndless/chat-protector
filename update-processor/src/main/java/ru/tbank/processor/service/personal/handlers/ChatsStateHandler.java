@@ -19,6 +19,8 @@ import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
 
+import java.util.Collections;
+
 @NullMarked
 @Slf4j
 @Component
@@ -44,12 +46,12 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         return switch (userRole) {
             case ADMIN -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons, new String[]{});
+                yield MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
             }
             case OWNER -> {
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
                 groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons, new String[]{});
+                yield MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
             }
             default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
         };
@@ -68,21 +70,19 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                         long chatId = Long.parseLong(callbackData);
                         return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
                     },
-                    new Object[]{},
                     callbackQuery
             );
         } else {
             var pressedButton = ButtonTextCode.valueOf(callbackData);
             return switch (pressedButton) {
-                case BUTTON_BACK -> new ProcessingResult(UserState.START, callbackMessageId, new Object[]{});
+                case BUTTON_BACK -> ProcessingResult.create(UserState.START, callbackMessageId);
                 case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
                         UserRole.OWNER,
                         userRecord,
-                        () -> new ProcessingResult(UserState.CHAT_ADDITION, callbackMessageId, new Object[]{}),
-                        new Object[]{},
+                        () -> ProcessingResult.create(UserState.CHAT_ADDITION, callbackMessageId),
                         callbackQuery
                 );
-                default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
+                default -> ProcessingResult.create(processedUserState, callbackMessageId);
             };
         }
     }

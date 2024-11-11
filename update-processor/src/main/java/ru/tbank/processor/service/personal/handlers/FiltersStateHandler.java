@@ -42,24 +42,24 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
         long chatId = (Long) args[0];
 
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.FILTERS_MESSAGE,
                         List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.FILTERS_BUTTON_TEXT_FILTERS, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
-                        ),
-                        new String[]{}))
+                        )))
                 .orElseGet(chatNotFoundMessage);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithChatId(callbackQuery.getData());
+        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
         var chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            // TODO: Добавить callback, что такого чата не существует
+            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 
         return switch (callbackData.pressedButton()) {

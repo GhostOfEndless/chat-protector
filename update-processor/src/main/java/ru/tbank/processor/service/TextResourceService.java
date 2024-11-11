@@ -36,7 +36,7 @@ public class TextResourceService {
         return getTextSource(code.getResourceName(), null, languageTag);
     }
 
-    public String getButtonText(@NonNull String code, String languageTag) {
+    public String getText(@NonNull String code, String languageTag) {
         return getTextSource(code, null, languageTag);
     }
 

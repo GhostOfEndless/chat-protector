@@ -8,7 +8,7 @@ import ru.tbank.processor.excpetion.UnsupportedUpdateType;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
-import ru.tbank.processor.service.personal.payload.ChatIdCallbackData;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,14 +52,17 @@ public class TelegramUtils {
                 .collect(Collectors.toList());
     }
 
-    public static ChatIdCallbackData parseCallbackWithChatId(String callbackData) {
+    public static CallbackData parseCallbackWithParams(String callbackData) {
         String[] callbackDataArr = callbackData.split(":");
 
-        ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackDataArr [0]);
-        long chatId = callbackDataArr .length == 2
-                ? Long.parseLong(callbackDataArr [1])
+        ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackDataArr[0]);
+        long chatId = callbackDataArr.length >= 2
+                ? Long.parseLong(callbackDataArr[1])
                 : 0;
+        String additionalData = callbackDataArr.length >= 3
+                ? callbackDataArr[2]
+                : "";
 
-        return new ChatIdCallbackData(pressedButton, chatId);
+        return new CallbackData(pressedButton, chatId, additionalData);
     }
 }

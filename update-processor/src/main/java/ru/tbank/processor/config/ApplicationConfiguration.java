@@ -17,7 +17,8 @@ public class ApplicationConfiguration {
                 "classpath:/messages/telegram/global",
                 "classpath:/messages/telegram/filters",
                 "classpath:/messages/telegram/start",
-                "classpath:/messages/telegram/text-filters"
+                "classpath:/messages/telegram/text-filters",
+                "classpath:/messages/telegram/text-filter"
         );
         messageSource.setDefaultEncoding("UTF-8");
 
