@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum UserState {
+    NONE(UserRole.USER.ordinal()),
     START(UserRole.USER.ordinal()),
     ACCOUNT(UserRole.ADMIN.ordinal()),
     CHATS(UserRole.ADMIN.ordinal()),

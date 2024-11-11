@@ -12,4 +12,8 @@ public record ProcessingResult(
     public static @NonNull ProcessingResult create(UserState newState, Integer messageId) {
         return new ProcessingResult(newState, messageId, new Object[]{});
     }
+
+    public static @NonNull ProcessingResult create(UserState newState) {
+        return new ProcessingResult(newState, 0, new Object[]{});
+    }
 }

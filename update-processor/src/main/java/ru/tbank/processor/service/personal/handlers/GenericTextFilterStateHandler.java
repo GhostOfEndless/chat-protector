@@ -88,8 +88,18 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                     userRecord,
                     () -> {
                         log.debug("Filter type to enable is: {}", filterType.name());
-                        showRegularCallback(CallbackTextCode.FILTER_ENABLE, userRecord.getLocale(), callbackQuery.getId());
-                        return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId, filterType});
+                        // TODO: добавить реализацию управлением фильтром
+                        showAnswerCallback(
+                                CallbackTextCode.FILTER_ENABLE,
+                                userRecord.getLocale(),
+                                callbackQuery.getId(),
+                                false
+                        );
+                        return new ProcessingResult(
+                                processedUserState,
+                                callbackMessageId,
+                                new Object[]{chatId, filterType}
+                        );
                     },
                     callbackQuery
             );
@@ -98,8 +108,18 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                     userRecord,
                     () -> {
                         log.debug("Filter type to disable is: {}", filterType.name());
-                        showRegularCallback(CallbackTextCode.FILTER_DISABLE, userRecord.getLocale(), callbackQuery.getId());
-                        return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId, filterType});
+                        // TODO: добавить реализацию управлением фильтром
+                        showAnswerCallback(
+                                CallbackTextCode.FILTER_DISABLE,
+                                userRecord.getLocale(),
+                                callbackQuery.getId(),
+                                false
+                        );
+                        return new ProcessingResult(
+                                processedUserState,
+                                callbackMessageId,
+                                new Object[]{chatId, filterType}
+                        );
                     },
                     callbackQuery
             );

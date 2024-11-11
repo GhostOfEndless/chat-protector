@@ -89,29 +89,30 @@ public abstract class PersonalUpdateHandler {
             case CALLBACK -> {
                 var callbackMessageId = update.getCallbackQuery().getMessage().getMessageId();
                 if (callbackMessageId != lastMessageId) {
-                    showAlertCallback(
+                    showAnswerCallback(
                             CallbackTextCode.MESSAGE_EXPIRED,
                             userRecord.getLocale(),
-                            update.getCallbackQuery().getId()
+                            update.getCallbackQuery().getId(),
+                            true
                     );
-                    yield ProcessingResult.create(processedUserState, 0);
+                    yield ProcessingResult.create(UserState.NONE);
                 }
                 yield processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
             }
-            default -> ProcessingResult.create(processedUserState, 0);
+            default -> ProcessingResult.create(processedUserState);
         };
     }
 
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        return ProcessingResult.create(processedUserState, 0);
+        return ProcessingResult.create(processedUserState);
     }
 
     protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            return ProcessingResult.create(UserState.START, 0);
+            return ProcessingResult.create(UserState.START);
         }
 
-        return ProcessingResult.create(processedUserState, 0);
+        return ProcessingResult.create(processedUserState);
     }
 
     protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
@@ -124,8 +125,13 @@ public abstract class PersonalUpdateHandler {
     ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
-            showAlertCallback(CallbackTextCode.PERMISSION_DENIED, userRecord.getLocale(), callbackQuery.getId());
-            return ProcessingResult.create(processedUserState, callbackQuery.getMessage().getMessageId());
+            showAnswerCallback(
+                    CallbackTextCode.PERMISSION_DENIED,
+                    userRecord.getLocale(),
+                    callbackQuery.getId(),
+                    true
+            );
+            return ProcessingResult.create(UserState.START, callbackQuery.getMessage().getMessageId());
         }
 
         return supplier.get();
@@ -144,27 +150,16 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected final void showRegularCallback(
+    protected final void showAnswerCallback(
             CallbackTextCode callbackTextCode,
             String userLocale,
-            String callbackQueryId
+            String callbackQueryId,
+            boolean isAlert
     ) {
         telegramClientService.sendCallbackAnswer(
                 textResourceService.getCallbackText(callbackTextCode, userLocale),
                 callbackQueryId,
-                false
-        );
-    }
-
-    protected final void showAlertCallback(
-            CallbackTextCode callbackTextCode,
-            String userLocale,
-            String callbackQueryId
-    ) {
-        telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(callbackTextCode, userLocale),
-                callbackQueryId,
-                true
+                isAlert
         );
     }
 }
