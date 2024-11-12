@@ -1,6 +1,16 @@
 server:
   port: 8080
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "prometheus", "health" ]
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 spring:
   mustache:
     check-template-location: false

@@ -1,43 +1,7 @@
-plugins {
-    id 'io.freefair.lombok' version '8.10'
-    id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.springframework.boot' version '3.3.4'
-    id 'java'
-}
-
 group = 'ru.tbank.receiver'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // telegram
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
     implementation 'org.telegram:telegrambots-client:7.10.0'
-
-    // metrics
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    // other
-    implementation 'org.jspecify:jspecify:1.0.0'
-
-    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-}
-
-bootJar {
-    mainClass = 'ru.tbank.receiver.ReceiverApplication'
-}
-
-test {
-    useJUnitPlatform()
 }
