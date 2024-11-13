@@ -7,7 +7,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import ru.tbank.processor.service.personal.enums.UserState;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -18,8 +17,8 @@ public class ApplicationConfiguration {
     @Bean
     public MessageSource messageSource() {
         var messageSource = new ReloadableResourceBundleMessageSource();
-        String[] baseNames = Arrays.stream(UserState.values())
-                .map(state -> MESSAGES_PATH + state.name().toLowerCase().replace('_', '-'))
+        String[] baseNames = UserState.getBaseNames().stream()
+                .map(baseName -> MESSAGES_PATH + baseName)
                 .toArray(String[]::new);
 
         messageSource.setBasenames(baseNames);

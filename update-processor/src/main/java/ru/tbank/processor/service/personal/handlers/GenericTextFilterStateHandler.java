@@ -45,6 +45,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         long chatId = (Long) args[0];
         FilterType filterType = (FilterType) args[1];
 
+        // TODO добавить вывод текущего статуса фильтра и создавать кнопки в зависимости от него
         return groupChatService.findById(chatId)
                 .map(chatRecord -> new MessagePayload(
                         MessageTextCode.TEXT_FILTER_MESSAGE,
@@ -62,7 +63,10 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                                         chatId,
                                         filterType.name()
                                 ),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
+                                CallbackButtonPayload.create(
+                                        ButtonTextCode.BUTTON_BACK,
+                                        chatId
+                                )
                         )))
                 .orElseGet(chatNotFoundMessage);
     }
