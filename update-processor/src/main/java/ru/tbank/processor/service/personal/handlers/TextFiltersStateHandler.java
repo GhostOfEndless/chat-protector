@@ -66,7 +66,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
         long chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            // TODO: Добавить callback, что такого чата не существует
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 

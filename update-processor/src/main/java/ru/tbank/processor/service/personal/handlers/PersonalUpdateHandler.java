@@ -160,6 +160,10 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
+    protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
+        showAnswerCallback(CallbackTextCode.CHAT_UNAVAILABLE, userLocale, callbackId, false);
+    }
+
     protected final void showAnswerCallback(
             CallbackTextCode callbackTextCode,
             String userLocale,

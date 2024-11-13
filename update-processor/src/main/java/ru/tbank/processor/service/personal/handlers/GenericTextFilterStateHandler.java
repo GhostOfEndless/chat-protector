@@ -80,7 +80,8 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         long chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
+            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         } else if (filterTypeName.isEmpty() || pressedButton == ButtonTextCode.BUTTON_BACK) {
             return new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId});
         }

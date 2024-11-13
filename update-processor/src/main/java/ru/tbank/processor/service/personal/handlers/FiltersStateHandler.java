@@ -10,6 +10,7 @@ import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
+import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
@@ -58,7 +59,7 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
         var chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            // TODO: Добавить callback, что такого чата не существует
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 
