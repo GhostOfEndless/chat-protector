@@ -35,27 +35,24 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         return switch (userRole) {
-            case USER -> new MessagePayload(
+            case USER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_USER,
-                    Collections.emptyList(),
-                    new String[]{}
+                    Collections.emptyList()
             );
-            case ADMIN -> new MessagePayload(
+            case ADMIN -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    ),
-                    new String[]{}
+                    )
             );
-            case OWNER -> new MessagePayload(
+            case OWNER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_OWNER,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
-                    ),
-                    new String[]{}
+                    )
             );
         };
     }
@@ -69,26 +66,22 @@ public final class StartStateHandler extends PersonalUpdateHandler {
             case START_BUTTON_CHATS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{}),
-                    new Object[]{},
+                    () -> ProcessingResult.create(UserState.CHATS, callbackMessageId),
                     callbackQuery
             );
             case START_BUTTON_ADMINS -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
-                    () -> new ProcessingResult(UserState.ADMINS, callbackMessageId, new Object[]{}),
-                    new Object[]{},
+                    () -> ProcessingResult.create(UserState.ADMINS, callbackMessageId),
                     callbackQuery
             );
-
             case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> new ProcessingResult(UserState.ADMIN, callbackMessageId, new Object[]{}),
-                    new Object[]{},
+                    () -> ProcessingResult.create(UserState.ADMIN, callbackMessageId),
                     callbackQuery
             );
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
+            default -> ProcessingResult.create(processedUserState, callbackMessageId);
         };
     }
 }

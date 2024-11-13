@@ -1,16 +1,5 @@
-plugins {
-    id 'java'
-    id 'io.freefair.lombok' version '8.10'
-}
-
-group = 'org.example'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
+group = 'ru.tbank.common'
 
 dependencies {
     implementation 'org.telegram:telegrambots-client:7.10.0'
-    implementation 'org.jspecify:jspecify:1.0.0'
 }

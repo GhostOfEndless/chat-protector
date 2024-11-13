@@ -1,12 +1,8 @@
 plugins {
-    id 'java'
-    id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.springframework.boot' version '3.3.4'
     id 'org.jooq.jooq-codegen-gradle' version '3.19.14'
 }
 
 group = 'ru.tbank.processor'
-version = '1.0-SNAPSHOT'
 
 jooq {
     configuration {
@@ -30,49 +26,21 @@ jooq {
     }
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     // spring starters
     implementation 'org.springframework.kafka:spring-kafka:3.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
 
     // data
-    implementation 'org.postgresql:postgresql:42.7.4'
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
     jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
-
-    // lombok
-    compileOnly 'org.projectlombok:lombok:1.18.34'
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
-
-    // metrics
-    implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // other
     implementation 'org.telegram:telegrambots-client:7.10.0'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
-    implementation 'org.jspecify:jspecify:1.0.0'
-
-    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-}
-
-test {
-    useJUnitPlatform()
 }
 
 tasks.compileJava {

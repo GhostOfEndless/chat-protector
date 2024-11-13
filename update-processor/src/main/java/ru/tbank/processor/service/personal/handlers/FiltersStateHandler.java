@@ -40,38 +40,35 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.FILTERS_MESSAGE,
                         List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.FILTERS_BUTTON_TEXT_FILTERS, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
-                        ),
-                        new String[]{}))
+                        )))
                 .orElseGet(chatNotFoundMessage);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithChatId(callbackQuery.getData());
+        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
         var chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
+            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
-
         return switch (callbackData.pressedButton()) {
             case BUTTON_BACK -> new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
             case FILTERS_BUTTON_TEXT_FILTERS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId}),
-                    new Object[]{chatId},
                     callbackQuery
             );
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
+            default -> ProcessingResult.create(UserState.START, callbackMessageId);
         };
     }
 }

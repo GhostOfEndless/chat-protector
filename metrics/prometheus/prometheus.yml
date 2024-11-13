@@ -14,3 +14,11 @@ scrape_configs:
       - targets: [ 'host.docker.internal:8081' ]
         labels:
           application: 'Chat Protector receiver service'
+
+  - job_name: 'AdminService'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 3s
+    static_configs:
+      - targets: [ 'host.docker.internal:8080' ]
+        labels:
+          application: 'Chat Protector admin service'

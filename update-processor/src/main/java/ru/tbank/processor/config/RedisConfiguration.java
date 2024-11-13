@@ -41,7 +41,6 @@ public class RedisConfiguration {
         log.debug("PUB/SUB: Redis host {} port {}", properties.master().host(), properties.master().port());
         var redisStandaloneConfig = new RedisStandaloneConfiguration(properties.master().host(),
                 properties.master().port());
-
         return new LettuceConnectionFactory(redisStandaloneConfig);
     }
 
@@ -77,8 +76,6 @@ public class RedisConfiguration {
                 properties.master().host(), properties.master().port());
         staticMasterReplicaConfiguration.setDatabase(database);
         properties.slaves().forEach(slave -> staticMasterReplicaConfiguration.addNode(slave.host(), slave.port()));
-
-
         return new LettuceConnectionFactory(staticMasterReplicaConfiguration, clientConfig);
     }
 }

@@ -1,19 +1,46 @@
 plugins {
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.3.4'
     id 'java'
 }
 
 group = 'ru.tbank'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-}
+    version = '1.0-SNAPSHOT'
 
-test {
-    useJUnitPlatform()
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    bootJar {
+        layered {
+            true
+        }
+    }
+
+    dependencies {
+        implementation 'org.jspecify:jspecify:1.0.0'
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
+        implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        compileOnly 'org.projectlombok:lombok:1.18.34'
+        annotationProcessor 'org.projectlombok:lombok:1.18.34'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
 }

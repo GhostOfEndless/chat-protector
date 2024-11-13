@@ -40,9 +40,8 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTERS_MESSAGE,
                         List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_TAGS, chatId),
@@ -53,8 +52,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
                                 CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_PHONE_NUMBERS, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
-                        ),
-                        new String[]{}
+                        )
                 ))
                 .orElseGet(chatNotFoundMessage);
     }
@@ -62,17 +60,31 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
         int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithChatId(callbackQuery.getData());
-        var chatId = callbackData.chatId();
+        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
+        var pressedButton = callbackData.pressedButton();
+        long chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{});
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
+            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 
-        return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
-            // TODO: обработать переходы на различные текстовые фильтры
-            default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
-        };
+        if (pressedButton.isButtonFilterType()) {
+            var filterType = pressedButton.getFilterTypeFromButton();
+            return checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> new ProcessingResult(
+                            UserState.TEXT_FILTER,
+                            callbackMessageId,
+                            new Object[]{chatId, filterType}
+                    ),
+                    callbackQuery
+            );
+        } else if (pressedButton == ButtonTextCode.BUTTON_BACK) {
+            return new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
+        } else {
+            return ProcessingResult.create(UserState.START, callbackMessageId);
+        }
     }
 }

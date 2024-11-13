@@ -37,7 +37,6 @@ public class AppUserService {
 
     public Optional<AppUserRecord> findById(Long userId) {
         var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(userId));
-
         return Optional.ofNullable(fetchedRecord);
     }
 }

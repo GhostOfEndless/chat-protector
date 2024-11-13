@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.GetMe;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
@@ -24,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TelegramClientService {
 
+    private static final String MESSAGE_TEXT_PARSE_MODE = "MarkdownV2";
     private final TelegramClient telegramClient;
 
     public List<Sticker> getEmojiPack(String customEmojiId) {
@@ -55,24 +59,21 @@ public class TelegramClientService {
                 .chatId(chatId)
                 .text(message)
                 .replyMarkup(replyMarkup)
-                .parseMode("MarkdownV2")
+                .parseMode(MESSAGE_TEXT_PARSE_MODE)
                 .build();
         return telegramClient.execute(sendMessage);
     }
 
-    public void editMessage(Long chatId, Integer messageId, String message, InlineKeyboardMarkup replyMarkup) {
-        try {
-            var editMessage = EditMessageText.builder()
-                    .messageId(messageId)
-                    .replyMarkup(replyMarkup)
-                    .chatId(chatId)
-                    .text(message)
-                    .parseMode("MarkdownV2")
-                    .build();
-            telegramClient.execute(editMessage);
-        } catch (TelegramApiException e) {
-            log.error(e.getMessage());
-        }
+    public void editMessage(Long chatId, Integer messageId, String message, InlineKeyboardMarkup replyMarkup)
+            throws TelegramApiException {
+        var editMessage = EditMessageText.builder()
+                .messageId(messageId)
+                .replyMarkup(replyMarkup)
+                .chatId(chatId)
+                .text(message)
+                .parseMode(MESSAGE_TEXT_PARSE_MODE)
+                .build();
+        telegramClient.execute(editMessage);
     }
 
     public void sendCallbackAnswer(String text, String callbackQueryId, boolean isAlert) {
@@ -83,6 +84,23 @@ public class TelegramClientService {
                     .text(text)
                     .build();
             telegramClient.execute(callbackAnswer);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public User getMe() {
+        try {
+            return telegramClient.execute(new GetMe());
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+            return new User(0L, "", true);
+        }
+    }
+
+    public void leaveFromChat(Long chatId) {
+        try {
+            telegramClient.execute(new LeaveChat(chatId.toString()));
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }

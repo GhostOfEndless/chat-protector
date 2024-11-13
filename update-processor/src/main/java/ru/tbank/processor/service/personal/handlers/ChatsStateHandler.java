@@ -40,19 +40,15 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
+        groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
 
-        return switch (userRole) {
-            case ADMIN -> {
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons, new String[]{});
-            }
-            case OWNER -> {
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield new MessagePayload(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons, new String[]{});
-            }
-            default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
-        };
+        if (userRole != UserRole.OWNER) {
+            return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
+        }
+
+        groupChatsButtons.add(groupChatsButtons.size() - 1,
+                CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
+        return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
     }
 
     @Override
@@ -68,21 +64,19 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                         long chatId = Long.parseLong(callbackData);
                         return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
                     },
-                    new Object[]{},
                     callbackQuery
             );
         } else {
             var pressedButton = ButtonTextCode.valueOf(callbackData);
             return switch (pressedButton) {
-                case BUTTON_BACK -> new ProcessingResult(UserState.START, callbackMessageId, new Object[]{});
+                case BUTTON_BACK -> ProcessingResult.create(UserState.START, callbackMessageId);
                 case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
                         UserRole.OWNER,
                         userRecord,
-                        () -> new ProcessingResult(UserState.CHAT_ADDITION, callbackMessageId, new Object[]{}),
-                        new Object[]{},
+                        () -> ProcessingResult.create(UserState.CHAT_ADDITION, callbackMessageId),
                         callbackQuery
                 );
-                default -> new ProcessingResult(processedUserState, callbackMessageId, new Object[]{});
+                default -> ProcessingResult.create(processedUserState, callbackMessageId);
             };
         }
     }
