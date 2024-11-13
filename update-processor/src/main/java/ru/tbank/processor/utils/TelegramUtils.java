@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TelegramUtils {
 
+    private static final String BOT_ADDITION_URL = """
+            https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
+            """;
+
     public static UpdateType determineUpdateType(Update update) {
         if (update.hasMessage()) {
             if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
@@ -47,7 +51,8 @@ public class TelegramUtils {
         return groupChatRecords.stream()
                 .map(groupChatRecord -> new CallbackButtonPayload(
                         groupChatRecord.getName(),
-                        String.valueOf(groupChatRecord.getId())
+                        String.valueOf(groupChatRecord.getId()),
+                        false
                 ))
                 .collect(Collectors.toList());
     }
@@ -64,5 +69,9 @@ public class TelegramUtils {
                 : "";
 
         return new CallbackData(pressedButton, chatId, additionalData);
+    }
+
+    public static String createBotAdditionUrl(String botUserName) {
+        return BOT_ADDITION_URL.formatted(botUserName);
     }
 }

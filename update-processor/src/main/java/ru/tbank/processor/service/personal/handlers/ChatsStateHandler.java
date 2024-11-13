@@ -19,8 +19,6 @@ import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
 
-import java.util.Collections;
-
 @NullMarked
 @Slf4j
 @Component

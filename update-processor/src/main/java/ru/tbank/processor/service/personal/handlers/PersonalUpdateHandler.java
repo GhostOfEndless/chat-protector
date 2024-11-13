@@ -139,11 +139,21 @@ public abstract class PersonalUpdateHandler {
 
     protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
         var listOfRows = callbackButtons.stream()
-                .map(callbackButton -> new InlineKeyboardRow(
-                        InlineKeyboardButton.builder()
-                                .text(textResourceService.getText(callbackButton.text(), userLocale))
-                                .callbackData(callbackButton.code())
-                                .build())
+                .map(callbackButton -> {
+                            if (callbackButton.isUrl()) {
+                                return new InlineKeyboardRow(
+                                        InlineKeyboardButton.builder()
+                                                .text(textResourceService.getText(callbackButton.text(), userLocale))
+                                                .url(callbackButton.code())
+                                                .build());
+                            }
+
+                            return new InlineKeyboardRow(
+                                    InlineKeyboardButton.builder()
+                                            .text(textResourceService.getText(callbackButton.text(), userLocale))
+                                            .callbackData(callbackButton.code())
+                                            .build());
+                        }
                 )
                 .toList();
 

@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.GetMe;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
@@ -83,6 +85,16 @@ public class TelegramClientService {
             telegramClient.execute(callbackAnswer);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    public User getMe() {
+        try {
+            GetMe me = new GetMe();
+            return telegramClient.execute(me);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+            return new User(0L, "", true);
         }
     }
 }
