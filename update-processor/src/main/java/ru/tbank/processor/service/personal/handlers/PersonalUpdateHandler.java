@@ -22,7 +22,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.UpdateType;
+import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.List;
 import java.util.function.Supplier;

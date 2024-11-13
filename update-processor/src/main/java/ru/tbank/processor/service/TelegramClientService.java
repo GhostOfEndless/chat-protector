@@ -6,6 +6,7 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.GetMe;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -95,6 +96,15 @@ public class TelegramClientService {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
             return new User(0L, "", true);
+        }
+    }
+
+    public void leaveFromChat(Long chatId) {
+        try {
+            LeaveChat leaveChat = new LeaveChat(chatId.toString());
+            telegramClient.execute(leaveChat);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
     }
 }

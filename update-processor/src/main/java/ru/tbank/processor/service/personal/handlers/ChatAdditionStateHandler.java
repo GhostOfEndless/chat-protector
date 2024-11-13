@@ -35,10 +35,6 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
 
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
-        if (userRole != UserRole.OWNER) {
-            throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
-        }
-
         User bot = telegramClientService.getMe();
         if (bot.getUserName() == null) {
             return MessagePayload.create(

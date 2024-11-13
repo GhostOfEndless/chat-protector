@@ -23,10 +23,11 @@ public class UpdateReceiverService {
 
     private void processUpdate(Update update) {
         var updateType = TelegramUtils.determineUpdateType(update);
+        var chatType = TelegramUtils.determineChatType(updateType);
 
-        switch (updateType) {
-            case PERSONAL_MESSAGE, CALLBACK -> personalUpdateProcessingService.process(updateType, update);
-            case GROUP_MESSAGE -> groupChatUpdateProcessingService.process(updateType, update);
+        switch (chatType) {
+            case PERSONAL -> personalUpdateProcessingService.process(updateType, update);
+            case GROUP -> groupChatUpdateProcessingService.process(updateType, update);
             case UNKNOWN -> log.warn("Unknown update type! {}", update);
         }
     }
