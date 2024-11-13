@@ -36,23 +36,11 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         User bot = telegramClientService.getMe();
-        if (bot.getUserName() == null) {
-            return MessagePayload.create(
-                    MessageTextCode.CHAT_ADDITION_ERROR_MESSAGE,
-                    List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-                    )
-            );
-        }
 
-        String additionUrl = TelegramUtils.createBotAdditionUrl(bot.getUserName());
-        return MessagePayload.create(
-                MessageTextCode.CHAT_ADDITION_MESSAGE,
-                List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.CHAT_ADDITION_BUTTON_ADD, additionUrl),
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-                )
-        );
+        if (bot.getUserName() == null) {
+            return buildErrorMessage();
+        }
+        return buildChatAdditionMessage(bot);
     }
 
     @Override
@@ -65,5 +53,25 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
             return ProcessingResult.create(processedUserState, callbackMessageId);
         }
         return ProcessingResult.create(UserState.CHATS, callbackMessageId);
+    }
+
+    private MessagePayload buildErrorMessage() {
+        return MessagePayload.create(
+                MessageTextCode.CHAT_ADDITION_ERROR_MESSAGE,
+                List.of(
+                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                )
+        );
+    }
+
+    private MessagePayload buildChatAdditionMessage(User bot) {
+        String additionUrl = TelegramUtils.createBotAdditionUrl(bot.getUserName());
+        return MessagePayload.create(
+                MessageTextCode.CHAT_ADDITION_MESSAGE,
+                List.of(
+                        CallbackButtonPayload.create(ButtonTextCode.CHAT_ADDITION_BUTTON_ADD, additionUrl),
+                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                )
+        );
     }
 }

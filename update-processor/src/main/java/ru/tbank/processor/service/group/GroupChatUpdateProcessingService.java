@@ -49,34 +49,9 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         log.debug("Group update is: {}", update);
 
         switch (updateType) {
-            case GROUP_BOT_ADDED -> {
-                long userId = update.getMyChatMember().getFrom().getId();
-                var groupChat = update.getMyChatMember().getChat();
-                var user = appUserService.findById(userId);
-
-                if (user.isPresent() && user.get().getRole().equals(UserRole.OWNER.name())) {
-                    groupChatService.save(groupChat.getId(), groupChat.getTitle());
-                    // TODO: заменить на save метод
-                    getModerationSettingsByChat(groupChat);
-                } else {
-                    telegramClientService.leaveFromChat(groupChat.getId());
-                }
-            }
-            case GROUP_BOT_KICKED -> {
-                long chatId = update.getMyChatMember().getChat().getId();
-                groupChatService.remove(chatId);
-                // TODO: удалить конфигурацию чата из Redis
-                log.debug("Bot kicked from chat with id: {}", chatId);
-            }
-            case GROUP_MESSAGE -> {
-                var message = update.getMessage();
-                var groupChat = groupChatService.findById(message.getChatId());
-
-                if (groupChat.isPresent()) {
-                    var chatSettings = getModerationSettingsByChat(message.getChat());
-                    processTextMessage(message, chatSettings.getTextModerationSettings());
-                }
-            }
+            case GROUP_BOT_ADDED -> processGroupBotAddEvent(update);
+            case GROUP_BOT_KICKED -> processGroupBotKickEvent(update);
+            case GROUP_MESSAGE -> processGroupMessageEvent(update);
             default -> log.warn("Unknown update type: {}", update);
         }
     }
@@ -109,5 +84,36 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         log.debug("Config for this chat: {}", config);
 
         return config;
+    }
+
+    private void processGroupBotAddEvent(Update update) {
+        long userId = update.getMyChatMember().getFrom().getId();
+        var groupChat = update.getMyChatMember().getChat();
+        var user = appUserService.findById(userId);
+
+        if (user.isPresent() && user.get().getRole().equals(UserRole.OWNER.name())) {
+            groupChatService.save(groupChat.getId(), groupChat.getTitle());
+            // TODO: заменить на save метод
+            getModerationSettingsByChat(groupChat);
+        } else {
+            telegramClientService.leaveFromChat(groupChat.getId());
+        }
+    }
+
+    private void processGroupBotKickEvent(Update update) {
+        long chatId = update.getMyChatMember().getChat().getId();
+        groupChatService.remove(chatId);
+        // TODO: удалить конфигурацию чата из Redis
+        log.debug("Bot kicked from chat with id: {}", chatId);
+    }
+
+    private void processGroupMessageEvent(Update update) {
+        var message = update.getMessage();
+        var groupChat = groupChatService.findById(message.getChatId());
+
+        if (groupChat.isPresent()) {
+            var chatSettings = getModerationSettingsByChat(message.getChat());
+            processTextMessage(message, chatSettings.getTextModerationSettings());
+        }
     }
 }
