@@ -33,7 +33,6 @@ public class DeletedTextMessageService {
 
     public Optional<DeletedTextMessageRecord> findById(Long id) {
         var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(id));
-
         return Optional.ofNullable(fetchedRecord);
     }
 }

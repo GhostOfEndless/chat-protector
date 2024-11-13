@@ -14,7 +14,7 @@ import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
-import ru.tbank.processor.utils.UpdateType;
+import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.HashMap;
 import java.util.List;

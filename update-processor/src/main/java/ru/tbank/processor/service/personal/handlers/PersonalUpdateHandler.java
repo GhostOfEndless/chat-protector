@@ -22,7 +22,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.UpdateType;
+import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -111,7 +111,6 @@ public abstract class PersonalUpdateHandler {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
             return ProcessingResult.create(UserState.START);
         }
-
         return ProcessingResult.create(processedUserState);
     }
 
@@ -133,21 +132,31 @@ public abstract class PersonalUpdateHandler {
             );
             return ProcessingResult.create(UserState.START, callbackQuery.getMessage().getMessageId());
         }
-
         return supplier.get();
     }
 
     protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
         var listOfRows = callbackButtons.stream()
-                .map(callbackButton -> new InlineKeyboardRow(
-                        InlineKeyboardButton.builder()
-                                .text(textResourceService.getText(callbackButton.text(), userLocale))
-                                .callbackData(callbackButton.code())
-                                .build())
+                .map(callbackButton -> {
+                            String buttonText = textResourceService.getText(callbackButton.text(), userLocale);
+                            var inlineKeyboardButton = new InlineKeyboardButton(buttonText);
+                            var inlineKeyboardRow = new InlineKeyboardRow(inlineKeyboardButton);
+
+                            if (callbackButton.isUrl()) {
+                                inlineKeyboardButton.setUrl(callbackButton.code());
+                            } else {
+                                inlineKeyboardButton.setCallbackData(callbackButton.code());
+                            }
+
+                            return inlineKeyboardRow;
+                        }
                 )
                 .toList();
-
         return new InlineKeyboardMarkup(listOfRows);
+    }
+
+    protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
+        showAnswerCallback(CallbackTextCode.CHAT_UNAVAILABLE, userLocale, callbackId, false);
     }
 
     protected final void showAnswerCallback(

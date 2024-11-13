@@ -19,8 +19,6 @@ import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
 
-import java.util.Collections;
-
 @NullMarked
 @Slf4j
 @Component
@@ -42,19 +40,15 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
+        groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
 
-        return switch (userRole) {
-            case ADMIN -> {
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
-            }
-            case OWNER -> {
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
-                groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-                yield MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
-            }
-            default -> throw new IllegalStateException("Unexpected role: %s".formatted(userRole));
-        };
+        if (userRole != UserRole.OWNER) {
+            return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
+        }
+
+        groupChatsButtons.add(groupChatsButtons.size() - 1,
+                CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
+        return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
     }
 
     @Override

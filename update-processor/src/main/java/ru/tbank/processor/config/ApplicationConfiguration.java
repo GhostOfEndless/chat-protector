@@ -24,7 +24,6 @@ public class ApplicationConfiguration {
         messageSource.setBasenames(baseNames);
         messageSource.addBasenames(GLOBAL_MESSAGES_PATH);
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
-
         return messageSource;
     }
 }

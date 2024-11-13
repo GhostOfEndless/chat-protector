@@ -40,7 +40,6 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTERS_MESSAGE,
@@ -66,7 +65,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
         long chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            // TODO: Добавить callback, что такого чата не существует
+            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
 

@@ -14,6 +14,7 @@ management:
 
 telegram:
   token: ${TELEGRAM_BOT_TOKEN}
+  bot-addition-url: https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
 
 kafka:
   updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}

@@ -18,6 +18,8 @@ public enum MessageTextCode {
     FILTERS_MESSAGE("telegram.filters_level.message"),
     TEXT_FILTERS_MESSAGE("telegram.text_filters_level.message"),
     TEXT_FILTER_MESSAGE("telegram.text_filter_level.message"),
+    CHAT_ADDITION_MESSAGE("telegram.chat_addition_level.message"),
+    CHAT_ADDITION_ERROR_MESSAGE("telegram.chat_addition_level.message.error"),
     TEXT_FILTER_TYPE_TAGS("telegram.text_filter_level.filter_type.tags"),
     TEXT_FILTER_TYPE_EMAILS("telegram.text_filter_level.filter_type.emails"),
     TEXT_FILTER_TYPE_LINKS("telegram.text_filter_level.filter_type.links"),
