@@ -49,7 +49,7 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         log.debug("Group update is: {}", update);
 
         switch (updateType) {
-            case BOT_ADDED -> {
+            case GROUP_BOT_ADDED -> {
                 long userId = update.getMyChatMember().getFrom().getId();
                 var groupChat = update.getMyChatMember().getChat();
                 var user = appUserService.findById(userId);
@@ -62,7 +62,7 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
                     telegramClientService.leaveFromChat(groupChat.getId());
                 }
             }
-            case BOT_KICKED -> {
+            case GROUP_BOT_KICKED -> {
                 long chatId = update.getMyChatMember().getChat().getId();
                 groupChatService.remove(chatId);
                 // TODO: удалить конфигурацию чата из Redis

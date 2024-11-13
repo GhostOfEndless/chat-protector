@@ -64,7 +64,6 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
         if (pressedButton != ButtonTextCode.BUTTON_BACK) {
             return ProcessingResult.create(processedUserState, callbackMessageId);
         }
-
         return ProcessingResult.create(UserState.CHATS, callbackMessageId);
     }
 }

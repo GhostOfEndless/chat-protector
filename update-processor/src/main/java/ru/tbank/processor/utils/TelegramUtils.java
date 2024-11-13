@@ -25,31 +25,9 @@ public class TelegramUtils {
 
     public static UpdateType determineUpdateType(Update update) {
         if (update.hasMessage()) {
-            if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
-                return UpdateType.GROUP_MESSAGE;
-            } else if (update.getMessage().isUserMessage()) {
-                return UpdateType.PERSONAL_MESSAGE;
-            } else {
-                log.warn("Unhandled type of message! {}", update);
-                return UpdateType.UNKNOWN;
-            }
-        } else if (update.hasMyChatMember()
-                && (update.getMyChatMember().getChat().isGroupChat()
-                || update.getMyChatMember().getChat().isSuperGroupChat())
-        ) {
-            String oldStatus = update.getMyChatMember().getOldChatMember().getStatus();
-            String newStatus = update.getMyChatMember().getNewChatMember().getStatus();
-            if ((oldStatus.equals("left") || oldStatus.equals("kicked"))
-                    && (newStatus.equals("administrator") || newStatus.equals("member"))) {
-                return UpdateType.BOT_ADDED;
-            } else if (newStatus.equals("kicked") || newStatus.equals("left")) {
-                return update.getMyChatMember().getFrom().getIsBot()
-                        ? UpdateType.BOT_LEFT
-                        : UpdateType.BOT_KICKED;
-            } else {
-                log.warn("Unknown chat member update type! {}", update);
-                return UpdateType.UNKNOWN;
-            }
+            return determineMessageType(update);
+        } else if (update.hasMyChatMember()) {
+            return determineChatMemberEvent(update);
         } else if (update.hasCallbackQuery()) {
             return UpdateType.CALLBACK;
         } else {
@@ -60,7 +38,7 @@ public class TelegramUtils {
 
     public static ChatType determineChatType(UpdateType updateType) {
         return switch (updateType) {
-            case BOT_ADDED, BOT_KICKED, GROUP_MESSAGE, BOT_LEFT -> ChatType.GROUP;
+            case GROUP_BOT_ADDED, GROUP_BOT_KICKED, GROUP_MESSAGE, GROUP_BOT_LEFT -> ChatType.GROUP;
             case CALLBACK, PERSONAL_MESSAGE -> ChatType.PERSONAL;
             case UNKNOWN -> ChatType.UNKNOWN;
         };
@@ -68,7 +46,7 @@ public class TelegramUtils {
 
     public static User getUserFromUpdate(Update update) {
         return switch (determineUpdateType(update)) {
-            case BOT_ADDED, BOT_KICKED, BOT_LEFT -> update.getMyChatMember().getFrom();
+            case GROUP_BOT_ADDED, GROUP_BOT_KICKED, GROUP_BOT_LEFT -> update.getMyChatMember().getFrom();
             case GROUP_MESSAGE, PERSONAL_MESSAGE -> update.getMessage().getFrom();
             case CALLBACK -> update.getCallbackQuery().getFrom();
             case UNKNOWN -> throw new UnsupportedUpdateType("Couldn't get user from update %s".formatted(update));
@@ -95,11 +73,38 @@ public class TelegramUtils {
         String additionalData = callbackDataArr.length >= 3
                 ? callbackDataArr[2]
                 : "";
-
         return new CallbackData(pressedButton, chatId, additionalData);
     }
 
     public static String createBotAdditionUrl(String botUserName) {
         return BOT_ADDITION_URL.formatted(botUserName);
+    }
+
+    private static UpdateType determineMessageType(Update update) {
+        if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
+            return UpdateType.GROUP_MESSAGE;
+        } else if (update.getMessage().isUserMessage()) {
+            return UpdateType.PERSONAL_MESSAGE;
+        } else {
+            log.warn("Unhandled type of message! {}", update);
+            return UpdateType.UNKNOWN;
+        }
+    }
+
+    private static UpdateType determineChatMemberEvent(Update update) {
+        if (update.getMyChatMember().getChat().isGroupChat() || update.getMyChatMember().getChat().isSuperGroupChat()) {
+            String oldStatus = update.getMyChatMember().getOldChatMember().getStatus();
+            String newStatus = update.getMyChatMember().getNewChatMember().getStatus();
+            if ((oldStatus.equals("left") || oldStatus.equals("kicked"))
+                    && (newStatus.equals("administrator") || newStatus.equals("member"))) {
+                return UpdateType.GROUP_BOT_ADDED;
+            } else if (newStatus.equals("kicked") || newStatus.equals("left")) {
+                return update.getMyChatMember().getFrom().getIsBot()
+                        ? UpdateType.GROUP_BOT_LEFT
+                        : UpdateType.GROUP_BOT_KICKED;
+            }
+        }
+        log.warn("Unknown chat member update type! {}", update);
+        return UpdateType.UNKNOWN;
     }
 }

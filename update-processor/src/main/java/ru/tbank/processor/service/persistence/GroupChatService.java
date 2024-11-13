@@ -41,7 +41,6 @@ public class GroupChatService {
 
     public Optional<GroupChatRecord> findById(Long chatId) {
         var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(chatId));
-
         return Optional.ofNullable(fetchedRecord);
     }
 

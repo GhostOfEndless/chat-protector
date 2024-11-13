@@ -40,7 +40,6 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTERS_MESSAGE,

@@ -111,7 +111,6 @@ public abstract class PersonalUpdateHandler {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
             return ProcessingResult.create(UserState.START);
         }
-
         return ProcessingResult.create(processedUserState);
     }
 
@@ -133,7 +132,6 @@ public abstract class PersonalUpdateHandler {
             );
             return ProcessingResult.create(UserState.START, callbackQuery.getMessage().getMessageId());
         }
-
         return supplier.get();
     }
 
@@ -156,7 +154,6 @@ public abstract class PersonalUpdateHandler {
                         }
                 )
                 .toList();
-
         return new InlineKeyboardMarkup(listOfRows);
     }
 

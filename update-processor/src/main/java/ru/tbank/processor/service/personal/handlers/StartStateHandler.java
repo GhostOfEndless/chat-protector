@@ -75,7 +75,6 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     () -> ProcessingResult.create(UserState.ADMINS, callbackMessageId),
                     callbackQuery
             );
-
             case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,

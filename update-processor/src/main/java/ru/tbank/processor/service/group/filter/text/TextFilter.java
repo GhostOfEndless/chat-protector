@@ -25,7 +25,6 @@ public abstract class TextFilter implements Comparable<TextFilter> {
         boolean checkResult = textFilterSettings.isEnabled()
                 && message.hasEntities()
                 && isContainsBlockedEntity(message, textFilterSettings, entityType);
-
         return checkResult
                 ? foundEntityResult
                 : TextProcessingResult.OK;

@@ -10,7 +10,6 @@ import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
-import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
@@ -41,7 +40,6 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
         long chatId = (Long) args[0];
-
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.FILTERS_MESSAGE,
@@ -62,7 +60,6 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
             showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
-
         return switch (callbackData.pressedButton()) {
             case BUTTON_BACK -> new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
             case FILTERS_BUTTON_TEXT_FILTERS -> checkPermissionAndProcess(

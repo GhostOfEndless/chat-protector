@@ -91,8 +91,7 @@ public class TelegramClientService {
 
     public User getMe() {
         try {
-            GetMe me = new GetMe();
-            return telegramClient.execute(me);
+            return telegramClient.execute(new GetMe());
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
             return new User(0L, "", true);
@@ -101,8 +100,7 @@ public class TelegramClientService {
 
     public void leaveFromChat(Long chatId) {
         try {
-            LeaveChat leaveChat = new LeaveChat(chatId.toString());
-            telegramClient.execute(leaveChat);
+            telegramClient.execute(new LeaveChat(chatId.toString()));
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
