@@ -30,7 +30,6 @@ public class CustomEmojisFilter extends TextFilter {
         boolean checkResult = filterSettings.isEnabled()
                 && message.hasEntities()
                 && isContainsBlockedEntity(message, filterSettings, TextEntityType.CUSTOM_EMOJI);
-
         return checkResult
                 ? TextProcessingResult.CUSTOM_EMOJI_FOUND
                 : TextProcessingResult.OK;

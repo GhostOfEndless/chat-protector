@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -23,7 +22,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.UpdateType;
+import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -40,12 +39,9 @@ public abstract class PersonalUpdateHandler {
     @Getter
     protected final UserState processedUserState;
 
-    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> new MessagePayload(
+    protected final Supplier<MessagePayload> chatNotFoundMessage = () -> MessagePayload.create(
             MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
-            List.of(
-                    CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
-            ),
-            new String[]{}
+            List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
     );
 
     public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
@@ -57,25 +53,25 @@ public abstract class PersonalUpdateHandler {
         var messagePayload = buildMessagePayloadForUser(userRole, args);
         var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
 
+        var messageArgs = messagePayload.messageArgs()
+                .stream()
+                .map(argument -> argument.isResource()
+                        ? textResourceService.getText(argument.text(), userRecord.getLocale())
+                        : argument.text()
+                )
+                .toArray();
+        var messageText = textResourceService.getMessageText(
+                messagePayload.messageText(),
+                messageArgs,
+                userRecord.getLocale()
+        );
+
         try {
             if (messageId == 0) {
-                Message sentMessage = telegramClientService.sendMessage(
-                        userRecord.getId(),
-                        textResourceService.getMessageText(messagePayload.messageText(), userRecord.getLocale()),
-                        keyboardMarkup
-                );
+                var sentMessage = telegramClientService.sendMessage(userRecord.getId(), messageText, keyboardMarkup);
                 personalChatService.save(userRecord.getId(), processedUserState.name(), sentMessage.getMessageId());
             } else {
-                telegramClientService.editMessage(
-                        userRecord.getId(),
-                        messageId,
-                        textResourceService.getMessageText(
-                                messagePayload.messageText(),
-                                messagePayload.messageArgs(),
-                                userRecord.getLocale()
-                        ),
-                        keyboardMarkup
-                );
+                telegramClientService.editMessage(userRecord.getId(), messageId, messageText, keyboardMarkup);
                 personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);
             }
         } catch (TelegramApiException e) {
@@ -91,26 +87,31 @@ public abstract class PersonalUpdateHandler {
         return switch (updateType) {
             case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
             case CALLBACK -> {
-                if (update.getCallbackQuery().getMessage().getMessageId() != lastMessageId) {
-                    showMessageExpiredCallback(userRecord.getLocale(), update.getCallbackQuery().getId());
-                    yield new ProcessingResult(processedUserState, 0, new Object[]{});
+                var callbackMessageId = update.getCallbackQuery().getMessage().getMessageId();
+                if (callbackMessageId != lastMessageId) {
+                    showAnswerCallback(
+                            CallbackTextCode.MESSAGE_EXPIRED,
+                            userRecord.getLocale(),
+                            update.getCallbackQuery().getId(),
+                            true
+                    );
+                    yield ProcessingResult.create(UserState.NONE);
                 }
-                yield  processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
+                yield processCallbackButtonUpdate(update.getCallbackQuery(), userRecord);
             }
-            default -> new ProcessingResult(processedUserState, 0, new Object[]{});
+            default -> ProcessingResult.create(processedUserState);
         };
     }
 
     protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        return new ProcessingResult(processedUserState, 0, new Object[]{});
+        return ProcessingResult.create(processedUserState);
     }
 
     protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
         if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
-            return new ProcessingResult(UserState.START, 0, new Object[]{});
+            return ProcessingResult.create(UserState.START);
         }
-
-        return new ProcessingResult(processedUserState, 0, new Object[]{});
+        return ProcessingResult.create(processedUserState);
     }
 
     protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
@@ -119,44 +120,55 @@ public abstract class PersonalUpdateHandler {
             UserRole requiredRole,
             AppUserRecord userRecord,
             Supplier<ProcessingResult> supplier,
-            Object[] args,
             CallbackQuery callbackQuery
     ) {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
-            showPermissionDeniedCallback(userRecord.getLocale(), callbackQuery.getId());
-            return new ProcessingResult(processedUserState, callbackQuery.getMessage().getMessageId(), args);
+            showAnswerCallback(
+                    CallbackTextCode.PERMISSION_DENIED,
+                    userRecord.getLocale(),
+                    callbackQuery.getId(),
+                    true
+            );
+            return ProcessingResult.create(UserState.START, callbackQuery.getMessage().getMessageId());
         }
-
         return supplier.get();
     }
 
     protected final InlineKeyboardMarkup buildKeyboard(List<CallbackButtonPayload> callbackButtons, String userLocale) {
         var listOfRows = callbackButtons.stream()
-                .map(callbackButton -> new InlineKeyboardRow(
-                        InlineKeyboardButton.builder()
-                                .text(textResourceService.getButtonText(callbackButton.text(), userLocale))
-                                .callbackData(callbackButton.code())
-                                .build())
+                .map(callbackButton -> {
+                            String buttonText = textResourceService.getText(callbackButton.text(), userLocale);
+                            var inlineKeyboardButton = new InlineKeyboardButton(buttonText);
+                            var inlineKeyboardRow = new InlineKeyboardRow(inlineKeyboardButton);
+
+                            if (callbackButton.isUrl()) {
+                                inlineKeyboardButton.setUrl(callbackButton.code());
+                            } else {
+                                inlineKeyboardButton.setCallbackData(callbackButton.code());
+                            }
+
+                            return inlineKeyboardRow;
+                        }
                 )
                 .toList();
-
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected final void showPermissionDeniedCallback(String userLocale, String callbackQueryId) {
-        telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(CallbackTextCode.PERMISSION_DENIED, userLocale),
-                callbackQueryId,
-                true
-        );
+    protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
+        showAnswerCallback(CallbackTextCode.CHAT_UNAVAILABLE, userLocale, callbackId, false);
     }
 
-    protected final void showMessageExpiredCallback(String userLocale, String callbackQueryId) {
+    protected final void showAnswerCallback(
+            CallbackTextCode callbackTextCode,
+            String userLocale,
+            String callbackQueryId,
+            boolean isAlert
+    ) {
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(CallbackTextCode.MESSAGE_EXPIRED, userLocale),
+                textResourceService.getCallbackText(callbackTextCode, userLocale),
                 callbackQueryId,
-                true
+                isAlert
         );
     }
 }

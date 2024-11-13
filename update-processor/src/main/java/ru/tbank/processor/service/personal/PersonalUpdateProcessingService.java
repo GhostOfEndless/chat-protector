@@ -1,5 +1,6 @@
 package ru.tbank.processor.service.personal;
 
+import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
-import ru.tbank.processor.utils.UpdateType;
+import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
         updateHandlers.forEach(handler -> updateHandlerMap.put(handler.getProcessedUserState(), handler));
     }
 
+    @Timed("personalMessageProcessing")
     @Override
     public void process(UpdateType updateType, Update update) {
         Long userId = TelegramUtils.getUserFromUpdate(update).getId();

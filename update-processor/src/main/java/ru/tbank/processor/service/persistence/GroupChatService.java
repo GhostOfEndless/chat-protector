@@ -2,6 +2,7 @@ package ru.tbank.processor.service.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.jooq.impl.UpdatableRecordImpl;
 import org.springframework.stereotype.Service;
 import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.GroupChat;
@@ -40,7 +41,11 @@ public class GroupChatService {
 
     public Optional<GroupChatRecord> findById(Long chatId) {
         var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(chatId));
-
         return Optional.ofNullable(fetchedRecord);
+    }
+
+    public void remove(Long chatId) {
+        dslContext.fetchOptional(table, table.ID.eq(chatId))
+                .ifPresent(UpdatableRecordImpl::delete);
     }
 }
