@@ -1,33 +1,48 @@
 plugins {
-    id 'io.freefair.lombok' version '8.10'
-    id 'io.spring.dependency-management' version '1.1.6'
-    id 'org.springframework.boot' version '3.3.4'
-    id 'java'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.14'
 }
 
 group = 'ru.tbank.processor'
-version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = url = url = "jdbc:postgresql://${System.getenv("DB_HOST") ?: "localhost"}:" +
+                    "${System.getenv("DB_PORT") ?: "5432"}/${System.getenv("DB_NAME") ?: "postgres"}"
+            user = System.getenv('DB_USER') ?: 'user'
+            password = System.getenv('DB_PASSWORD') ?: 'password'
+        }
 
-dependencies {
-    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.telegram:telegrambots-client:7.10.0'
-    implementation project(":common")
-
-    testImplementation ('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        generator {
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'moderation'
+            }
+            target {
+                packageName = 'ru.tbank.processor.generated'
+            }
+        }
     }
 }
 
-bootJar {
-    mainClass = 'ru.tbank.processor.ProcessorApplication'
+dependencies {
+    // spring starters
+    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+
+    // data
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    jooqCodegen 'org.postgresql:postgresql:42.7.4'
+    implementation project(":common")
+
+    // other
+    implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
 }
 
-test {
-    useJUnitPlatform()
+tasks.compileJava {
+    dependsOn(tasks.jooqCodegen)
 }

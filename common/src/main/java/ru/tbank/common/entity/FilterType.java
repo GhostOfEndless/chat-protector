@@ -11,7 +11,9 @@ public enum FilterType {
     TAGS,
     MENTIONS,
     LINKS,
-    PHONE_NUMBERS;
+    PHONE_NUMBERS,
+    BOT_COMMANDS,
+    CUSTOM_EMOJIS;
 
     @Getter
     private static final String availableTypes = Arrays.stream(values())
