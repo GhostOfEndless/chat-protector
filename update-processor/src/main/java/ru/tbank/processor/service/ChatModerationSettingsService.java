@@ -3,6 +3,7 @@ package ru.tbank.processor.service;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -26,7 +27,7 @@ public class ChatModerationSettingsService {
     private final Map<Long, ChatModerationSettings> chatConfigs = new ConcurrentHashMap<>();
 
     @PostConstruct
-    public void init() {
+    private void init() {
         loadAllChatConfigs();
 
         listenerContainer.addMessageListener(
@@ -52,8 +53,8 @@ public class ChatModerationSettingsService {
         log.info("Load '{}' chat configs from DB", keys.size());
     }
 
-    public ChatModerationSettings getChatConfig(Long chatId) {
-        return chatConfigs.computeIfAbsent(chatId, this::fetchFromRedis);
+    public Optional<ChatModerationSettings> findChatConfigById(Long chatId) {
+        return Optional.ofNullable(chatConfigs.get(chatId));
     }
 
     public void createChatConfig(Long chatId, String chatName) {
@@ -65,15 +66,14 @@ public class ChatModerationSettingsService {
         log.info("Default config for chat with id '{}' successfully created!", chatId);
     }
 
-    public void updateChatConfig(ChatModerationSettings chatModerationSettings) {
+    public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
         var key = "chat:" + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
         stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);
     }
 
-    private ChatModerationSettings fetchFromRedis(Long chatId) {
-        var key = "chat:" + chatId;
-        return redisTemplate.opsForValue().get(key);
+    public void deleteChatConfig(Long chatId) {
+        redisTemplate.delete("chat:" + chatId);
     }
 
     private void updateLocalConfig(String chatId) {
