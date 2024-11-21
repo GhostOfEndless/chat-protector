@@ -114,7 +114,6 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                 userRecord,
                 () -> {
                     Integer messageId = callbackQuery.getMessage().getMessageId();
-                    String callbackId = callbackQuery.getId();
                     Object[] args = new Object[]{chatId, filterType};
 
                     try {
@@ -126,15 +125,10 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         var callbackText = newState
                                 ? CallbackTextCode.FILTER_ENABLE
                                 : CallbackTextCode.FILTER_DISABLE;
-                        showAnswerCallback(callbackText, userRecord.getLocale(), callbackId, false);
+                        showAnswerCallback(callbackText, userRecord.getLocale(), callbackQuery.getId(), false);
                         goToState(userRecord, messageId, args);
                     } catch (ChatModerationSettingsNotFoundException ex) {
-                        showAnswerCallback(
-                                CallbackTextCode.CHAT_UNAVAILABLE,
-                                userRecord.getLocale(),
-                                callbackId,
-                                false
-                        );
+                        showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
                     }
 
                     return new ProcessingResult(processedUserState, messageId, args);

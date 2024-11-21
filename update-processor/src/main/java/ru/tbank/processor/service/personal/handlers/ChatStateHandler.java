@@ -49,6 +49,7 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
                         ),
                         List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_EXCLUDE, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
                         )))
                 .orElseGet(chatNotFoundMessage);
@@ -60,17 +61,18 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
         var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
         var chatId = callbackData.chatId();
 
-        if (chatId == 0) {
-            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
-            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
-        }
-
         return switch (callbackData.pressedButton()) {
-            case ButtonTextCode.BUTTON_BACK -> ProcessingResult.create(UserState.CHATS, callbackMessageId);
-            case ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
+            case BUTTON_BACK -> ProcessingResult.create(UserState.CHATS, callbackMessageId);
+            case CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId}),
+                    callbackQuery
+            );
+            case CHAT_BUTTON_EXCLUDE -> checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> new ProcessingResult(UserState.CHAT_DELETION, callbackMessageId, new Object[]{chatId}),
                     callbackQuery
             );
             default -> ProcessingResult.create(UserState.START, callbackMessageId);
