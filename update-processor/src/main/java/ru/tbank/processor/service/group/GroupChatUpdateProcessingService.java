@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
-import ru.tbank.processor.service.ChatModerationSettingsService;
+import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.group.filter.text.TextFilter;

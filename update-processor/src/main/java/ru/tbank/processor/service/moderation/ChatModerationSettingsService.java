@@ -1,4 +1,4 @@
-package ru.tbank.processor.service;
+package ru.tbank.processor.service.moderation;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import ru.tbank.common.entity.ChatModerationSettings;
+import ru.tbank.processor.excpetion.ChatModerationSettingsNotFoundException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -42,19 +43,24 @@ public class ChatModerationSettingsService {
     private void loadAllChatConfigs() {
         var keys = redisTemplate.keys("chat:*");
 
-        Objects.requireNonNull(keys).forEach(key -> {
-            var config = redisTemplate.opsForValue().get(key);
-            if (!Objects.isNull(config)) {
-                chatConfigs.put(config.getChatId(), config);
-                log.info("Loaded chat config for chat id: {}", config.getChatId());
-            }
-        });
+        Objects.requireNonNull(keys).forEach(key ->
+                Optional.ofNullable(redisTemplate.opsForValue().get(key))
+                        .ifPresent(chatModerationSettings -> {
+                            chatConfigs.put(chatModerationSettings.getChatId(), chatModerationSettings);
+                            log.info("Loaded chat config for chat id: {}", chatModerationSettings);
+                        }));
 
         log.info("Load '{}' chat configs from DB", keys.size());
     }
 
     public Optional<ChatModerationSettings> findChatConfigById(Long chatId) {
         return Optional.ofNullable(chatConfigs.get(chatId));
+    }
+
+    public ChatModerationSettings getChatConfigById(Long chatId) {
+        return findChatConfigById(chatId).orElseThrow(() -> new ChatModerationSettingsNotFoundException(
+                "Not found setting for chat with id=%d".formatted(chatId)
+                ));
     }
 
     public void createChatConfig(Long chatId, String chatName) {
@@ -77,10 +83,10 @@ public class ChatModerationSettingsService {
     }
 
     private void updateLocalConfig(String chatId) {
-        var updatedConfig = Optional.ofNullable(redisTemplate.opsForValue().get(chatId));
-        if (updatedConfig.isPresent()) {
-            log.info("Config updated! {}", updatedConfig);
-            chatConfigs.put(updatedConfig.get().getChatId(), updatedConfig.get());
-        }
+        Optional.ofNullable(redisTemplate.opsForValue().get(chatId))
+                .ifPresent(chatModerationSettings -> {
+                    log.info("Config updated! {}", chatModerationSettings);
+                    chatConfigs.put(chatModerationSettings.getChatId(), chatModerationSettings);
+                });
     }
 }

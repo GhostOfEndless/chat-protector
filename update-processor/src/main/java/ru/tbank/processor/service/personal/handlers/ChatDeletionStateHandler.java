@@ -5,6 +5,7 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
+import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.GroupChatService;
@@ -26,14 +27,17 @@ import java.util.List;
 public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
 
     private final GroupChatService groupChatService;
+    private final ChatModerationSettingsService chatModerationSettingsService;
 
     public ChatDeletionStateHandler(
             PersonalChatService personalChatService,
             TelegramClientService telegramClientService,
             TextResourceService textResourceService,
-            GroupChatService groupChatService
+            GroupChatService groupChatService,
+            ChatModerationSettingsService chatModerationSettingsService
     ) {
         super(personalChatService, telegramClientService, textResourceService, UserState.CHAT_DELETION);
+        this.chatModerationSettingsService = chatModerationSettingsService;
         this.groupChatService = groupChatService;
     }
 
@@ -67,7 +71,8 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
                     UserRole.ADMIN,
                     userRecord,
                     () -> {
-                        log.debug("Chat with id={} deletion", chatId);
+                        chatModerationSettingsService.deleteChatConfig(chatId);
+                        log.debug("Moderation config of chat with id={} was deleted", chatId);
                         return new ProcessingResult(processedUserState, callbackMessageId, new Object[]{chatId});
                     },
                     callbackQuery
