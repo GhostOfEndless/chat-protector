@@ -66,18 +66,18 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                     },
                     callbackQuery
             );
-        } else {
-            var pressedButton = ButtonTextCode.valueOf(callbackData);
-            return switch (pressedButton) {
-                case BUTTON_BACK -> ProcessingResult.create(UserState.START, callbackMessageId);
-                case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
-                        UserRole.OWNER,
-                        userRecord,
-                        () -> ProcessingResult.create(UserState.CHAT_ADDITION, callbackMessageId),
-                        callbackQuery
-                );
-                default -> ProcessingResult.create(processedUserState, callbackMessageId);
-            };
         }
+
+        var pressedButton = ButtonTextCode.valueOf(callbackData);
+        return switch (pressedButton) {
+            case BUTTON_BACK -> ProcessingResult.create(UserState.START, callbackMessageId);
+            case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
+                    UserRole.OWNER,
+                    userRecord,
+                    () -> ProcessingResult.create(UserState.CHAT_ADDITION, callbackMessageId),
+                    callbackQuery
+            );
+            default -> ProcessingResult.create(processedUserState, callbackMessageId);
+        };
     }
 }

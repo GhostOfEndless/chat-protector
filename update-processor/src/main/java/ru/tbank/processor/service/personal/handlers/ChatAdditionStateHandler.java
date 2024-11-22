@@ -49,9 +49,10 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
         String callbackData = callbackQuery.getData();
         var pressedButton = ButtonTextCode.valueOf(callbackData);
 
-        if (pressedButton != ButtonTextCode.BUTTON_BACK) {
+        if (!pressedButton.isBackButton()) {
             return ProcessingResult.create(processedUserState, callbackMessageId);
         }
+
         return ProcessingResult.create(UserState.CHATS, callbackMessageId);
     }
 

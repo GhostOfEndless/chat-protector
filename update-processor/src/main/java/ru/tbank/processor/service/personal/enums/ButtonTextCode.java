@@ -73,4 +73,12 @@ public enum ButtonTextCode {
     public static ButtonTextCode getButtonForLanguage(Language language) {
         return languageToButton.get(language);
     }
+
+    public boolean isBackButton() {
+        return this == BUTTON_BACK;
+    }
+
+    public boolean isFilterControlButton() {
+        return this == TEXT_FILTER_BUTTON_ENABLE || this == TEXT_FILTER_BUTTON_DISABLE;
+    }
 }

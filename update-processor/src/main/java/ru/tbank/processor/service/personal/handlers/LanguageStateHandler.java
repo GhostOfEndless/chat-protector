@@ -68,9 +68,10 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
         var callbackMessageId = callbackQuery.getMessage().getMessageId();
         var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
 
-        if (pressedButton == ButtonTextCode.BUTTON_BACK) {
+        if (pressedButton.isBackButton()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
-        } else if (!pressedButton.isButtonLanguage()) {
+        }
+        if (!pressedButton.isButtonLanguage()) {
             return ProcessingResult.create(processedUserState, callbackMessageId);
         }
 

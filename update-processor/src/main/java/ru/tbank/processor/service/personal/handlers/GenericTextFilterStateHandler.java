@@ -86,10 +86,11 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         if (chatId == 0) {
             showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
-        } else if (filterTypeName.isEmpty() || pressedButton == ButtonTextCode.BUTTON_BACK) {
+        }
+        if (pressedButton.isBackButton() || filterTypeName.isEmpty()) {
             return new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId});
-        } else if (!(pressedButton == ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE
-                || pressedButton == ButtonTextCode.TEXT_FILTER_BUTTON_DISABLE)) {
+        }
+        if (!pressedButton.isFilterControlButton()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
         }
 

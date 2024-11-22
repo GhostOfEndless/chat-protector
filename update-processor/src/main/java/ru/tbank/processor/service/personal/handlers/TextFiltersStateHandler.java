@@ -68,23 +68,23 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
             showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
-
-        if (pressedButton.isButtonFilterType()) {
-            var filterType = pressedButton.getFilterTypeFromButton();
-            return checkPermissionAndProcess(
-                    UserRole.ADMIN,
-                    userRecord,
-                    () -> new ProcessingResult(
-                            UserState.TEXT_FILTER,
-                            callbackMessageId,
-                            new Object[]{chatId, filterType}
-                    ),
-                    callbackQuery
-            );
-        } else if (pressedButton == ButtonTextCode.BUTTON_BACK) {
+        if (pressedButton.isBackButton()) {
             return new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
-        } else {
+        }
+        if (!pressedButton.isButtonFilterType()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
         }
+
+        var filterType = pressedButton.getFilterTypeFromButton();
+        return checkPermissionAndProcess(
+                UserRole.ADMIN,
+                userRecord,
+                () -> new ProcessingResult(
+                        UserState.TEXT_FILTER,
+                        callbackMessageId,
+                        new Object[]{chatId, filterType}
+                ),
+                callbackQuery
+        );
     }
 }
