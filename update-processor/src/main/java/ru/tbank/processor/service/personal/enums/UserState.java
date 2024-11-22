@@ -11,6 +11,7 @@ public enum UserState {
     START(UserRole.USER.ordinal()),
     ACCOUNT(UserRole.ADMIN.ordinal()),
     CHATS(UserRole.ADMIN.ordinal()),
+    LANGUAGE(UserRole.USER.ordinal()),
     CHAT(UserRole.ADMIN.ordinal()),
     CHAT_ADDITION(UserRole.OWNER.ordinal()),
     ADMINS(UserRole.OWNER.ordinal()),

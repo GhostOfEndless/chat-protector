@@ -16,7 +16,6 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 
-import java.util.Collections;
 import java.util.List;
 
 @NullMarked
@@ -37,13 +36,16 @@ public final class StartStateHandler extends PersonalUpdateHandler {
         return switch (userRole) {
             case USER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_USER,
-                    Collections.emptyList()
+                    List.of(
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
+                    )
             );
             case ADMIN -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );
             case OWNER -> MessagePayload.create(
@@ -51,7 +53,8 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT)
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );
         };
@@ -63,6 +66,7 @@ public final class StartStateHandler extends PersonalUpdateHandler {
         var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
 
         return switch (pressedButton) {
+            case START_BUTTON_LANGUAGE -> ProcessingResult.create(UserState.LANGUAGE, callbackMessageId);
             case START_BUTTON_CHATS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,

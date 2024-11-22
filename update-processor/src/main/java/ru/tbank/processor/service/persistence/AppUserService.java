@@ -16,7 +16,7 @@ public class AppUserService {
     private final AppUser table = AppUser.APP_USER;
     private final DSLContext dslContext;
 
-    public AppUserRecord saveRegularUser(Long userId, String firstName, String lastName, String username) {
+    public AppUserRecord save(Long userId, String firstName, String lastName, String username) {
         var storedUser = findById(userId);
 
         if (storedUser.isPresent()) {
@@ -35,8 +35,14 @@ public class AppUserService {
                 () -> new EntityNotFoundException("User with id=%d not found".formatted(userId)));
     }
 
+    public void updateLocale(Long userId, String locale) {
+        dslContext.update(table)
+                .set(table.LOCALE, locale)
+                .where(table.ID.eq(userId))
+                .execute();
+    }
+
     public Optional<AppUserRecord> findById(Long userId) {
-        var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(userId));
-        return Optional.ofNullable(fetchedRecord);
+        return dslContext.fetchOptional(table, table.ID.eq(userId));
     }
 }

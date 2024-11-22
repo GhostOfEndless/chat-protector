@@ -13,8 +13,11 @@ public enum ButtonTextCode {
     START_BUTTON_CHATS("telegram.start_level.button.chats"),
     START_BUTTON_ADMINS("telegram.start_level.button.admins"),
     START_BUTTON_ACCOUNT("telegram.start_level.button.account"),
+    START_BUTTON_LANGUAGE("telegram.start_level.button.language"),
     CHATS_BUTTON_CHAT_ADDITION("telegram.chats_level.button.add_chat"),
     CHAT_ADDITION_BUTTON_ADD("telegram.chat_addition_level.button.add"),
+    LANGUAGE_BUTTON_RUSSIAN("telegram.language.russian_language"),
+    LANGUAGE_BUTTON_ENGLISH("telegram.language.english_language"),
     CHAT_BUTTON_FILTERS_SETTINGS("telegram.chat_level.button.filter_settings"),
     FILTERS_BUTTON_TEXT_FILTERS("telegram.filters_level.button.text_filters"),
     TEXT_FILTERS_BUTTON_LINKS("telegram.text_filters_level.button.links_filter"),
@@ -41,11 +44,33 @@ public enum ButtonTextCode {
             TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, FilterType.CUSTOM_EMOJIS
     ));
 
+    private static final EnumMap<ButtonTextCode, Language> buttonToLanguage = new EnumMap<>(Map.of(
+            LANGUAGE_BUTTON_RUSSIAN, Language.RUSSIAN,
+            LANGUAGE_BUTTON_ENGLISH, Language.ENGLISH
+    ));
+
+    private static final EnumMap<Language, ButtonTextCode> languageToButton = new EnumMap<>(Map.of(
+            Language.RUSSIAN, LANGUAGE_BUTTON_RUSSIAN,
+            Language.ENGLISH, LANGUAGE_BUTTON_ENGLISH
+    ));
+
     public boolean isButtonFilterType() {
         return buttonToFilterType.containsKey(this);
     }
 
     public FilterType getFilterTypeFromButton() {
         return buttonToFilterType.get(this);
+    }
+
+    public boolean isButtonLanguage() {
+        return buttonToLanguage.containsKey(this);
+    }
+
+    public Language getLanguageFromButton() {
+        return buttonToLanguage.get(this);
+    }
+
+    public static ButtonTextCode getButtonForLanguage(Language language) {
+        return languageToButton.get(language);
     }
 }

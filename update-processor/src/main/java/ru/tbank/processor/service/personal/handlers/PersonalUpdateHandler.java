@@ -19,6 +19,7 @@ import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
+import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
@@ -90,7 +91,7 @@ public abstract class PersonalUpdateHandler {
                 var callbackMessageId = update.getCallbackQuery().getMessage().getMessageId();
                 if (callbackMessageId != lastMessageId) {
                     showAnswerCallback(
-                            CallbackTextCode.MESSAGE_EXPIRED,
+                            CallbackAnswerPayload.create(CallbackTextCode.MESSAGE_EXPIRED),
                             userRecord.getLocale(),
                             update.getCallbackQuery().getId(),
                             true
@@ -125,7 +126,7 @@ public abstract class PersonalUpdateHandler {
         UserRole userRole = UserRole.valueOf(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
             showAnswerCallback(
-                    CallbackTextCode.PERMISSION_DENIED,
+                    CallbackAnswerPayload.create(CallbackTextCode.PERMISSION_DENIED),
                     userRecord.getLocale(),
                     callbackQuery.getId(),
                     true
@@ -156,17 +157,30 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
-        showAnswerCallback(CallbackTextCode.CHAT_UNAVAILABLE, userLocale, callbackId, false);
+        showAnswerCallback(
+                CallbackAnswerPayload.create(CallbackTextCode.CHAT_UNAVAILABLE),
+                userLocale,
+                callbackId,
+                false
+        );
     }
 
     protected final void showAnswerCallback(
-            CallbackTextCode callbackTextCode,
+            CallbackAnswerPayload callbackAnswerPayload,
             String userLocale,
             String callbackQueryId,
             boolean isAlert
     ) {
+        var messageArgs = callbackAnswerPayload.callbackArgs()
+                .stream()
+                .map(argument -> argument.isResource()
+                        ? textResourceService.getText(argument.text(), userLocale)
+                        : argument.text()
+                )
+                .toArray();
+
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(callbackTextCode, userLocale),
+                textResourceService.getCallbackText(callbackAnswerPayload.callbackText(), messageArgs, userLocale),
                 callbackQueryId,
                 isAlert
         );

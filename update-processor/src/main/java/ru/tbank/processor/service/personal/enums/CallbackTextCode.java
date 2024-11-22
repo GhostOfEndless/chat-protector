@@ -12,6 +12,7 @@ public enum CallbackTextCode {
     CHAT_UNAVAILABLE("telegram.callback.chat_unavailable"),
     FILTER_ENABLE("telegram.text_filter.level.callback.filter_enable"),
     FILTER_DISABLE("telegram.text_filter.level.callback.filter_disable"),
+    LANGUAGE_CHANGED("telegram.language_level.callback.language_changed"),
     CHAT_REMOVED("telegram.chat_deletion_level.chat_deleted_callback");
 
     private final String resourceName;

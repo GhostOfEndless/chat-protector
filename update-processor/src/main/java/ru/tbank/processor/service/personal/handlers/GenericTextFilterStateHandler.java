@@ -17,6 +17,7 @@ import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
+import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessageArgument;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
@@ -125,7 +126,12 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         var callbackText = newState
                                 ? CallbackTextCode.FILTER_ENABLE
                                 : CallbackTextCode.FILTER_DISABLE;
-                        showAnswerCallback(callbackText, userRecord.getLocale(), callbackQuery.getId(), false);
+                        showAnswerCallback(
+                                CallbackAnswerPayload.create(callbackText),
+                                userRecord.getLocale(),
+                                callbackQuery.getId(),
+                                false
+                        );
                         goToState(userRecord, messageId, args);
                     } catch (ChatModerationSettingsNotFoundException ex) {
                         showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());

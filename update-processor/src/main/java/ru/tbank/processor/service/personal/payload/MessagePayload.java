@@ -14,4 +14,12 @@ public record MessagePayload(
     public static @NonNull MessagePayload create(MessageTextCode messageText, List<CallbackButtonPayload> buttons) {
         return new MessagePayload(messageText, Collections.emptyList(), buttons);
     }
+
+    public static @NonNull MessagePayload create(
+            MessageTextCode messageText,
+            List<MessageArgument> messageArgs,
+            List<CallbackButtonPayload> buttons
+    ) {
+        return new MessagePayload(messageText, messageArgs, buttons);
+    }
 }

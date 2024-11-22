@@ -15,6 +15,7 @@ import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
+import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
@@ -74,11 +75,14 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
                     () -> {
                         telegramClientService.leaveFromChat(chatId);
                         showAnswerCallback(
-                                CallbackTextCode.CHAT_REMOVED,
+                                CallbackAnswerPayload.create(CallbackTextCode.CHAT_REMOVED),
                                 userRecord.getLocale(),
                                 callbackQuery.getId(),
-                                false);
+                                false
+                        );
+
                         chatModerationSettingsService.deleteChatConfig(chatId);
+                        groupChatService.remove(chatId);
 
                         log.debug("Moderation config of chat with id={} was deleted", chatId);
                         return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{chatId});

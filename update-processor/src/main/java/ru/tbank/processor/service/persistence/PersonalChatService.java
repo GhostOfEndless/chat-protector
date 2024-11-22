@@ -37,7 +37,6 @@ public class PersonalChatService {
     }
 
     public Optional<PersonalChatRecord> findByUserId(Long userId) {
-        var fetchedRecord = dslContext.fetchOne(table, table.USER_ID.eq(userId));
-        return Optional.ofNullable(fetchedRecord);
+        return dslContext.fetchOptional(table, table.USER_ID.eq(userId));
     }
 }

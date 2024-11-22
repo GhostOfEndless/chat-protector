@@ -13,6 +13,7 @@ public enum MessageTextCode {
     START_MESSAGE_OWNER("telegram.start_level.message.owner"),
     CHATS_MESSAGE_OWNER("telegram.chats_level.message.owner"),
     CHATS_MESSAGE_ADMIN("telegram.chats_level.message.admin"),
+    LANGUAGE_MESSAGE("telegram.language_level.message"),
     CHAT_MESSAGE("telegram.chat_level.message"),
     CHAT_MESSAGE_NOT_FOUND("telegram.chat_level.message.chat_not_found"),
     FILTERS_MESSAGE("telegram.filters_level.message"),
