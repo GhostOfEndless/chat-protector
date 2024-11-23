@@ -3,11 +3,10 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
+import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
@@ -17,9 +16,9 @@ import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -57,39 +56,44 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
-        var chatId = callbackData.chatId();
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Long chatId = callbackData.getChatId();
+        Integer messageId = callbackData.messageId();
+        String callbackId = callbackData.callbackId();
+        String userLocale = userRecord.getLocale();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
-            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
+            showChatUnavailableCallback(callbackId, userLocale);
+            return ProcessingResult.create(UserState.CHATS, messageId);
         }
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, callbackMessageId, chatId);
+            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
             case CHAT_DELETION_BUTTON_CONFIRM -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> {
                         telegramClientService.leaveFromChat(chatId);
-                        showAnswerCallback(
-                                CallbackAnswerPayload.create(CallbackTextCode.CHAT_REMOVED),
-                                userRecord.getLocale(),
-                                callbackQuery.getId(),
-                                false
-                        );
-
+                        showChatRemovedCallback(userLocale, callbackId);
                         chatModerationSettingsService.deleteChatConfig(chatId);
                         groupChatService.remove(chatId);
 
                         log.debug("Moderation config of chat with id={} was deleted", chatId);
-                        return ProcessingResult.create(UserState.CHATS, callbackMessageId, chatId);
+                        return ProcessingResult.create(UserState.CHATS, messageId, chatId);
                     },
-                    callbackQuery
+                    callbackData
             );
-            default -> ProcessingResult.create(UserState.START, callbackMessageId);
+            default -> ProcessingResult.create(UserState.START, messageId);
         };
+    }
+
+    private void showChatRemovedCallback(String userLocale, String callbackId) {
+        showAnswerCallback(
+                CallbackAnswerPayload.create(
+                        CallbackTextCode.CHAT_REMOVED
+                ),
+                userLocale,
+                callbackId
+        );
     }
 }

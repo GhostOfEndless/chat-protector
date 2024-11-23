@@ -31,7 +31,8 @@ public enum ButtonTextCode {
     TEXT_FILTER_BUTTON_ENABLE("telegram.text_filter_level.button.enable"),
     TEXT_FILTER_BUTTON_DISABLE("telegram.text_filter_level.button.disable"),
     CHAT_BUTTON_EXCLUDE("telegram.chat_level.button.exclude_chat"),
-    CHAT_DELETION_BUTTON_CONFIRM("telegram.chat_deletion_level.confirm");
+    CHAT_DELETION_BUTTON_CONFIRM("telegram.chat_deletion_level.confirm"),
+    CHATS_BUTTON_CHAT("");
 
     private final String resourceName;
     private static final EnumMap<ButtonTextCode, FilterType> buttonToFilterType = new EnumMap<>(Map.of(

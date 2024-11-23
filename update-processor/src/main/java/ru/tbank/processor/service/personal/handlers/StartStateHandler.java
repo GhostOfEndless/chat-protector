@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -13,6 +12,7 @@ import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 
@@ -62,31 +62,29 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        var callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
-
-        return switch (pressedButton) {
-            case START_BUTTON_LANGUAGE -> ProcessingResult.create(UserState.LANGUAGE, callbackMessageId);
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer messageId = callbackData.messageId();
+        return switch (callbackData.pressedButton()) {
+            case START_BUTTON_LANGUAGE -> ProcessingResult.create(UserState.LANGUAGE, messageId);
             case START_BUTTON_CHATS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.CHATS, callbackMessageId),
-                    callbackQuery
+                    () -> ProcessingResult.create(UserState.CHATS, messageId),
+                    callbackData
             );
             case START_BUTTON_ADMINS -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.ADMINS, callbackMessageId),
-                    callbackQuery
+                    () -> ProcessingResult.create(UserState.ADMINS, messageId),
+                    callbackData
             );
             case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.ADMIN, callbackMessageId),
-                    callbackQuery
+                    () -> ProcessingResult.create(UserState.ADMIN, messageId),
+                    callbackData
             );
-            default -> ProcessingResult.create(processedUserState, callbackMessageId);
+            default -> ProcessingResult.create(processedUserState, messageId);
         };
     }
 }

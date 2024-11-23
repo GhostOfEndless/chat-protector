@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -18,6 +17,7 @@ import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackArgument;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessageArgument;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
@@ -62,29 +62,44 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        var callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var pressedButton = ButtonTextCode.valueOf(callbackQuery.getData());
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer messageId = callbackData.messageId();
+        var pressedButton = callbackData.pressedButton();
 
         if (pressedButton.isBackButton()) {
-            return ProcessingResult.create(UserState.START, callbackMessageId);
+            return ProcessingResult.create(UserState.START, messageId);
         }
         if (!pressedButton.isButtonLanguage()) {
-            return ProcessingResult.create(processedUserState, callbackMessageId);
+            return ProcessingResult.create(processedUserState, messageId);
         }
 
         Language newLanguage = pressedButton.getLanguageFromButton();
-        return processLanguageChanged(userRecord, newLanguage, callbackQuery);
+        return processLanguageChanged(userRecord, newLanguage, callbackData);
     }
 
     private ProcessingResult processLanguageChanged(
             AppUserRecord userRecord,
             Language newLanguage,
-            CallbackQuery callbackQuery
+            CallbackData callbackData
     ) {
-        Integer messageId = callbackQuery.getMessage().getMessageId();
-        appUserService.updateLocale(userRecord.getId(), newLanguage.getLanguageCode());
-        userRecord.setLocale(newLanguage.getLanguageCode());
+        Integer messageId = callbackData.messageId();
+        String callbackId = callbackData.callbackId();
+        String userLocale = userRecord.getLocale();
+        String newLocale = newLanguage.getLanguageCode();
+
+        if (userLocale.equals(newLocale)) {
+            showLanguageNotChangedCallback(userLocale, callbackId);
+            return ProcessingResult.create(processedUserState, messageId);
+        }
+
+        appUserService.updateLocale(userRecord.getId(), newLocale);
+        userRecord.setLocale(newLocale);
+        showLanguageChangedCallback(newLanguage, userLocale, callbackId);
+        goToState(userRecord, messageId);
+        return ProcessingResult.create(processedUserState, messageId);
+    }
+
+    private void showLanguageChangedCallback(Language newLanguage, String userLocale, String callbackId) {
         showAnswerCallback(
                 CallbackAnswerPayload.create(
                         CallbackTextCode.LANGUAGE_CHANGED,
@@ -93,11 +108,18 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
                                         LanguageTextCode.getFromLanguage(newLanguage).getLanguageTextCode()
                                 )
                         )),
-                userRecord.getLocale(),
-                callbackQuery.getId(),
-                false
+                userLocale,
+                callbackId
         );
-        goToState(userRecord, messageId, new Object[]{});
-        return ProcessingResult.create(processedUserState, messageId);
+    }
+
+    private void showLanguageNotChangedCallback(String userLocale, String callbackId) {
+        showAnswerCallback(
+                CallbackAnswerPayload.create(
+                        CallbackTextCode.LANGUAGE_NOT_CHANGED
+                ),
+                userLocale,
+                callbackId
+        );
     }
 }
