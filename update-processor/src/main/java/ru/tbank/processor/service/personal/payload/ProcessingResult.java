@@ -9,6 +9,10 @@ public record ProcessingResult(
         Object[] args
 ) {
 
+    public static @NonNull ProcessingResult create(UserState newState, Integer messageId, Object... args) {
+        return new ProcessingResult(newState, messageId, args);
+    }
+
     public static @NonNull ProcessingResult create(UserState newState, Integer messageId) {
         return new ProcessingResult(newState, messageId, new Object[]{});
     }

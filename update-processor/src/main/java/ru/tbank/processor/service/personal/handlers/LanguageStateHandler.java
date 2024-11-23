@@ -14,7 +14,6 @@ import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.Language;
 import ru.tbank.processor.service.personal.enums.LanguageTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackArgument;
@@ -45,19 +44,18 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var languageButtons = Arrays.stream(Language.values())
                 .map(language ->
                         CallbackButtonPayload.create(ButtonTextCode.getButtonForLanguage(language))
                 )
                 .collect(Collectors.toList());
         languageButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-
+        Language userLanguage = Language.fromCode(userRecord.getLocale());
         return MessagePayload.create(
                 MessageTextCode.LANGUAGE_MESSAGE,
-                // TODO: заменить на получение текущего языка пользователя
                 List.of(
-                        MessageArgument.createResourceArgument(LanguageTextCode.getFromLanguage(Language.RUSSIAN))
+                        MessageArgument.createResourceArgument(LanguageTextCode.getFromLanguage(userLanguage))
                 ),
                 languageButtons
         );

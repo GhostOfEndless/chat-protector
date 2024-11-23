@@ -47,7 +47,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         FilterType filterType = (FilterType) args[1];
 
@@ -56,7 +56,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                 ? ButtonTextCode.TEXT_FILTER_BUTTON_DISABLE
                 : ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE;
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTER_MESSAGE,
                         List.of(
                                 MessageArgument.createResourceArgument(MessageTextCode.getFilterNameByType(filterType))
@@ -88,7 +88,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
         if (pressedButton.isBackButton() || filterTypeName.isEmpty()) {
-            return new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId});
+            return ProcessingResult.create(UserState.TEXT_FILTERS, callbackMessageId, chatId);
         }
         if (!pressedButton.isFilterControlButton()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
@@ -138,7 +138,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
                     }
 
-                    return new ProcessingResult(processedUserState, messageId, args);
+                    return ProcessingResult.create(processedUserState, messageId, args);
                 },
                 callbackQuery
         );

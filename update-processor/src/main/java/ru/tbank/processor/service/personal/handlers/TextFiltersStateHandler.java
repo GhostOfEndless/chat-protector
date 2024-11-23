@@ -38,7 +38,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
@@ -69,7 +69,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
         if (pressedButton.isBackButton()) {
-            return new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
+            return ProcessingResult.create(UserState.FILTERS, callbackMessageId, chatId);
         }
         if (!pressedButton.isButtonFilterType()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
@@ -79,11 +79,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
         return checkPermissionAndProcess(
                 UserRole.ADMIN,
                 userRecord,
-                () -> new ProcessingResult(
-                        UserState.TEXT_FILTER,
-                        callbackMessageId,
-                        new Object[]{chatId, filterType}
-                ),
+                () -> ProcessingResult.create(UserState.TEXT_FILTER, callbackMessageId, chatId, filterType),
                 callbackQuery
         );
     }

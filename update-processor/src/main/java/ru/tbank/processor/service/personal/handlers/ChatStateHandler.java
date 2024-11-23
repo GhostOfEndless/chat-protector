@@ -38,11 +38,11 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
 
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.CHAT_MESSAGE,
                         List.of(
                                 MessageArgument.createTextArgument(chatRecord.getName())
@@ -66,13 +66,13 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
             case CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId}),
+                    () -> ProcessingResult.create(UserState.FILTERS, callbackMessageId, chatId),
                     callbackQuery
             );
             case CHAT_BUTTON_EXCLUDE -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> new ProcessingResult(UserState.CHAT_DELETION, callbackMessageId, new Object[]{chatId}),
+                    () -> ProcessingResult.create(UserState.CHAT_DELETION, callbackMessageId, chatId),
                     callbackQuery
             );
             default -> ProcessingResult.create(UserState.START, callbackMessageId);

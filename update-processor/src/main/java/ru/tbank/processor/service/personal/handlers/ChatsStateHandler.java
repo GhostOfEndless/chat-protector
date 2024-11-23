@@ -37,10 +37,11 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
         groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
 
         if (userRole != UserRole.OWNER) {
             return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
@@ -62,7 +63,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
                     userRecord,
                     () -> {
                         long chatId = Long.parseLong(callbackData);
-                        return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
+                        return ProcessingResult.create(UserState.CHAT, callbackMessageId, chatId);
                     },
                     callbackQuery
             );

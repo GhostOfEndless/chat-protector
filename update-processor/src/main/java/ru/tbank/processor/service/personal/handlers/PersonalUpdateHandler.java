@@ -50,8 +50,7 @@ public abstract class PersonalUpdateHandler {
     }
 
     public final void goToState(AppUserRecord userRecord, Integer messageId, Object[] args) {
-        var userRole = UserRole.valueOf(userRecord.getRole());
-        var messagePayload = buildMessagePayloadForUser(userRole, args);
+        var messagePayload = buildMessagePayloadForUser(userRecord, args);
         var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
 
         var messageArgs = messagePayload.messageArgs()
@@ -115,7 +114,7 @@ public abstract class PersonalUpdateHandler {
         return ProcessingResult.create(processedUserState);
     }
 
-    protected abstract MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args);
+    protected abstract MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args);
 
     protected final ProcessingResult checkPermissionAndProcess(
             UserRole requiredRole,
@@ -123,7 +122,7 @@ public abstract class PersonalUpdateHandler {
             Supplier<ProcessingResult> supplier,
             CallbackQuery callbackQuery
     ) {
-        UserRole userRole = UserRole.valueOf(userRecord.getRole());
+        UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
             showAnswerCallback(
                     CallbackAnswerPayload.create(CallbackTextCode.PERMISSION_DENIED),

@@ -44,7 +44,7 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
@@ -68,7 +68,7 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
         }
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
+            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, callbackMessageId, chatId);
             case CHAT_DELETION_BUTTON_CONFIRM -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
@@ -85,7 +85,7 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
                         groupChatService.remove(chatId);
 
                         log.debug("Moderation config of chat with id={} was deleted", chatId);
-                        return new ProcessingResult(UserState.CHATS, callbackMessageId, new Object[]{chatId});
+                        return ProcessingResult.create(UserState.CHATS, callbackMessageId, chatId);
                     },
                     callbackQuery
             );

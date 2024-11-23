@@ -32,7 +32,8 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
+        UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
         return switch (userRole) {
             case USER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_USER,
