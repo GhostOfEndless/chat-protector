@@ -56,11 +56,7 @@ public class TelegramUtils {
 
     public static List<CallbackButtonPayload> buildChatButtons(List<GroupChatRecord> groupChatRecords) {
         return groupChatRecords.stream()
-                .map(groupChatRecord -> new CallbackButtonPayload(
-                        groupChatRecord.getName(),
-                        "%s:%d".formatted(ButtonTextCode.CHATS_BUTTON_CHAT, groupChatRecord.getId()),
-                        false
-                ))
+                .map(chat -> CallbackButtonPayload.create(chat.getName(), chat.getId()))
                 .collect(Collectors.toList());
     }
 

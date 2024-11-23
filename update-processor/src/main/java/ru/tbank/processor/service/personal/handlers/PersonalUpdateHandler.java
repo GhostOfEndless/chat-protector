@@ -55,31 +55,35 @@ public abstract class PersonalUpdateHandler {
     public final void goToState(AppUserRecord userRecord, Integer messageId, Object... args) {
         var messagePayload = buildMessagePayloadForUser(userRecord, args);
         var keyboardMarkup = buildKeyboard(messagePayload.buttons(), userRecord.getLocale());
-
-        var messageArgs = messagePayload.messageArgs()
-                .stream()
-                .map(argument -> argument.isResource()
-                        ? textResourceService.getText(argument.text(), userRecord.getLocale())
-                        : argument.text()
-                )
-                .toArray();
-        var messageText = textResourceService.getMessageText(
-                messagePayload.messageText(),
-                messageArgs,
-                userRecord.getLocale()
-        );
+        String messageText = buildMessageText(userRecord.getLocale(), messagePayload);
+        Long userId = userRecord.getId();
 
         try {
             if (messageId == 0) {
-                var sentMessage = telegramClientService.sendMessage(userRecord.getId(), messageText, keyboardMarkup);
-                personalChatService.save(userRecord.getId(), processedUserState.name(), sentMessage.getMessageId());
+                var sentMessage = telegramClientService.sendMessage(userId, messageText, keyboardMarkup);
+                personalChatService.save(userId, processedUserState.name(), sentMessage.getMessageId());
             } else {
-                telegramClientService.editMessage(userRecord.getId(), messageId, messageText, keyboardMarkup);
-                personalChatService.save(userRecord.getId(), processedUserState.name(), messageId);
+                telegramClientService.editMessage(userId, messageId, messageText, keyboardMarkup);
+                personalChatService.save(userId, processedUserState.name(), messageId);
             }
         } catch (TelegramApiException e) {
             log.error("Telegram API Error: {}", e.getMessage());
         }
+    }
+
+    private String buildMessageText(String userLocale, MessagePayload messagePayload) {
+        var messageArgs = messagePayload.messageArgs()
+                .stream()
+                .map(argument -> argument.isResource()
+                        ? textResourceService.getText(argument.text(), userLocale)
+                        : argument.text()
+                )
+                .toArray();
+        return textResourceService.getMessageText(
+                messagePayload.messageText(),
+                messageArgs,
+                userLocale
+        );
     }
 
     protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
@@ -107,17 +111,6 @@ public abstract class PersonalUpdateHandler {
         return processCallbackButtonUpdate(callbackData, userRecord);
     }
 
-    private void showMessageExpiredCallback(String userLocale, String callbackId) {
-        showAnswerCallback(
-                CallbackAnswerPayload.create(
-                        CallbackTextCode.MESSAGE_EXPIRED
-                ),
-                userLocale,
-                callbackId,
-                true
-        );
-    }
-
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         return ProcessingResult.create(processedUserState);
     }
@@ -139,12 +132,7 @@ public abstract class PersonalUpdateHandler {
     ) {
         UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
         if (!requiredRole.isEqualOrLowerThan(userRole)) {
-            showAnswerCallback(
-                    CallbackAnswerPayload.create(CallbackTextCode.PERMISSION_DENIED),
-                    userRecord.getLocale(),
-                    callbackData.callbackId(),
-                    true
-            );
+            showPermissionDeniedCallback(userRecord.getLocale(), callbackData.callbackId());
             return ProcessingResult.create(UserState.START, callbackData.messageId());
         }
         return supplier.get();
@@ -170,16 +158,6 @@ public abstract class PersonalUpdateHandler {
         return new InlineKeyboardMarkup(listOfRows);
     }
 
-    protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
-        showAnswerCallback(
-                CallbackAnswerPayload.create(
-                        CallbackTextCode.CHAT_UNAVAILABLE
-                ),
-                userLocale,
-                callbackId
-        );
-    }
-
     protected final void showAnswerCallback(
             CallbackAnswerPayload callbackAnswerPayload,
             String userLocale,
@@ -194,7 +172,7 @@ public abstract class PersonalUpdateHandler {
             String callbackQueryId,
             boolean isAlert
     ) {
-        var messageArgs = callbackAnswerPayload.callbackArgs()
+        var callbackArgs = callbackAnswerPayload.callbackArgs()
                 .stream()
                 .map(argument -> argument.isResource()
                         ? textResourceService.getText(argument.text(), userLocale)
@@ -203,9 +181,41 @@ public abstract class PersonalUpdateHandler {
                 .toArray();
 
         telegramClientService.sendCallbackAnswer(
-                textResourceService.getCallbackText(callbackAnswerPayload.callbackText(), messageArgs, userLocale),
+                textResourceService.getCallbackText(callbackAnswerPayload.callbackText(), callbackArgs, userLocale),
                 callbackQueryId,
                 isAlert
+        );
+    }
+
+    protected final void showChatUnavailableCallback(String callbackId, String userLocale) {
+        showAnswerCallback(
+                CallbackAnswerPayload.create(
+                        CallbackTextCode.CHAT_UNAVAILABLE
+                ),
+                userLocale,
+                callbackId
+        );
+    }
+
+    private void showMessageExpiredCallback(String userLocale, String callbackId) {
+        showAnswerCallback(
+                CallbackAnswerPayload.create(
+                        CallbackTextCode.MESSAGE_EXPIRED
+                ),
+                userLocale,
+                callbackId,
+                true
+        );
+    }
+
+    private void showPermissionDeniedCallback(String userLocale, String callbackId) {
+        showAnswerCallback(
+                CallbackAnswerPayload.create(
+                        CallbackTextCode.PERMISSION_DENIED
+                ),
+                userLocale,
+                callbackId,
+                true
         );
     }
 }
