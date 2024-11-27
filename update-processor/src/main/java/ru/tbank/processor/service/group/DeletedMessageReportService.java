@@ -18,7 +18,7 @@ public class DeletedMessageReportService {
     public void saveReport(Message message, TextProcessingResult result) {
         var deletedTextMessage = DeletedTextMessageDTO.buildDto(message, result);
         var user = message.getFrom();
-        appUserService.saveRegularUser(user.getId(), user.getFirstName(),
+        appUserService.save(user.getId(), user.getFirstName(),
                 user.getLastName(), user.getUserName());
         deletedTextMessageService.save(deletedTextMessage);
     }

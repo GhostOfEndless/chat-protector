@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.chat.Chat;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import ru.tbank.common.entity.ChatModerationSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.text.TextProcessingResult;
-import ru.tbank.processor.service.ChatModerationSettingsService;
+import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.group.filter.text.TextFilter;
@@ -23,7 +21,6 @@ import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -72,20 +69,6 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
         log.debug("Processed message id={}", message.getMessageId());
     }
 
-    private ChatModerationSettings getModerationSettingsByChat(Chat chat) {
-        var config = chatModerationSettingsService.getChatConfig(chat.getId());
-
-        if (Objects.isNull(config)) {
-            log.warn("Config is null! Creating the default config...");
-            chatModerationSettingsService.createChatConfig(chat.getId(), chat.getTitle());
-            config = chatModerationSettingsService.getChatConfig(chat.getId());
-        }
-
-        log.debug("Config for this chat: {}", config);
-
-        return config;
-    }
-
     private void processGroupBotAddEvent(Update update) {
         long userId = update.getMyChatMember().getFrom().getId();
         var groupChat = update.getMyChatMember().getChat();
@@ -93,8 +76,7 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
 
         if (user.isPresent() && user.get().getRole().equals(UserRole.OWNER.name())) {
             groupChatService.save(groupChat.getId(), groupChat.getTitle());
-            // TODO: заменить на save метод
-            getModerationSettingsByChat(groupChat);
+            chatModerationSettingsService.createChatConfig(groupChat.getId(), groupChat.getTitle());
         } else {
             telegramClientService.leaveFromChat(groupChat.getId());
         }
@@ -103,17 +85,16 @@ public class GroupChatUpdateProcessingService implements UpdateProcessingService
     private void processGroupBotKickEvent(Update update) {
         long chatId = update.getMyChatMember().getChat().getId();
         groupChatService.remove(chatId);
-        // TODO: удалить конфигурацию чата из Redis
+        chatModerationSettingsService.deleteChatConfig(chatId);
         log.debug("Bot kicked from chat with id: {}", chatId);
     }
 
     private void processGroupMessageEvent(Update update) {
-        var message = update.getMessage();
-        var groupChat = groupChatService.findById(message.getChatId());
-
-        if (groupChat.isPresent()) {
-            var chatSettings = getModerationSettingsByChat(message.getChat());
-            processTextMessage(message, chatSettings.getTextModerationSettings());
-        }
+        long chatId = update.getMessage().getChatId();
+        groupChatService.findById(chatId)
+                .flatMap(groupChatRecord ->
+                        chatModerationSettingsService.findChatConfigById(groupChatRecord.getId()))
+                .ifPresent(chatSettings ->
+                        processTextMessage(update.getMessage(), chatSettings.getTextModerationSettings()));
     }
 }

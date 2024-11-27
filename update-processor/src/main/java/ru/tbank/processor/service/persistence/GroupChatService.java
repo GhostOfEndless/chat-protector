@@ -32,7 +32,7 @@ public class GroupChatService {
         newRecord.store();
 
         return findById(chatId).orElseThrow(
-                () -> new EntityNotFoundException("User with id=%d not found".formatted(chatId)));
+                () -> new EntityNotFoundException("Chat with id=%d not found".formatted(chatId)));
     }
 
     public List<GroupChatRecord> findAll() {
@@ -40,8 +40,7 @@ public class GroupChatService {
     }
 
     public Optional<GroupChatRecord> findById(Long chatId) {
-        var fetchedRecord = dslContext.fetchOne(table, table.ID.eq(chatId));
-        return Optional.ofNullable(fetchedRecord);
+        return dslContext.fetchOptional(table, table.ID.eq(chatId));
     }
 
     public void remove(Long chatId) {

@@ -1,10 +1,8 @@
 package ru.tbank.processor.service.personal.handlers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -15,6 +13,7 @@ import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
@@ -37,10 +36,11 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
         groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
 
         if (userRole != UserRole.OWNER) {
             return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
@@ -52,32 +52,24 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        var callbackMessageId = callbackQuery.getMessage().getMessageId();
-        String callbackData = callbackQuery.getData();
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer messageId = callbackData.messageId();
 
-        if (NumberUtils.isParsable(callbackQuery.getData())) {
-            return checkPermissionAndProcess(
+        return switch (callbackData.pressedButton()) {
+            case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
+            case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
+                    UserRole.OWNER,
+                    userRecord,
+                    () -> ProcessingResult.create(UserState.CHAT_ADDITION, messageId),
+                    callbackData
+            );
+            case CHATS_BUTTON_CHAT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> {
-                        long chatId = Long.parseLong(callbackData);
-                        return new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
-                    },
-                    callbackQuery
+                    () -> ProcessingResult.create(UserState.CHAT, messageId, callbackData.getChatId()),
+                    callbackData
             );
-        } else {
-            var pressedButton = ButtonTextCode.valueOf(callbackData);
-            return switch (pressedButton) {
-                case BUTTON_BACK -> ProcessingResult.create(UserState.START, callbackMessageId);
-                case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
-                        UserRole.OWNER,
-                        userRecord,
-                        () -> ProcessingResult.create(UserState.CHAT_ADDITION, callbackMessageId),
-                        callbackQuery
-                );
-                default -> ProcessingResult.create(processedUserState, callbackMessageId);
-            };
-        }
+            default -> ProcessingResult.create(processedUserState, messageId);
+        };
     }
 }

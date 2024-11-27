@@ -11,6 +11,7 @@ public enum UserState {
     START(UserRole.USER.ordinal()),
     ACCOUNT(UserRole.ADMIN.ordinal()),
     CHATS(UserRole.ADMIN.ordinal()),
+    LANGUAGE(UserRole.USER.ordinal()),
     CHAT(UserRole.ADMIN.ordinal()),
     CHAT_ADDITION(UserRole.OWNER.ordinal()),
     ADMINS(UserRole.OWNER.ordinal()),
@@ -18,7 +19,8 @@ public enum UserState {
     ADMIN(UserRole.OWNER.ordinal()),
     ADMIN_ADDITION(UserRole.OWNER.ordinal()),
     TEXT_FILTERS(UserRole.ADMIN.ordinal()),
-    TEXT_FILTER(UserRole.ADMIN.ordinal());
+    TEXT_FILTER(UserRole.ADMIN.ordinal()),
+    CHAT_DELETION(UserRole.OWNER.ordinal());
 
     @Getter
     private static final List<String> baseNames = Arrays.stream(UserState.values())

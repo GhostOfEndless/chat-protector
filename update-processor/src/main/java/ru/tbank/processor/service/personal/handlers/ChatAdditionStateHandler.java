@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
@@ -11,9 +10,9 @@ import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
@@ -34,7 +33,7 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         User bot = telegramClientService.getMe();
 
         if (bot.getUserName() == null) {
@@ -44,15 +43,13 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        var callbackMessageId = callbackQuery.getMessage().getMessageId();
-        String callbackData = callbackQuery.getData();
-        var pressedButton = ButtonTextCode.valueOf(callbackData);
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer messageId = callbackData.messageId();
 
-        if (pressedButton != ButtonTextCode.BUTTON_BACK) {
-            return ProcessingResult.create(processedUserState, callbackMessageId);
+        if (!callbackData.pressedButton().isBackButton()) {
+            return ProcessingResult.create(processedUserState, messageId);
         }
-        return ProcessingResult.create(UserState.CHATS, callbackMessageId);
+        return ProcessingResult.create(UserState.CHATS, messageId);
     }
 
     private MessagePayload buildErrorMessage() {
