@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.common.entity.FilterType;
 import ru.tbank.processor.excpetion.ChatModerationSettingsNotFoundException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
@@ -19,10 +18,10 @@ import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessageArgument;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -47,7 +46,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         FilterType filterType = (FilterType) args[1];
 
@@ -56,7 +55,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                 ? ButtonTextCode.TEXT_FILTER_BUTTON_DISABLE
                 : ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE;
         return groupChatService.findById(chatId)
-                .map(chatRecord -> new MessagePayload(
+                .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTER_MESSAGE,
                         List.of(
                                 MessageArgument.createResourceArgument(MessageTextCode.getFilterNameByType(filterType))
@@ -76,71 +75,70 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer callbackMessageId = callbackData.messageId();
+        Long chatId = callbackData.getChatId();
         var pressedButton = callbackData.pressedButton();
-        String filterTypeName = callbackData.additionalData();
-        long chatId = callbackData.chatId();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
+            showChatUnavailableCallback(callbackData.callbackId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
-        if (pressedButton.isBackButton() || filterTypeName.isEmpty()) {
-            return new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId});
+        if (pressedButton.isBackButton()) {
+            return ProcessingResult.create(UserState.TEXT_FILTERS, callbackMessageId, chatId);
         }
         if (!pressedButton.isFilterControlButton()) {
             return ProcessingResult.create(UserState.START, callbackMessageId);
         }
 
-        var filterType = FilterType.valueOf(filterTypeName);
+        var filterType = callbackData.getFilterType();
         return processFilterStateChanged(
-                chatId,
                 userRecord,
                 filterType,
                 pressedButton == ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE,
-                callbackQuery
+                callbackData
         );
     }
 
     private ProcessingResult processFilterStateChanged(
-            Long chatId,
             AppUserRecord userRecord,
             FilterType filterType,
             boolean newState,
-            CallbackQuery callbackQuery
+            CallbackData callbackData
     ) {
         return checkPermissionAndProcess(
                 UserRole.ADMIN,
                 userRecord,
                 () -> {
-                    Integer messageId = callbackQuery.getMessage().getMessageId();
-                    Object[] args = new Object[]{chatId, filterType};
-
+                    Integer messageId = callbackData.messageId();
+                    Long chatId = callbackData.getChatId();
+                    String callbackId = callbackData.callbackId();
+                    String userLocale = userRecord.getLocale();
                     try {
                         log.debug("Filter type to enable is: {}", filterType.name());
                         textModerationSettingsService.updateFilterState(chatId, filterType, newState);
                         // TODO: сделать ожидание обновления в Redis с каким-то timeout,
                         //  если timeout истёк - отправить ошибку
 
-                        var callbackText = newState
-                                ? CallbackTextCode.FILTER_ENABLE
-                                : CallbackTextCode.FILTER_DISABLE;
-                        showAnswerCallback(
-                                CallbackAnswerPayload.create(callbackText),
-                                userRecord.getLocale(),
-                                callbackQuery.getId(),
-                                false
-                        );
-                        goToState(userRecord, messageId, args);
+                        showFilterStateChangedCallback(userLocale, callbackId, newState);
+                        goToState(userRecord, messageId, chatId, filterType);
                     } catch (ChatModerationSettingsNotFoundException ex) {
-                        showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
+                        showChatUnavailableCallback(callbackId, userLocale);
                     }
-
-                    return new ProcessingResult(processedUserState, messageId, args);
+                    return ProcessingResult.create(processedUserState, messageId, chatId, filterType);
                 },
-                callbackQuery
+                callbackData
+        );
+    }
+
+    private void showFilterStateChangedCallback(String userLocale, String callbackId, boolean newState) {
+        var callbackText = newState
+                ? CallbackTextCode.FILTER_ENABLE
+                : CallbackTextCode.FILTER_DISABLE;
+        showAnswerCallback(
+                CallbackAnswerPayload.create(callbackText),
+                userLocale,
+                callbackId
         );
     }
 }

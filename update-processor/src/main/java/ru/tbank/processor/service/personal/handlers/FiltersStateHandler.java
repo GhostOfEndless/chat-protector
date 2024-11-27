@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -14,9 +13,9 @@ import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -38,7 +37,7 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
@@ -51,24 +50,24 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
-        var chatId = callbackData.chatId();
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        Integer messageId = callbackData.messageId();
+        Long chatId = callbackData.getChatId();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
-            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
+            showChatUnavailableCallback(callbackData.callbackId(), userRecord.getLocale());
+            return ProcessingResult.create(UserState.CHATS, messageId);
         }
+
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> new ProcessingResult(UserState.CHAT, callbackMessageId, new Object[]{chatId});
+            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
             case FILTERS_BUTTON_TEXT_FILTERS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> new ProcessingResult(UserState.TEXT_FILTERS, callbackMessageId, new Object[]{chatId}),
-                    callbackQuery
+                    () -> ProcessingResult.create(UserState.TEXT_FILTERS, messageId, chatId),
+                    callbackData
             );
-            default -> ProcessingResult.create(UserState.START, callbackMessageId);
+            default -> ProcessingResult.create(UserState.START, messageId);
         };
     }
 }
