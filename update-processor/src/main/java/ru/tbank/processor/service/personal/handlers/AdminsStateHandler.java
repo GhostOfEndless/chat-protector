@@ -47,7 +47,6 @@ public final class AdminsStateHandler extends PersonalUpdateHandler {
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         Integer messageId = callbackData.messageId();
-
         return switch (callbackData.pressedButton()) {
             case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
             case ADMINS_BUTTON_ADMIN_ADDITION -> checkPermissionAndProcess(

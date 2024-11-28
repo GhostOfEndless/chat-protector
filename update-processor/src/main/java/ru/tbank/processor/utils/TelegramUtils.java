@@ -67,7 +67,7 @@ public class TelegramUtils {
                         user.getFirstName(),
                         user.getLastName(),
                         user.getId()
-                        ))
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +76,6 @@ public class TelegramUtils {
         String[] args = new String[callbackDataArr.length - 1];
         System.arraycopy(callbackDataArr, 1, args, 0, args.length);
         ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackDataArr[0]);
-
         return new CallbackData(
                 callbackQuery.getMessage().getMessageId(),
                 callbackQuery.getId(),

@@ -72,7 +72,7 @@ public final class AdminStateHandler extends PersonalUpdateHandler {
                     },
                     callbackData
             );
-            default -> ProcessingResult.create(UserState.START, messageId);
+            default -> ProcessingResult.create(processedUserState, messageId);
         };
     }
 }

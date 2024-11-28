@@ -88,13 +88,16 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
                 var addedUser = appUserService.findByUsername(username);
 
                 if (addedUser.isEmpty()) {
-                    return ProcessingResult.create(processedUserState, AdminAdditionResult.USER_NOT_FOUND);
+                    goToState(userRecord, 0, AdminAdditionResult.USER_NOT_FOUND);
+                    return ProcessingResult.create(processedUserState);
                 }
                 if (UserRole.ADMIN.isEqualOrLowerThan(UserRole.getRoleByName(addedUser.get().getRole()))) {
-                    return ProcessingResult.create(processedUserState, AdminAdditionResult.USER_IS_ADMIN);
+                    goToState(userRecord, 0, AdminAdditionResult.USER_IS_ADMIN);
+                    return ProcessingResult.create(processedUserState);
                 }
                 appUserService.updateUserRole(addedUser.get().getId(), UserRole.ADMIN.name());
-                return ProcessingResult.create(processedUserState, AdminAdditionResult.SUCCESS);
+                goToState(userRecord, 0, AdminAdditionResult.SUCCESS);
+                return ProcessingResult.create(processedUserState);
             }
         }
         return super.processTextMessageUpdate(message, userRecord);

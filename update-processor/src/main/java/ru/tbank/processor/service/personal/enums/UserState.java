@@ -7,20 +7,20 @@ import java.util.List;
 
 @Getter
 public enum UserState {
-    NONE,
-    START,
     ACCOUNT,
-    CHATS,
-    LANGUAGE,
-    CHAT,
-    CHAT_ADDITION,
-    ADMINS,
-    FILTERS,
     ADMIN,
     ADMIN_ADDITION,
-    TEXT_FILTERS,
+    ADMINS,
+    CHAT,
+    CHAT_ADDITION,
+    CHAT_DELETION,
+    CHATS,
+    FILTERS,
+    LANGUAGE,
+    NONE,
+    START,
     TEXT_FILTER,
-    CHAT_DELETION;
+    TEXT_FILTERS;
 
     @Getter
     private static final List<String> baseNames = Arrays.stream(UserState.values())

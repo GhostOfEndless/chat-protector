@@ -37,6 +37,8 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public abstract class PersonalUpdateHandler {
 
+    private static final String START_COMMAND = "/start";
+
     protected final PersonalChatService personalChatService;
     protected final TelegramClientService telegramClientService;
     protected final TextResourceService textResourceService;
@@ -60,9 +62,6 @@ public abstract class PersonalUpdateHandler {
         Long userId = userRecord.getId();
 
         try {
-            if (messageId == -1) {
-                return;
-            }
             if (messageId == 0) {
                 var sentMessage = telegramClientService.sendMessage(userId, messageText, keyboardMarkup);
                 personalChatService.save(userId, processedUserState.name(), sentMessage.getMessageId());
@@ -121,10 +120,10 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected ProcessingResult processTextMessageUpdate(Message message, AppUserRecord userRecord) {
-        if (message.hasText() && message.getText().startsWith("/start")) {
+        if (message.hasText() && message.getText().startsWith(START_COMMAND)) {
             return ProcessingResult.create(UserState.START);
         }
-        return ProcessingResult.create(processedUserState, -1);
+        return ProcessingResult.create(processedUserState);
     }
 
     protected abstract MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args);
