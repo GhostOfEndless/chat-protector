@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.AppUser;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
+import ru.tbank.processor.service.personal.enums.UserRole;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,7 +44,24 @@ public class AppUserService {
                 .execute();
     }
 
+    public void updateUserRole(Long userId, String newRole) {
+        dslContext.update(table)
+                .set(table.ROLE, newRole)
+                .where(table.ID.eq(userId))
+                .execute();
+    }
+
+    public List<AppUserRecord> findAllAdmins() {
+        return dslContext.selectFrom(table)
+                .where(table.ROLE.eq(UserRole.ADMIN.name()))
+                .fetch();
+    }
+
     public Optional<AppUserRecord> findById(Long userId) {
         return dslContext.fetchOptional(table, table.ID.eq(userId));
+    }
+
+    public Optional<AppUserRecord> findByUsername(String username) {
+        return dslContext.fetchOptional(table, table.USERNAME.eq(username));
     }
 }

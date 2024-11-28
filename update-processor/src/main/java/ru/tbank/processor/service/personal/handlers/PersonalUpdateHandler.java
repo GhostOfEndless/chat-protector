@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
@@ -36,6 +37,8 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public abstract class PersonalUpdateHandler {
 
+    private static final String START_COMMAND = "/start";
+
     protected final PersonalChatService personalChatService;
     protected final TelegramClientService telegramClientService;
     protected final TextResourceService textResourceService;
@@ -62,10 +65,11 @@ public abstract class PersonalUpdateHandler {
             if (messageId == 0) {
                 var sentMessage = telegramClientService.sendMessage(userId, messageText, keyboardMarkup);
                 personalChatService.save(userId, processedUserState.name(), sentMessage.getMessageId());
-            } else {
-                telegramClientService.editMessage(userId, messageId, messageText, keyboardMarkup);
-                personalChatService.save(userId, processedUserState.name(), messageId);
+                return;
             }
+
+            telegramClientService.editMessage(userId, messageId, messageText, keyboardMarkup);
+            personalChatService.save(userId, processedUserState.name(), messageId);
         } catch (TelegramApiException e) {
             log.error("Telegram API Error: {}", e.getMessage());
         }
@@ -88,7 +92,7 @@ public abstract class PersonalUpdateHandler {
 
     protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
         return switch (updateType) {
-            case PERSONAL_MESSAGE -> processTextMessageUpdate(update, userRecord);
+            case PERSONAL_MESSAGE -> processTextMessageUpdate(update.getMessage(), userRecord);
             case CALLBACK -> processCallbackUpdate(update.getCallbackQuery(), userRecord);
             default -> ProcessingResult.create(processedUserState);
         };
@@ -115,8 +119,8 @@ public abstract class PersonalUpdateHandler {
         return ProcessingResult.create(processedUserState);
     }
 
-    protected ProcessingResult processTextMessageUpdate(Update update, AppUserRecord userRecord) {
-        if (update.getMessage().hasText() && update.getMessage().getText().startsWith("/start")) {
+    protected ProcessingResult processTextMessageUpdate(Message message, AppUserRecord userRecord) {
+        if (message.hasText() && message.getText().startsWith(START_COMMAND)) {
             return ProcessingResult.create(UserState.START);
         }
         return ProcessingResult.create(processedUserState);
