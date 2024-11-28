@@ -18,6 +18,7 @@ public enum ButtonTextCode {
     CHAT_ADDITION_BUTTON_ADD("telegram.chat_addition_level.button.add"),
     LANGUAGE_BUTTON_RUSSIAN("telegram.language.russian_language"),
     LANGUAGE_BUTTON_ENGLISH("telegram.language.english_language"),
+    ADMINS_BUTTON_ADMIN_ADDITION("telegram.chats_level.button.add_admin"),
     CHAT_BUTTON_FILTERS_SETTINGS("telegram.chat_level.button.filter_settings"),
     FILTERS_BUTTON_TEXT_FILTERS("telegram.filters_level.button.text_filters"),
     TEXT_FILTERS_BUTTON_LINKS("telegram.text_filters_level.button.links_filter"),
@@ -32,7 +33,8 @@ public enum ButtonTextCode {
     TEXT_FILTER_BUTTON_DISABLE("telegram.text_filter_level.button.disable"),
     CHAT_BUTTON_EXCLUDE("telegram.chat_level.button.exclude_chat"),
     CHAT_DELETION_BUTTON_CONFIRM("telegram.chat_deletion_level.confirm"),
-    CHATS_BUTTON_CHAT("");
+    CHATS_BUTTON_CHAT(""),
+    ADMINS_BUTTON_ADMIN("");
 
     private final String resourceName;
     private static final EnumMap<ButtonTextCode, FilterType> buttonToFilterType = new EnumMap<>(Map.of(

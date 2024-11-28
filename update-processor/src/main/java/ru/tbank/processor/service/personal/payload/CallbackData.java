@@ -21,6 +21,14 @@ public record CallbackData(
         return Long.parseLong(args[0]);
     }
 
+    public @NonNull Long getAdminId() {
+        if (args.length == 0) {
+            throw new NoSuchElementException("Callback data doesn't contains admin id");
+        }
+
+        return Long.parseLong(args[0]);
+    }
+
     public @NonNull FilterType getFilterType() {
         if (args.length <= 1 || !FilterType.isFilterType(args[1])) {
             throw new NoSuchElementException("Callback data doesn't contains chat id");

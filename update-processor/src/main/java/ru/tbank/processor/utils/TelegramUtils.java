@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.excpetion.UnsupportedUpdateType;
+import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
@@ -56,7 +57,17 @@ public class TelegramUtils {
 
     public static List<CallbackButtonPayload> buildChatButtons(List<GroupChatRecord> groupChatRecords) {
         return groupChatRecords.stream()
-                .map(chat -> CallbackButtonPayload.create(chat.getName(), chat.getId()))
+                .map(chat -> CallbackButtonPayload.createChatButton(chat.getName(), chat.getId()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<CallbackButtonPayload> buildUserButtons(List<AppUserRecord> appAdmins) {
+        return appAdmins.stream()
+                .map(user -> CallbackButtonPayload.createUserButton(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId()
+                        ))
                 .collect(Collectors.toList());
     }
 

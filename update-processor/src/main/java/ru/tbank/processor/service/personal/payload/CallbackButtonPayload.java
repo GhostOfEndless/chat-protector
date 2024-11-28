@@ -9,10 +9,18 @@ public record CallbackButtonPayload(
         String code,
         boolean isUrl
 ) {
-    public static CallbackButtonPayload create(String chatName, Long chatId) {
+    public static CallbackButtonPayload createChatButton(String chatName, Long chatId) {
         return new CallbackButtonPayload(
                 chatName,
                 "%s:%d".formatted(ButtonTextCode.CHATS_BUTTON_CHAT, chatId),
+                false
+        );
+    }
+
+    public static CallbackButtonPayload createUserButton(String name, String surname, Long userId) {
+        return new CallbackButtonPayload(
+                "%s %s".formatted(name, surname),
+                "%s:%d".formatted(ButtonTextCode.ADMINS_BUTTON_ADMIN, userId),
                 false
         );
     }

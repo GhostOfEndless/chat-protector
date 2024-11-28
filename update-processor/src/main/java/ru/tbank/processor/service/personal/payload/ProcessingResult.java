@@ -14,10 +14,14 @@ public record ProcessingResult(
     }
 
     public static @NonNull ProcessingResult create(UserState newState, Integer messageId) {
-        return new ProcessingResult(newState, messageId, new Object[]{});
+        return ProcessingResult.create(newState, messageId, new Object[0]);
+    }
+
+    public static @NonNull ProcessingResult create(UserState newState, Object... args) {
+        return ProcessingResult.create(newState, 0, args);
     }
 
     public static @NonNull ProcessingResult create(UserState newState) {
-        return new ProcessingResult(newState, 0, new Object[]{});
+        return ProcessingResult.create(newState, 0);
     }
 }

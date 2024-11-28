@@ -65,7 +65,10 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
         var processingResult = updateHandlerMap.get(userState)
                 .handle(updateType, update, userRecord);
 
-        if (processingResult.newState() != userState || processingResult.newState() == UserState.START) {
+        if (processingResult.newState() != userState
+                || processingResult.newState() == UserState.START
+                || processingResult.messageId().equals(0)
+        ) {
             var handler = updateHandlerMap.get(processingResult.newState());
             if (handler != null) {
                 handler.goToState(userRecord, processingResult.messageId(), processingResult.args());
