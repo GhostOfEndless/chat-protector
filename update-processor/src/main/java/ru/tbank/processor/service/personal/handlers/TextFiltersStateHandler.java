@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
@@ -14,9 +13,9 @@ import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
+import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -38,7 +37,7 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected MessagePayload buildMessagePayloadForUser(UserRole userRole, Object[] args) {
+    protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         long chatId = (Long) args[0];
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
@@ -58,33 +57,28 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
     }
 
     @Override
-    protected ProcessingResult processCallbackButtonUpdate(CallbackQuery callbackQuery, AppUserRecord userRecord) {
-        int callbackMessageId = callbackQuery.getMessage().getMessageId();
-        var callbackData = TelegramUtils.parseCallbackWithParams(callbackQuery.getData());
+    protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
+        long chatId = callbackData.getChatId();
         var pressedButton = callbackData.pressedButton();
-        long chatId = callbackData.chatId();
+        Integer messageId = callbackData.messageId();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackQuery.getId(), userRecord.getLocale());
-            return ProcessingResult.create(UserState.CHATS, callbackMessageId);
+            showChatUnavailableCallback(callbackData.callbackId(), userRecord.getLocale());
+            return ProcessingResult.create(UserState.CHATS, messageId);
+        }
+        if (pressedButton.isBackButton()) {
+            return ProcessingResult.create(UserState.FILTERS, messageId, chatId);
+        }
+        if (!pressedButton.isButtonFilterType()) {
+            return ProcessingResult.create(UserState.START, messageId);
         }
 
-        if (pressedButton.isButtonFilterType()) {
-            var filterType = pressedButton.getFilterTypeFromButton();
-            return checkPermissionAndProcess(
-                    UserRole.ADMIN,
-                    userRecord,
-                    () -> new ProcessingResult(
-                            UserState.TEXT_FILTER,
-                            callbackMessageId,
-                            new Object[]{chatId, filterType}
-                    ),
-                    callbackQuery
-            );
-        } else if (pressedButton == ButtonTextCode.BUTTON_BACK) {
-            return new ProcessingResult(UserState.FILTERS, callbackMessageId, new Object[]{chatId});
-        } else {
-            return ProcessingResult.create(UserState.START, callbackMessageId);
-        }
+        var filterType = pressedButton.getFilterTypeFromButton();
+        return checkPermissionAndProcess(
+                UserRole.ADMIN,
+                userRecord,
+                () -> ProcessingResult.create(UserState.TEXT_FILTER, messageId, chatId, filterType),
+                callbackData
+        );
     }
 }

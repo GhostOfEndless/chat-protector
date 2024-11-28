@@ -46,7 +46,7 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
         var personalChatRecord = personalChatService.findByUserId(userId);
         var user = TelegramUtils.getUserFromUpdate(update);
         var userRecord = appUserService.findById(userId).orElseGet(
-                () -> appUserService.saveRegularUser(
+                () -> appUserService.save(
                         userId,
                         user.getFirstName(),
                         user.getLastName(),

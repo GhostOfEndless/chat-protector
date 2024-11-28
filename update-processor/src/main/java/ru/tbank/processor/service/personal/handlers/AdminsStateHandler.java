@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.GroupChatService;
+import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
@@ -18,55 +18,47 @@ import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
 
-@NullMarked
 @Slf4j
+@NullMarked
 @Component
-public final class ChatsStateHandler extends PersonalUpdateHandler {
+public final class AdminsStateHandler extends PersonalUpdateHandler {
 
-    private final GroupChatService groupChatService;
+    private final AppUserService appUserService;
 
-    public ChatsStateHandler(
+    public AdminsStateHandler(
             PersonalChatService personalChatService,
             TelegramClientService telegramClientService,
             TextResourceService textResourceService,
-            GroupChatService groupChatService
+            AppUserService appUserService
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.CHATS);
-        this.groupChatService = groupChatService;
+        super(personalChatService, telegramClientService, textResourceService, UserState.ADMINS);
+        this.appUserService = appUserService;
     }
 
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
-        var groupChats = groupChatService.findAll();
-        var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
-        groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
-        UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
-
-        if (userRole != UserRole.OWNER) {
-            return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
-        }
-
-        groupChatsButtons.add(groupChatsButtons.size() - 1,
-                CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
-        return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
+        var admins = appUserService.findAllAdmins();
+        var adminsButtons = TelegramUtils.buildUserButtons(admins);
+        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.ADMINS_BUTTON_ADMIN_ADDITION));
+        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        return MessagePayload.create(MessageTextCode.ADMINS_MESSAGE, adminsButtons);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         Integer messageId = callbackData.messageId();
-
         return switch (callbackData.pressedButton()) {
             case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
-            case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
+            case ADMINS_BUTTON_ADMIN_ADDITION -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.CHAT_ADDITION, messageId),
+                    () -> ProcessingResult.create(UserState.ADMIN_ADDITION, messageId),
                     callbackData
             );
-            case CHATS_BUTTON_CHAT -> checkPermissionAndProcess(
-                    UserRole.ADMIN,
+            case ADMINS_BUTTON_ADMIN -> checkPermissionAndProcess(
+                    UserRole.OWNER,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.CHAT, messageId, callbackData.getChatId()),
+                    () -> ProcessingResult.create(UserState.ADMIN, messageId, callbackData.getAdminId()),
                     callbackData
             );
             default -> ProcessingResult.create(processedUserState, messageId);

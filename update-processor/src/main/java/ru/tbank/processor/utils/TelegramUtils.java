@@ -2,9 +2,11 @@ package ru.tbank.processor.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.excpetion.UnsupportedUpdateType;
+import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
@@ -55,25 +57,31 @@ public class TelegramUtils {
 
     public static List<CallbackButtonPayload> buildChatButtons(List<GroupChatRecord> groupChatRecords) {
         return groupChatRecords.stream()
-                .map(groupChatRecord -> new CallbackButtonPayload(
-                        groupChatRecord.getName(),
-                        String.valueOf(groupChatRecord.getId()),
-                        false
+                .map(chat -> CallbackButtonPayload.createChatButton(chat.getName(), chat.getId()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<CallbackButtonPayload> buildUserButtons(List<AppUserRecord> appAdmins) {
+        return appAdmins.stream()
+                .map(user -> CallbackButtonPayload.createUserButton(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId()
                 ))
                 .collect(Collectors.toList());
     }
 
-    public static CallbackData parseCallbackWithParams(String callbackData) {
-        String[] callbackDataArr = callbackData.split(":");
-
+    public static CallbackData parseCallbackData(CallbackQuery callbackQuery) {
+        String[] callbackDataArr = callbackQuery.getData().split(":");
+        String[] args = new String[callbackDataArr.length - 1];
+        System.arraycopy(callbackDataArr, 1, args, 0, args.length);
         ButtonTextCode pressedButton = ButtonTextCode.valueOf(callbackDataArr[0]);
-        long chatId = callbackDataArr.length >= 2
-                ? Long.parseLong(callbackDataArr[1])
-                : 0;
-        String additionalData = callbackDataArr.length >= 3
-                ? callbackDataArr[2]
-                : "";
-        return new CallbackData(pressedButton, chatId, additionalData);
+        return new CallbackData(
+                callbackQuery.getMessage().getMessageId(),
+                callbackQuery.getId(),
+                pressedButton,
+                args
+        );
     }
 
     public static String createBotAdditionUrl(String botUserName) {

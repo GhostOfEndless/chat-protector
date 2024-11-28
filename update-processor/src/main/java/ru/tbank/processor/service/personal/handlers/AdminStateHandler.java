@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.GroupChatService;
+import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
@@ -20,37 +20,41 @@ import ru.tbank.processor.service.personal.payload.ProcessingResult;
 
 import java.util.List;
 
-@NullMarked
 @Slf4j
+@NullMarked
 @Component
-public final class ChatStateHandler extends PersonalUpdateHandler {
+public final class AdminStateHandler extends PersonalUpdateHandler {
 
-    private final GroupChatService groupChatService;
+    private final AppUserService appUserService;
 
-    public ChatStateHandler(
+    public AdminStateHandler(
             PersonalChatService personalChatService,
             TelegramClientService telegramClientService,
             TextResourceService textResourceService,
-            GroupChatService groupChatService) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.CHAT);
-        this.groupChatService = groupChatService;
+            AppUserService appUserService) {
+        super(personalChatService, telegramClientService, textResourceService, UserState.ADMIN);
+        this.appUserService = appUserService;
     }
 
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
-        long chatId = (Long) args[0];
-        return groupChatService.findById(chatId)
-                .map(chatRecord -> MessagePayload.create(
-                        MessageTextCode.CHAT_MESSAGE,
+        Long userId = (Long) args[0];
+        return appUserService.findById(userId)
+                .map(adminRecord -> MessagePayload.create(
+                        MessageTextCode.ADMIN_MESSAGE,
                         List.of(
-                                MessageArgument.createTextArgument(chatRecord.getName())
+                                MessageArgument.createTextArgument(
+                                        "%s %s".formatted(adminRecord.getFirstName(), adminRecord.getLastName())
+                                )
                         ),
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_EXCLUDE, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.ADMIN_BUTTON_REMOVE, userId),
                                 CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
                         )))
-                .orElseGet(chatNotFoundMessage);
+                .orElseGet(() -> MessagePayload.create(
+                        MessageTextCode.ADMIN_MESSAGE_NOT_FOUND,
+                        List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
+                ));
     }
 
     @Override
@@ -58,20 +62,17 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
         Integer messageId = callbackData.messageId();
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.CHATS, messageId);
-            case CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
-                    UserRole.ADMIN,
+            case BUTTON_BACK -> ProcessingResult.create(UserState.ADMINS, messageId);
+            case ADMIN_BUTTON_REMOVE -> checkPermissionAndProcess(
+                    UserRole.OWNER,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.FILTERS, messageId, callbackData.getChatId()),
+                    () -> {
+                        appUserService.updateUserRole(callbackData.getAdminId(), UserRole.USER.name());
+                        return ProcessingResult.create(UserState.ADMINS, messageId);
+                    },
                     callbackData
             );
-            case CHAT_BUTTON_EXCLUDE -> checkPermissionAndProcess(
-                    UserRole.ADMIN,
-                    userRecord,
-                    () -> ProcessingResult.create(UserState.CHAT_DELETION, messageId, callbackData.getChatId()),
-                    callbackData
-            );
-            default -> ProcessingResult.create(UserState.START, messageId);
+            default -> ProcessingResult.create(processedUserState, messageId);
         };
     }
 }
