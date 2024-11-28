@@ -54,6 +54,10 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
                         MessageTextCode.ADMIN_ADDITION_MESSAGE_USER_NOT_FOUND,
                         backButton
                 );
+                case USER_IS_ADMIN -> MessagePayload.create(
+                        MessageTextCode.ADMIN_ADDITION_MESSAGE_USER_IS_ADMIN,
+                        backButton
+                );
             };
         }
         return MessagePayload.create(
@@ -82,12 +86,15 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
             if (messageEntity.isPresent()) {
                 String username = messageEntity.get().getText().substring(1);
                 var addedUser = appUserService.findByUsername(username);
-                if (addedUser.isPresent()) {
-                    appUserService.updateUserRole(addedUser.get().getId(), UserRole.ADMIN.name());
-                    return ProcessingResult.create(processedUserState, 0, AdminAdditionResult.SUCCESS);
-                } else {
-                    return ProcessingResult.create(processedUserState, 0, AdminAdditionResult.USER_NOT_FOUND);
+
+                if (addedUser.isEmpty()) {
+                    return ProcessingResult.create(processedUserState, AdminAdditionResult.USER_NOT_FOUND);
                 }
+                if (UserRole.ADMIN.isEqualOrLowerThan(UserRole.getRoleByName(addedUser.get().getRole()))) {
+                    return ProcessingResult.create(processedUserState, AdminAdditionResult.USER_IS_ADMIN);
+                }
+                appUserService.updateUserRole(addedUser.get().getId(), UserRole.ADMIN.name());
+                return ProcessingResult.create(processedUserState, AdminAdditionResult.SUCCESS);
             }
         }
         return super.processTextMessageUpdate(message, userRecord);
