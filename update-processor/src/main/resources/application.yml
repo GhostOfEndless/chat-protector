@@ -16,8 +16,8 @@ telegram:
   token: ${TELEGRAM_BOT_TOKEN}
   bot-addition-url: https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
 
-kafka:
-  updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
+rabbit:
+  updates-topic-name: ${RABBIT_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
   datasource:
@@ -25,16 +25,12 @@ spring:
     username: ${POSTGRES_USER:user}
     password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: "org.telegram.telegrambots.meta.api.objects"
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:user}
+    password: ${RABBITMQ_PASSWORD:password}
+    virtual-host: vhost
 
 redis:
   master:

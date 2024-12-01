@@ -1,7 +1,6 @@
 # noinspection ComposeUnknownKeys
 include:
   - compose-network.yml
-  - compose-kafka.yml
   - compose-redis.yml
   - compose-metrics.yml
 
@@ -47,7 +46,35 @@ services:
     volumes:
       - ../../migrations/db/changelog:/liquibase/changelog/
 
+  rabbitmq:
+    image: rabbitmq:4.1-rc-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Moscow
+      RABBITMQ_DEFAULT_USER: $RABBITMQ_USER
+      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
+      RABBITMQ_DEFAULT_VHOST: vhost
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648"
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    networks:
+      - app-tier
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+
 volumes:
   postgres:
     name: postgres
+    driver: local
+  rabbit_data:
+    name: rabbit_data
     driver: local
