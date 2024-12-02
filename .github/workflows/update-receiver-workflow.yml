@@ -1,4 +1,4 @@
-name: CI
+name: Update receiver module workflow
 
 on:
   pull_request:
@@ -29,7 +29,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew :admin-service:bootJar
+        run: ./gradlew :update-receiver:bootJar
 
   package:
     runs-on: ubuntu-latest
@@ -44,10 +44,10 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push admin-service image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/admin-service.Dockerfile
+          file: ./docker/update-receiver.Dockerfile
           push: true
-          tags: ghcr.io/ghostofendless/admin-service:latest
+          tags: ghcr.io/ghostofendless/update-receiver:latest
