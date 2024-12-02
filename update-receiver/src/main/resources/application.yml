@@ -15,15 +15,16 @@ management:
 telegram:
   token: ${TELEGRAM_BOT_TOKEN}
 
-kafka:
-  updates-topic: ${KAFKA_UPDATES_TOPIC_NAME:updates-queue}
+rabbit:
+  updates-topic-name: ${RABBIT_UPDATES_TOPIC_NAME:updates-queue}
 
 spring:
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9094}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:user}
+    password: ${RABBITMQ_PASSWORD:password}
+    virtual-host: vhost
 
 logging:
   level:

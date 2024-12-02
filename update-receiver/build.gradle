@@ -1,7 +1,7 @@
 group = 'ru.tbank.receiver'
 
 dependencies {
-    implementation 'org.springframework.kafka:spring-kafka:3.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
     implementation 'org.telegram:telegrambots-client:7.10.0'
 }
