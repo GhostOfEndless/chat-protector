@@ -1,4 +1,3 @@
-# noinspection ComposeUnknownKeys
 include:
   - compose-network.yml
   - compose-redis.yml
