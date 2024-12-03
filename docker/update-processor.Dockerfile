@@ -7,15 +7,6 @@ COPY common/build.gradle common/build.gradle
 RUN gradle :update-processor:dependencies --no-daemon --stacktrace
 
 FROM gradle:jdk21-alpine AS builder
-ARG POSTGRES_HOST
-ARG POSTGRES_DB
-ARG POSTGRES_USER
-ARG POSTGRES_PASSWORD
-ENV DB_HOST $POSTGRES_HOST
-ENV DB_PORT $POSTGRES_PORT
-ENV DB_NAME $POSTGRES_DB
-ENV DB_USER $POSTGRES_USER
-ENV DB_PASSWORD $POSTGRES_PASSWORD
 ENV APP_HOME=/opt/app
 WORKDIR $APP_HOME
 COPY --from=dependencies /cache /home/gradle/.gradle
