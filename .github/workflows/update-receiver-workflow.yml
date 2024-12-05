@@ -2,9 +2,10 @@ name: Update receiver module workflow
 
 on:
   pull_request:
-    branches: [ master ]
-  push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'update-receiver/**'
 
 permissions:
   contents: write
