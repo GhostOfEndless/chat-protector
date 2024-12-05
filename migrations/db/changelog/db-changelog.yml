@@ -3,5 +3,3 @@ databaseChangeLog:
       file: security-changelog.sql
   - include:
       file: moderation-changelog.sql
-  - include:
-      file: init-data-changelog.sql
