@@ -4,14 +4,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-/admin-panel/src/main/bundles/
-/admin-panel/build/
-/admin-panel/*.ts
-/admin-panel/*.d.ts
-/admin-panel/*.json
-/admin-panel/node_modules/
-/admin-panel/src/main/frontend/generated/
-
 ### IntelliJ IDEA ###
 .idea/
 *.iws
@@ -21,27 +13,4 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
+update-processor/jooq
