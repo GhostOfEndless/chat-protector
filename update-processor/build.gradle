@@ -87,7 +87,6 @@ jooq {
 dependencies {
     // spring starters
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
 
@@ -101,9 +100,8 @@ dependencies {
     jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
 
-    // other
+    // other libs
     implementation 'org.telegram:telegrambots-client:7.10.0'
-    implementation 'org.apache.commons:commons-lang3:3.17.0'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {

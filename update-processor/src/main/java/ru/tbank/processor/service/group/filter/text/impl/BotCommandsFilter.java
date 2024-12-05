@@ -19,7 +19,7 @@ public class BotCommandsFilter extends TextFilter {
 
     @Override
     public TextProcessingResult process(Message message, TextModerationSettings moderationSettings) {
-        return processBasicEntity(message, moderationSettings.getEmailsFilterSettings(),
+        return processBasicEntity(message, moderationSettings.getBotCommandsFilterSettings(),
                 TextEntityType.BOT_COMMAND, TextProcessingResult.BOT_COMMAND_FOUND);
     }
 }

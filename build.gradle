@@ -30,13 +30,20 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.jspecify:jspecify:1.0.0'
-        implementation 'org.springframework.boot:spring-boot-starter-aop'
-        implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+        // spring starters
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
         implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        // other libs
+        implementation 'org.jspecify:jspecify:1.0.0'
         compileOnly 'org.projectlombok:lombok:1.18.34'
         annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+        // metrics
+        implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+
+        // test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 
