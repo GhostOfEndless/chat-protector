@@ -28,8 +28,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Generate jOOQ classes
+        run: ./gradlew :update-processor:jooqCodegen
+
       - name: Build with Gradle
-        run: ./gradlew :update-processor:jooqCodegen :update-processor:bootJar
+        run: ./gradlew :update-processor:bootJar
 
   package:
     runs-on: ubuntu-latest
