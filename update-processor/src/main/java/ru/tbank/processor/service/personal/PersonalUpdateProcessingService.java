@@ -76,7 +76,9 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     }
 
     private AppUserRecord saveUser(@NonNull User user) {
+        log.info("User id is: {}, Owner id is: {}", user.getId(), telegramProperties.ownerId());
         if (user.getId().equals(telegramProperties.ownerId())) {
+            log.info("Save OWNER");
             return appUserService.save(
                     user.getId(),
                     user.getFirstName(),
@@ -86,6 +88,7 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
             );
         }
 
+        log.info("Save USER");
         return appUserService.save(
                 user.getId(),
                 user.getFirstName(),
