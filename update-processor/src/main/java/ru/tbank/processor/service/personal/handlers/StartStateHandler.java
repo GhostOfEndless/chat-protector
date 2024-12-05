@@ -45,7 +45,6 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );
@@ -54,7 +53,6 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );

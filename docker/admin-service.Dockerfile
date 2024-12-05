@@ -29,4 +29,4 @@ COPY --from=optimizer $APP_HOME/application-snapshot/spring-boot-loader/ ./
 COPY --from=optimizer $APP_HOME/application-snapshot/dependencies/ ./
 COPY --from=optimizer $APP_HOME/application-snapshot/application/ ./
 EXPOSE 8080
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-Xmx128m", "org.springframework.boot.loader.launch.JarLauncher"]

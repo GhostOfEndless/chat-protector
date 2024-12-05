@@ -3,9 +3,7 @@ include:
 
 services:
   admin-service:
-    build:
-      context: ../..
-      dockerfile: docker/admin-service.Dockerfile
+    image: ghcr.io/ghostofendless/admin-service:latest
     container_name: admin-service
     networks:
       - app-tier
@@ -30,9 +28,7 @@ services:
         condition: service_healthy
 
   update-receiver:
-    build:
-      context: ../..
-      dockerfile: docker/update-receiver.Dockerfile
+    image: ghcr.io/ghostofendless/update-receiver:latest
     container_name: update-receiver
     ports:
       - '8081:8081'
@@ -47,7 +43,6 @@ services:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
       RABBIT_UPDATES_TOPIC_NAME: $RABBIT_UPDATES_TOPIC_NAME
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
-      KAFKA_BOOTSTRAP_SERVER: kafka:9092
     depends_on:
       liquibase:
         condition: service_completed_successfully
@@ -55,9 +50,7 @@ services:
         condition: service_healthy
 
   update-processor:
-    build:
-      context: ../..
-      dockerfile: docker/update-processor.Dockerfile
+    image: ghcr.io/ghostofendless/update-processor:latest
     container_name: update-processor
     ports:
       - '8082:8082'
@@ -77,10 +70,10 @@ services:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
       RABBIT_UPDATES_TOPIC_NAME: $RABBIT_UPDATES_TOPIC_NAME
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+      OWNER_ACCOUNT_ID: $TELEGRAM_OWNER_ACCOUNT_ID
       REDIS_MASTER_HOST: redis-master
       REDIS_SLAVE_1_HOST: redis-slave-1
       REDIS_SLAVE_2_HOST: redis-slave-2
-      KAFKA_BOOTSTRAP_SERVER: kafka:9092
     depends_on:
       liquibase:
         condition: service_completed_successfully

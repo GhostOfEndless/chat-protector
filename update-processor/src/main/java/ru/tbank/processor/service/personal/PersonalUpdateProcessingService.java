@@ -4,13 +4,17 @@ import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import ru.tbank.processor.config.TelegramProperties;
 import ru.tbank.processor.excpetion.UserIdParsingException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
@@ -28,10 +32,13 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     private final HashMap<UserState, PersonalUpdateHandler> updateHandlerMap = new HashMap<>();
     private final List<PersonalUpdateHandler> updateHandlers;
     private final PersonalChatService personalChatService;
+    private final TelegramProperties telegramProperties;
 
     @PostConstruct
     public void init() {
-        updateHandlers.forEach(handler -> updateHandlerMap.put(handler.getProcessedUserState(), handler));
+        updateHandlers.forEach(handler ->
+                updateHandlerMap.put(handler.getProcessedUserState(), handler)
+        );
     }
 
     @Timed("personalMessageProcessing")
@@ -45,13 +52,8 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
 
         var personalChatRecord = personalChatService.findByUserId(userId);
         var user = TelegramUtils.getUserFromUpdate(update);
-        var userRecord = appUserService.findById(userId).orElseGet(
-                () -> appUserService.save(
-                        userId,
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUserName()
-                ));
+        var userRecord = appUserService.findById(userId)
+                .orElseGet(() -> saveUser(user));
 
         personalChatRecord.ifPresentOrElse(
                 it -> handleUpdate(updateType, update, userRecord, UserState.valueOf(it.getState())),
@@ -71,5 +73,24 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
                 handler.goToState(userRecord, processingResult.messageId(), processingResult.args());
             }
         }
+    }
+
+    private AppUserRecord saveUser(@NonNull User user) {
+        if (user.getId().equals(telegramProperties.ownerId())) {
+            return appUserService.save(
+                    user.getId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getUserName(),
+                    UserRole.OWNER.name()
+            );
+        }
+
+        return appUserService.save(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUserName()
+        );
     }
 }
