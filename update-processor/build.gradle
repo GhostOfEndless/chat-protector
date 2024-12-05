@@ -84,6 +84,8 @@ jooq {
     }
 }
 
+compileJava.dependsOn jooqCodegen
+
 dependencies {
     // spring starters
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
