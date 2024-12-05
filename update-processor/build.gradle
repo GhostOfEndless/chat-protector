@@ -1,4 +1,6 @@
 import org.testcontainers.containers.PostgreSQLContainer
+import org.gradle.api.services.BuildServiceParameters
+import org.gradle.api.services.BuildService
 
 buildscript {
     repositories {
@@ -17,21 +19,14 @@ plugins {
 
 group = 'ru.tbank.processor'
 
-tasks.register("postgresContainer") {
-    var instance = new PostgreSQLContainer("postgres:17")
-    instance.start()
-    postgresContainer.ext.jdbcUrl = instance.getJdbcUrl()
-    postgresContainer.ext.username = instance.getUsername()
-    postgresContainer.ext.password = instance.getPassword()
-}
+Provider<PostgresService> dbContainerProvider = project.getGradle()
+        .getSharedServices()
+        .registerIfAbsent("postgres", PostgresService.class, {})
 
 liquibase {
     activities {
         main {
             changelogFile "db-changelog.yml"
-            url postgresContainer.jdbcUrl
-            username postgresContainer.username
-            password postgresContainer.password
             searchPath "migrations\\db\\changelog"
             logLevel "info"
         }
@@ -39,15 +34,43 @@ liquibase {
     jvmArgs "-Duser.dir=$project.rootDir"
 }
 
+update {
+    doFirst {
+        def dbContainer = dbContainerProvider.get().container
+        liquibase {
+            activities {
+                main {
+                    url dbContainer.jdbcUrl
+                    username dbContainer.username
+                    password dbContainer.password
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    jooqCodegen.dependsOn update
+
+    jooqCodegen {
+        doFirst {
+            def dbContainer = dbContainerProvider.get().container
+            jooq {
+                configuration {
+                    jdbc {
+                        driver = "org.postgresql.Driver"
+                        url = dbContainer.jdbcUrl
+                        user = dbContainer.username
+                        password = dbContainer.password
+                    }
+                }
+            }
+        }
+    }
+}
+
 jooq {
     configuration {
-        jdbc {
-            driver = 'org.postgresql.Driver'
-            url = postgresContainer.jdbcUrl
-            user = postgresContainer.username
-            password = postgresContainer.password
-        }
-
         generator {
             database {
                 name = 'org.jooq.meta.postgres.PostgresDatabase'
@@ -55,6 +78,7 @@ jooq {
             }
             target {
                 packageName = 'ru.tbank.processor.generated'
+                directory = 'jooq'
             }
         }
     }
@@ -82,11 +106,20 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.17.0'
 }
 
-tasks.compileJava {
-    dependsOn(tasks.jooqCodegen)
-}
+abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
+    private final PostgreSQLContainer container
 
-tasks.jooqCodegen {
-    dependsOn(tasks.postgresContainer)
-    dependsOn(tasks.update)
+    PostgresService() {
+        container = new PostgreSQLContainer("postgres:17")
+        container.start()
+    }
+
+    @Override
+    void close() {
+        container.stop()
+    }
+
+    PostgreSQLContainer getContainer() {
+        return container
+    }
 }

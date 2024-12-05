@@ -1,6 +1,6 @@
 FROM gradle:jdk21-alpine AS dependencies
 WORKDIR /opt/app
-ENV GRADLE_USER_HOME /cache
+ENV GRADLE_USER_HOME=/cache
 COPY build.gradle settings.gradle ./
 COPY update-receiver/build.gradle update-receiver/build.gradle
 RUN gradle :update-receiver:dependencies --no-daemon --stacktrace

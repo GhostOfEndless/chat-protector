@@ -1,6 +1,6 @@
 FROM gradle:jdk21-alpine AS dependencies
 WORKDIR /opt/app
-ENV GRADLE_USER_HOME /cache
+ENV GRADLE_USER_HOME=/cache
 COPY build.gradle settings.gradle ./
 COPY update-processor/build.gradle update-processor/build.gradle
 COPY common/build.gradle common/build.gradle
@@ -12,6 +12,7 @@ WORKDIR $APP_HOME
 COPY --from=dependencies /cache /home/gradle/.gradle
 COPY --from=dependencies $APP_HOME $APP_HOME
 COPY update-processor/src update-processor/src
+COPY update-processor/jooq update-processor/jooq
 COPY common/src common/src
 RUN gradle :update-processor:clean :update-processor:bootJar --no-daemon --stacktrace
 
