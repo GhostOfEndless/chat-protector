@@ -2,9 +2,11 @@ name: Update processor module workflow
 
 on:
   pull_request:
-    branches: [ master ]
-  push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'update-processor/**'
+      - 'common/**'
 
 permissions:
   contents: write

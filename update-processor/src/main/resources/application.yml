@@ -1,4 +1,3 @@
-#file: noinspection SpringBootApplicationYaml
 server:
   port: ${PROCESSOR_APP_PORT:8082}
 
@@ -15,6 +14,7 @@ management:
 telegram:
   token: ${TELEGRAM_BOT_TOKEN}
   bot-addition-url: https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
+  owner-id: ${OWNER_ACCOUNT_ID}
 
 rabbit:
   updates-topic-name: ${RABBIT_UPDATES_TOPIC_NAME:updates-queue}

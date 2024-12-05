@@ -29,7 +29,7 @@ public enum FilterType {
             "LINKS", LINKS,
             "PHONE_NUMBERS", PHONE_NUMBERS,
             "BOT_COMMANDS", BOT_COMMANDS,
-            "CUSTOM_EMOJI", CUSTOM_EMOJIS
+            "CUSTOM_EMOJIS", CUSTOM_EMOJIS
     );
 
     public static boolean isFilterType(String filterType) {

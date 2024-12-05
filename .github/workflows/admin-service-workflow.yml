@@ -2,9 +2,11 @@ name: Admin service module workflow
 
 on:
   pull_request:
-    branches: [ master ]
-  push:
-    branches: [ master ]
+    branches:
+      - master
+    paths:
+      - 'admin-service/**'
+      - 'common/**'
 
 permissions:
   contents: write
