@@ -102,6 +102,7 @@ dependencies {
 
     // other libs
     implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'org.springframework.security:spring-security-crypto:6.4.1'
 }
 

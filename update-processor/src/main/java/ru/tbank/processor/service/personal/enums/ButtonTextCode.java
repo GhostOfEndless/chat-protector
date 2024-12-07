@@ -18,6 +18,7 @@ public enum ButtonTextCode {
     CHAT_ADDITION_BUTTON_ADD("telegram.chat_addition_level.button.add"),
     LANGUAGE_BUTTON_RUSSIAN("telegram.language.russian_language"),
     LANGUAGE_BUTTON_ENGLISH("telegram.language.english_language"),
+    ACCOUNT_BUTTON_CHANGE_PASSWORD("telegram.account_level.button.change_password"),
     ADMINS_BUTTON_ADMIN_ADDITION("telegram.chats_level.button.add_admin"),
     ADMIN_BUTTON_REMOVE("telegram.admin_level.button.remove"),
     CHAT_BUTTON_FILTERS_SETTINGS("telegram.chat_level.button.filter_settings"),

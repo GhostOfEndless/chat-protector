@@ -65,6 +65,13 @@ public class AppUserService {
                 .execute();
     }
 
+    public void updateUsername(Long userId, String newUsername) {
+        dslContext.update(table)
+                .set(table.USERNAME, newUsername == null? "": newUsername)
+                .where(table.ID.eq(userId))
+                .execute();
+    }
+
     public List<AppUserRecord> findAllAdmins() {
         return dslContext.selectFrom(table)
                 .where(table.ROLE.eq(UserRole.ADMIN.name()))

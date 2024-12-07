@@ -49,3 +49,6 @@ logging:
     ru.tbank.processor: debug
     org.apache.kafka: warn
     org.jooq: warn
+
+password-generator:
+  password-length: 8
