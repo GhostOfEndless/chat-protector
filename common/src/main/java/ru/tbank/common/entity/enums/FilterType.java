@@ -1,4 +1,4 @@
-package ru.tbank.common.entity;
+package ru.tbank.common.entity.enums;
 
 import lombok.Getter;
 

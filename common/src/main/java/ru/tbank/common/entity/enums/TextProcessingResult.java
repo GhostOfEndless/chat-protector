@@ -1,4 +1,4 @@
-package ru.tbank.common.entity.text;
+package ru.tbank.common.entity.enums;
 
 public enum TextProcessingResult {
     OK,

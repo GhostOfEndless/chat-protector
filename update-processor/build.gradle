@@ -102,6 +102,7 @@ dependencies {
 
     // other libs
     implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.springframework.security:spring-security-crypto:6.4.1'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {

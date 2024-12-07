@@ -1,4 +1,4 @@
-package ru.tbank.processor.service.personal.enums;
+package ru.tbank.common.entity.enums;
 
 import org.jspecify.annotations.NonNull;
 
@@ -27,3 +27,4 @@ public enum UserRole {
         return this.ordinal() <= userRole.ordinal();
     }
 }
+

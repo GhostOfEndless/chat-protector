@@ -14,3 +14,4 @@ out/
 !**/src/test/**/out/
 
 update-processor/jooq
+admin-service/jooq

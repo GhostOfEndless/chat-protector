@@ -3,7 +3,7 @@ package ru.tbank.processor.service.personal.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 
 @Getter
 @RequiredArgsConstructor

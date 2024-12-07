@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.text.TextModerationSettings;
-import ru.tbank.common.entity.text.TextProcessingResult;
+import ru.tbank.common.entity.enums.TextProcessingResult;
 import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.group.filter.text.TextFilter;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.GroupChatService;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.Collections;

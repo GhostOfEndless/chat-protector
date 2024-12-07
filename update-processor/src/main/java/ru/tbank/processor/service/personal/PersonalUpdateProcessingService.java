@@ -14,7 +14,7 @@ import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;

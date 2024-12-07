@@ -2,7 +2,7 @@ package ru.tbank.processor.service.personal.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 
 import java.util.EnumMap;
 import java.util.Map;

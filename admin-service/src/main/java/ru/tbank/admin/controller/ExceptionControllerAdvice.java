@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 
 import java.util.Locale;
 

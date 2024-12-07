@@ -3,7 +3,7 @@ package ru.tbank.processor.service.moderation;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Service;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.processor.excpetion.ChatModerationSettingsNotFoundException;

@@ -2,11 +2,12 @@ package ru.tbank.processor.service.persistence;
 
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.AppUser;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AppUserService {
 
-    private final AppUser table = AppUser.APP_USER;
+    private final static AppUser table = AppUser.APP_USER;
+    private final PasswordEncoder passwordEncoder;
     private final DSLContext dslContext;
 
     public AppUserRecord save(Long userId, String firstName, String lastName, String username, String role) {
@@ -52,6 +54,13 @@ public class AppUserService {
     public void updateUserRole(Long userId, String newRole) {
         dslContext.update(table)
                 .set(table.ROLE, newRole)
+                .where(table.ID.eq(userId))
+                .execute();
+    }
+
+    public void updatePassword(Long userId, String password) {
+        dslContext.update(table)
+                .set(table.HASHED_PASSWORD, passwordEncoder.encode(password))
                 .where(table.ID.eq(userId))
                 .execute();
     }
