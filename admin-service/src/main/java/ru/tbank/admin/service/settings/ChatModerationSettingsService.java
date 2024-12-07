@@ -3,6 +3,7 @@ package ru.tbank.admin.service.settings;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -47,7 +48,7 @@ public class ChatModerationSettingsService {
         return findChatConfig(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
     }
 
-    public void updateChatConfig(ChatModerationSettings chatModerationSettings) {
+    public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
         var key = "chat:" + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
         stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);

@@ -3,6 +3,7 @@ package ru.tbank.admin.service.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.config.security.JwtProperties;
 
@@ -23,7 +24,7 @@ public class ClaimsExtractorService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(String token, @NonNull Function<Claims, T> claimsResolver) {
         var claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }

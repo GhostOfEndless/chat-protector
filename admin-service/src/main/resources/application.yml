@@ -12,18 +12,11 @@ management:
         enabled: true
 
 spring:
-  mustache:
-    check-template-location: false
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}
     username: ${POSTGRES_USER:user}
     password: ${POSTGRES_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
-  jpa:
-    show-sql: false
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
 
 redis:
   master:
@@ -40,3 +33,7 @@ redis:
 jwt:
   secret: ${ADMIN_SERVICE_JWT_SECRET}
   ttl: 3600 # in seconds
+
+logging:
+  level:
+    org.jooq: warn

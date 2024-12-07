@@ -3,6 +3,7 @@ package ru.tbank.admin.config;
 import io.lettuce.core.ReadFrom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -65,7 +66,7 @@ public class RedisConfiguration {
         return new StringRedisTemplate(lettuceConnectionFactoryUpdateTopic());
     }
 
-    private LettuceConnectionFactory createLettuceConnectionFactory(int database) {
+    private @NonNull LettuceConnectionFactory createLettuceConnectionFactory(int database) {
         log.debug("Redis master: {} slaves: {} db index: {}", properties.master(), properties.slaves(), database);
 
         var clientConfig = LettuceClientConfiguration.builder()

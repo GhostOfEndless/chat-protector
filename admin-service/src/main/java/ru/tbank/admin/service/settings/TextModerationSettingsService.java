@@ -1,6 +1,7 @@
 package ru.tbank.admin.service.settings;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
 import ru.tbank.common.entity.enums.FilterType;
@@ -39,7 +40,10 @@ public class TextModerationSettingsService {
         return filterSettings;
     }
 
-    private TextFilterSettings getFilterSettingsByType(TextModerationSettings settings, FilterType filterType) {
+    private TextFilterSettings getFilterSettingsByType(
+            TextModerationSettings settings,
+            @NonNull FilterType filterType
+    ) {
         return switch (filterType) {
             case TAGS -> settings.getTagsFilterSettings();
             case LINKS -> settings.getLinksFilterSettings();
@@ -51,7 +55,10 @@ public class TextModerationSettingsService {
         };
     }
 
-    private void updateFilterSettings(TextFilterSettings filterSettings, TextFilterSettingsRequest newSettings) {
+    private void updateFilterSettings(
+            @NonNull TextFilterSettings filterSettings,
+            @NonNull TextFilterSettingsRequest newSettings
+    ) {
         filterSettings.setEnabled(newSettings.enabled());
         filterSettings.setExclusionMode(newSettings.exclusionMode());
         filterSettings.setExclusions(newSettings.exclusions());

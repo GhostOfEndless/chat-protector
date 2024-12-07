@@ -2,6 +2,7 @@ package ru.tbank.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -22,8 +23,10 @@ public class ExceptionControllerAdvice {
     private final MessageSource messageSource;
 
     @ExceptionHandler(InvalidFilterTypeException.class)
-    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(InvalidFilterTypeException exception,
-                                                                          Locale locale) {
+    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(
+            @NonNull InvalidFilterTypeException exception,
+            Locale locale
+    ) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
                 messageSource.getMessage("errors.400.title", new Object[0],
                         "errors.400.title", locale));
@@ -37,8 +40,10 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleChatNotFoundException(ChatNotFoundException exception,
-                                                                     Locale locale) {
+    public ResponseEntity<ProblemDetail> handleChatNotFoundException(
+            @NonNull ChatNotFoundException exception,
+            Locale locale
+    ) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
                 messageSource.getMessage("errors.404.title", new Object[0],
                         "errors.404.title", locale));

@@ -2,6 +2,7 @@ package ru.tbank.admin.service.security;
 
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.config.security.JwtProperties;
@@ -19,8 +20,10 @@ public class JwtService {
         return generateToken(Map.of(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims,
-                                UserDetails userDetails) {
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            @NonNull UserDetails userDetails
+    ) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
