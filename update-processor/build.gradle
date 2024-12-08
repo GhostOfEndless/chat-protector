@@ -84,6 +84,16 @@ jooq {
     }
 }
 
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['ru/tbank/processor/generated/**']
+            )
+        }))
+    }
+}
+
 dependencies {
     // spring starters
     implementation 'org.springframework.boot:spring-boot-starter-amqp'

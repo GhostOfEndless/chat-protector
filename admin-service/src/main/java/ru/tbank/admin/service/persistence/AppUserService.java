@@ -6,7 +6,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.entity.ApplicationUser;
 import ru.tbank.admin.exceptions.UserNotFoundException;
-import ru.tbank.processor.generated.tables.AppUser;
+import ru.tbank.admin.generated.tables.AppUser;
 
 @Slf4j
 @Service

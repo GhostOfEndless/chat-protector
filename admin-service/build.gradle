@@ -77,10 +77,20 @@ jooq {
                 inputSchema = 'moderation'
             }
             target {
-                packageName = 'ru.tbank.processor.generated'
+                packageName = 'ru.tbank.admin.generated'
                 directory = 'jooq'
             }
         }
+    }
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['ru/tbank/admin/generated/**']
+            )
+        }))
     }
 }
 
