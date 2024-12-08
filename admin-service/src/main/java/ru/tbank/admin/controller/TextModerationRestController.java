@@ -25,15 +25,19 @@ public class TextModerationRestController {
     }
 
     @GetMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
-    public TextFilterSettings getTextFilterSettings(@PathVariable("chatId") Long id,
-                                                    @PathVariable("filterType") FilterType filterType) {
+    public TextFilterSettings getTextFilterSettings(
+            @PathVariable("chatId") Long id,
+            @PathVariable("filterType") FilterType filterType
+    ) {
         return configService.getFilterSettings(id, filterType);
     }
 
     @PatchMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
-    public TextFilterSettings updateChatConfig(@PathVariable("chatId") Long id,
-                                               @PathVariable("filterType") FilterType filterType,
-                                               @RequestBody TextFilterSettingsRequest payload) {
+    public TextFilterSettings updateChatConfig(
+            @PathVariable("chatId") Long id,
+            @PathVariable("filterType") FilterType filterType,
+            @RequestBody TextFilterSettingsRequest payload
+    ) {
         return configService.updateFilterSettings(id, filterType, payload);
     }
 }

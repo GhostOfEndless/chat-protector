@@ -18,7 +18,7 @@ public class AppUserService {
 
     public ApplicationUser getByUsername(String username) {
         var user = dslContext.fetchOptional(table, table.USERNAME.eq(username))
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(username));
         return user.into(ApplicationUser.class);
     }
 }

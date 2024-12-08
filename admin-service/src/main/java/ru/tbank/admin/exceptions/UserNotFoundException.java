@@ -1,8 +1,14 @@
 package ru.tbank.admin.exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class UserNotFoundException extends ApplicationRuntimeException {
 
-    public UserNotFoundException() {
-        super("User with specified username not found");
+    private final String username;
+
+    public UserNotFoundException(String username) {
+        super("username.not_found");
+        this.username = username;
     }
 }
