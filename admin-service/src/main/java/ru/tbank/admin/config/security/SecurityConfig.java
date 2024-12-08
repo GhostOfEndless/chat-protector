@@ -25,6 +25,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(matcherRegistry ->
                         matcherRegistry.requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/v1/admin/**").hasAnyAuthority("OWNER", "ADMIN")
+                                .requestMatchers(
+                                        "/actuator/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/*",
+                                        "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(sessionManagementConfigurer ->
                         sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

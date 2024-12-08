@@ -13,6 +13,7 @@ import ru.tbank.common.entity.text.TextModerationSettings;
 public class TextModerationSettingsService {
 
     private final ChatModerationSettingsService configService;
+    private final TextFilterSettingsExcludesValidator validator;
 
     public TextModerationSettings getSettings(Long chatId) {
         return configService.getChatConfig(chatId).getTextModerationSettings();
@@ -23,20 +24,23 @@ public class TextModerationSettingsService {
         return getFilterSettingsByType(textModerationSettings, filterType);
     }
 
-    public TextFilterSettings updateFilterSettings(Long chatId, FilterType filterType,
-                                                   TextFilterSettingsRequest newSettings) {
+    public TextFilterSettings updateFilterSettings(
+            Long chatId,
+            FilterType filterType,
+            TextFilterSettingsRequest newSettings
+    ) {
         var chatModerationSettings = configService.getChatConfig(chatId);
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();
-
-        // TODO: необходимо добавить валидацию списка исключений в зависимости от типа фильтра
+        var currentTextFilterSettings = getFilterSettingsByType(textModerationSettings, filterType);
+        if (!currentTextFilterSettings.getExclusions().equals(newSettings.exclusions())) {
+            validator.validate(filterType, newSettings);
+        }
         var filterSettings = getFilterSettingsByType(textModerationSettings, filterType);
         updateFilterSettings(filterSettings, newSettings);
         configService.updateChatConfig(chatModerationSettings);
-
         // TODO: дождаться обновления конфигурации в Redis.
         //  Если по каким-то причинам обновление не произошло - выбросить ошибку,
         //  иначе вернуть обновлённую конфигурацию
-
         return filterSettings;
     }
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
+import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
 import ru.tbank.admin.exceptions.UserNotFoundException;
 import ru.tbank.common.entity.enums.FilterType;
@@ -66,6 +67,23 @@ public class ExceptionControllerAdvice {
 
         var errorMessage = messageSource.getMessage(exception.getMessage(),
                 new Object[]{exception.getUsername()}, exception.getMessage(), locale);
+
+        problemDetail.setProperty("error", errorMessage);
+        return ResponseEntity.badRequest()
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ExclusionValidationException.class)
+    public ResponseEntity<ProblemDetail> handleExclusionValidationException(
+            @NonNull ExclusionValidationException exception,
+            Locale locale
+    ) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                messageSource.getMessage("errors.400.title", new Object[0],
+                        "errors.400.title", locale));
+
+        var errorMessage = messageSource.getMessage(exception.getMessage(),
+                new Object[]{exception.getExclusion()}, exception.getMessage(), locale);
 
         problemDetail.setProperty("error", errorMessage);
         return ResponseEntity.badRequest()
