@@ -1,6 +1,6 @@
 package ru.tbank.admin.controller.payload;
 
-import ru.tbank.common.entity.FilterMode;
+import ru.tbank.common.entity.enums.FilterMode;
 
 import java.util.List;
 

@@ -11,6 +11,7 @@ public enum UserState {
     ADMIN,
     ADMIN_ADDITION,
     ADMINS,
+    CHANGE_PASSWORD,
     CHAT,
     CHAT_ADDITION,
     CHAT_DELETION,

@@ -1,10 +1,11 @@
 package ru.tbank.admin.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
 import ru.tbank.admin.service.settings.TextModerationSettingsService;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 
@@ -15,6 +16,7 @@ import ru.tbank.common.entity.text.TextModerationSettings;
  */
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 public class TextModerationRestController {
 
     private final TextModerationSettingsService configService;
@@ -25,15 +27,19 @@ public class TextModerationRestController {
     }
 
     @GetMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
-    public TextFilterSettings getTextFilterSettings(@PathVariable("chatId") Long id,
-                                                    @PathVariable("filterType") FilterType filterType) {
+    public TextFilterSettings getTextFilterSettings(
+            @PathVariable("chatId") Long id,
+            @PathVariable("filterType") FilterType filterType
+    ) {
         return configService.getFilterSettings(id, filterType);
     }
 
     @PatchMapping("/api/v1/admin/settings/chats/{chatId}/text-moderation/{filterType}")
-    public TextFilterSettings updateChatConfig(@PathVariable("chatId") Long id,
-                                               @PathVariable("filterType") FilterType filterType,
-                                               @RequestBody TextFilterSettingsRequest payload) {
+    public TextFilterSettings updateChatConfig(
+            @PathVariable("chatId") Long id,
+            @PathVariable("filterType") FilterType filterType,
+            @RequestBody TextFilterSettingsRequest payload
+    ) {
         return configService.updateFilterSettings(id, filterType, payload);
     }
 }

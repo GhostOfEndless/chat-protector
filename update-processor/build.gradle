@@ -84,6 +84,16 @@ jooq {
     }
 }
 
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['ru/tbank/processor/generated/**']
+            )
+        }))
+    }
+}
+
 dependencies {
     // spring starters
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
@@ -102,6 +112,9 @@ dependencies {
 
     // other libs
     implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'org.springframework.security:spring-security-crypto:6.4.1'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {

@@ -1,5 +1,3 @@
 databaseChangeLog:
   - include:
-      file: security-changelog.sql
-  - include:
       file: moderation-changelog.sql
