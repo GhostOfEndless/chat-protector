@@ -27,7 +27,7 @@ public class TextModerationSettingsService {
     public TextFilterSettings updateFilterSettings(
             Long chatId,
             FilterType filterType,
-            TextFilterSettingsRequest newSettings
+            @NonNull TextFilterSettingsRequest newSettings
     ) {
         var chatModerationSettings = configService.getChatConfig(chatId);
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();

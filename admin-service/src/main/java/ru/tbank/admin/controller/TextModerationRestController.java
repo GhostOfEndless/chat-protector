@@ -1,5 +1,6 @@
 package ru.tbank.admin.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
@@ -15,6 +16,7 @@ import ru.tbank.common.entity.text.TextModerationSettings;
  */
 @RestController
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
 public class TextModerationRestController {
 
     private final TextModerationSettingsService configService;

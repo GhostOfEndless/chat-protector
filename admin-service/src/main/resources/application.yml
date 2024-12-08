@@ -1,3 +1,4 @@
+#file: noinspection SpringBootApplicationYaml
 server:
   port: 8080
 
@@ -37,3 +38,11 @@ jwt:
 logging:
   level:
     org.jooq: warn
+
+api:
+  version: 1.0.1
+  description: С помощью этого API Вы можете получить историю удалённых сообщений в конкретном чате, а также 
+    настраивать фильтры модерации в чатах
+  title: API Админ панели системы Chat Protector
+  server:
+    url: http://localhost:8080
