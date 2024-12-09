@@ -3,6 +3,7 @@ package ru.tbank.admin.service.settings;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class ChatModerationSettingsService {
 
+    private static final String UPDATE_CHANNEL_NAME = "configUpdateNotificationChannel";
     private final RedisTemplate<String, ChatModerationSettings> redisTemplate;
     private final RedisMessageListenerContainer listenerContainer;
     private final StringRedisTemplate stringRedisTemplate;
@@ -35,7 +37,7 @@ public class ChatModerationSettingsService {
                     var chatId = new String(message.getBody());
                     updateLocalConfig(chatId);
                 },
-                new ChannelTopic("configUpdateNotificationChannel")
+                new ChannelTopic(UPDATE_CHANNEL_NAME)
         );
     }
 
@@ -47,10 +49,10 @@ public class ChatModerationSettingsService {
         return findChatConfig(chatId).orElseThrow(() -> new ChatNotFoundException(chatId));
     }
 
-    public void updateChatConfig(ChatModerationSettings chatModerationSettings) {
+    public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
         var key = "chat:" + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
-        stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);
+        stringRedisTemplate.convertAndSend(UPDATE_CHANNEL_NAME, key);
     }
 
     private ChatModerationSettings fetchFromRedis(Long chatId) {

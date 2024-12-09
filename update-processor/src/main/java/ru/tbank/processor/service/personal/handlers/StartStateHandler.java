@@ -9,7 +9,7 @@ import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
@@ -45,6 +45,7 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );
@@ -53,6 +54,7 @@ public final class StartStateHandler extends PersonalUpdateHandler {
                     List.of(
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
+                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
                             CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
                     )
             );
@@ -79,7 +81,7 @@ public final class StartStateHandler extends PersonalUpdateHandler {
             case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
-                    () -> ProcessingResult.create(UserState.ADMIN, messageId),
+                    () -> ProcessingResult.create(UserState.ACCOUNT, messageId),
                     callbackData
             );
             default -> ProcessingResult.create(processedUserState, messageId);

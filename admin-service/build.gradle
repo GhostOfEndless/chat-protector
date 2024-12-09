@@ -1,18 +1,146 @@
+import org.testcontainers.containers.PostgreSQLContainer
+import org.gradle.api.services.BuildServiceParameters
+import org.gradle.api.services.BuildService
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.liquibase:liquibase-core:4.30.0'
+        classpath 'org.testcontainers:postgresql:1.20.4'
+    }
+}
+
+plugins {
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.14'
+    id 'org.liquibase.gradle' version '3.0.1'
+}
+
 group = 'ru.tbank.admin'
+
+Provider<PostgresService> dbContainerProvider = project.getGradle()
+        .getSharedServices()
+        .registerIfAbsent("postgres", PostgresService.class, {})
+
+liquibase {
+    activities {
+        main {
+            changelogFile "db-changelog.yml"
+            searchPath "migrations\\db\\changelog"
+            logLevel "info"
+        }
+    }
+    jvmArgs "-Duser.dir=$project.rootDir"
+}
+
+update {
+    doFirst {
+        def dbContainer = dbContainerProvider.get().container
+        liquibase {
+            activities {
+                main {
+                    url dbContainer.jdbcUrl
+                    username dbContainer.username
+                    password dbContainer.password
+                }
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    jooqCodegen.dependsOn update
+
+    jooqCodegen {
+        doFirst {
+            def dbContainer = dbContainerProvider.get().container
+            jooq {
+                configuration {
+                    jdbc {
+                        driver = "org.postgresql.Driver"
+                        url = dbContainer.jdbcUrl
+                        user = dbContainer.username
+                        password = dbContainer.password
+                    }
+                }
+            }
+        }
+    }
+}
+
+jooq {
+    configuration {
+        generator {
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'moderation'
+            }
+            target {
+                packageName = 'ru.tbank.admin.generated'
+                directory = 'jooq'
+            }
+        }
+    }
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['ru/tbank/admin/generated/**']
+            )
+        }))
+    }
+}
 
 dependencies {
     // spring boot starters
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+
+    // migration
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.30.0'
+    liquibaseRuntime 'org.postgresql:postgresql:42.7.4'
+    liquibaseRuntime 'info.picocli:picocli:4.7.6'
+
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
+    // api doc
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+
     // data
-    implementation 'org.postgresql:postgresql:42.7.4'
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
+}
+
+abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
+    private final PostgreSQLContainer container
+
+    PostgresService() {
+        container = new PostgreSQLContainer("postgres:17")
+        container.start()
+    }
+
+    @Override
+    void close() {
+        container.stop()
+    }
+
+    PostgreSQLContainer getContainer() {
+        return container
+    }
 }

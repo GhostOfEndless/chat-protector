@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.dto.DeletedTextMessageDTO;
-import ru.tbank.common.entity.text.TextProcessingResult;
+import ru.tbank.common.entity.enums.TextProcessingResult;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.DeletedTextMessageService;
 

@@ -2,7 +2,7 @@ package ru.tbank.common.entity.dto;
 
 import org.jspecify.annotations.NonNull;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import ru.tbank.common.entity.text.TextProcessingResult;
+import ru.tbank.common.entity.enums.TextProcessingResult;
 
 public record DeletedTextMessageDTO(
         Long id,

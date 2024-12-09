@@ -2,6 +2,7 @@ package ru.tbank.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -9,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
+import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.admin.exceptions.UserNotFoundException;
+import ru.tbank.common.entity.enums.FilterType;
 
 import java.util.Locale;
 
@@ -22,8 +25,10 @@ public class ExceptionControllerAdvice {
     private final MessageSource messageSource;
 
     @ExceptionHandler(InvalidFilterTypeException.class)
-    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(InvalidFilterTypeException exception,
-                                                                          Locale locale) {
+    public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(
+            @NonNull InvalidFilterTypeException exception,
+            Locale locale
+    ) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
                 messageSource.getMessage("errors.400.title", new Object[0],
                         "errors.400.title", locale));
@@ -37,8 +42,10 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleChatNotFoundException(ChatNotFoundException exception,
-                                                                     Locale locale) {
+    public ResponseEntity<ProblemDetail> handleChatNotFoundException(
+            @NonNull ChatNotFoundException exception,
+            Locale locale
+    ) {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
                 messageSource.getMessage("errors.404.title", new Object[0],
                         "errors.404.title", locale));
@@ -46,6 +53,40 @@ public class ExceptionControllerAdvice {
         problemDetail.setProperty("error", messageSource.getMessage(exception.getMessage(),
                 new Object[]{String.valueOf(exception.getChatId())}, exception.getMessage(), locale));
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUserNotFoundException(
+            @NonNull UserNotFoundException exception,
+            Locale locale
+    ) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                messageSource.getMessage("errors.400.title", new Object[0],
+                        "errors.400.title", locale));
+
+        var errorMessage = messageSource.getMessage(exception.getMessage(),
+                new Object[]{exception.getUsername()}, exception.getMessage(), locale);
+
+        problemDetail.setProperty("error", errorMessage);
+        return ResponseEntity.badRequest()
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(ExclusionValidationException.class)
+    public ResponseEntity<ProblemDetail> handleExclusionValidationException(
+            @NonNull ExclusionValidationException exception,
+            Locale locale
+    ) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                messageSource.getMessage("errors.400.title", new Object[0],
+                        "errors.400.title", locale));
+
+        var errorMessage = messageSource.getMessage(exception.getMessage(),
+                new Object[]{exception.getExclusion()}, exception.getMessage(), locale);
+
+        problemDetail.setProperty("error", errorMessage);
+        return ResponseEntity.badRequest()
                 .body(problemDetail);
     }
 }

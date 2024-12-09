@@ -10,7 +10,7 @@ import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;

@@ -2,7 +2,7 @@ package ru.tbank.common.entity.text;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.tbank.common.entity.FilterMode;
+import ru.tbank.common.entity.enums.FilterMode;
 
 import java.util.ArrayList;
 import java.util.List;

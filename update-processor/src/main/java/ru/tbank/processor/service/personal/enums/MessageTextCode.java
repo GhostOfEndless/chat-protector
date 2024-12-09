@@ -3,7 +3,7 @@ package ru.tbank.processor.service.personal.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 
 @Getter
 @RequiredArgsConstructor
@@ -29,6 +29,10 @@ public enum MessageTextCode {
     ADMIN_ADDITION_MESSAGE_USER_IS_ADMIN("telegram.admin_addition_level.message.user_is_admin"),
     ADMIN_MESSAGE("telegram.admin_level.message"),
     ADMIN_MESSAGE_NOT_FOUND("telegram.admin_level.message.not_found"),
+    ACCOUNT_MESSAGE("telegram.account_level.message"),
+    ACCOUNT_MESSAGE_USERNAME_ERROR("telegram.account_level.username_error_message"),
+    ACCOUNT_MESSAGE_PASSWORD_NOT_SET("telegram.account_level.password_not_set_message"),
+    CHANGE_PASSWORD_MESSAGE("telegram.change_password_level.message"),
     TEXT_FILTER_TYPE_TAGS("telegram.text_filter_level.filter_type.tags"),
     TEXT_FILTER_TYPE_EMAILS("telegram.text_filter_level.filter_type.emails"),
     TEXT_FILTER_TYPE_LINKS("telegram.text_filter_level.filter_type.links"),
