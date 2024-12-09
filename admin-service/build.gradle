@@ -118,6 +118,9 @@ dependencies {
     // api doc
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
+    // jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+
     // data
     runtimeOnly 'org.postgresql:postgresql:42.7.4'
     jooqCodegen 'org.postgresql:postgresql:42.7.4'

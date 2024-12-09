@@ -1,8 +1,6 @@
 package ru.tbank.admin.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,9 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Setter
-@Getter
-@EqualsAndHashCode(exclude = "id")
+@Data
 public class ApplicationUser implements UserDetails {
 
     private Long id;
