@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class ChatModerationSettingsService {
 
+    private static final String UPDATE_CHANNEL_NAME = "configUpdateNotificationChannel";
     private final RedisTemplate<String, ChatModerationSettings> redisTemplate;
     private final RedisMessageListenerContainer listenerContainer;
     private final StringRedisTemplate stringRedisTemplate;
@@ -36,7 +37,7 @@ public class ChatModerationSettingsService {
                     var chatId = new String(message.getBody());
                     updateLocalConfig(chatId);
                 },
-                new ChannelTopic("configUpdateNotificationChannel")
+                new ChannelTopic(UPDATE_CHANNEL_NAME)
         );
     }
 
@@ -51,7 +52,7 @@ public class ChatModerationSettingsService {
     public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
         var key = "chat:" + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
-        stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);
+        stringRedisTemplate.convertAndSend(UPDATE_CHANNEL_NAME, key);
     }
 
     private ChatModerationSettings fetchFromRedis(Long chatId) {

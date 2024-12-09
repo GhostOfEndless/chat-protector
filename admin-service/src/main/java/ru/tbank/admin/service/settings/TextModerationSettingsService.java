@@ -20,7 +20,7 @@ public class TextModerationSettingsService {
     }
 
     public TextFilterSettings getFilterSettings(Long chatId, FilterType filterType) {
-        var textModerationSettings = getSettings(chatId);
+        var textModerationSettings = configService.getChatConfig(chatId).getTextModerationSettings();
         return getFilterSettingsByType(textModerationSettings, filterType);
     }
 

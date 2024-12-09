@@ -106,6 +106,10 @@ dependencies {
     liquibaseRuntime 'org.postgresql:postgresql:42.7.4'
     liquibaseRuntime 'info.picocli:picocli:4.7.6'
 
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.6'

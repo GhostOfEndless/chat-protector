@@ -1,23 +1,17 @@
 package ru.tbank.admin.controller.payload;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.tbank.common.entity.enums.FilterMode;
 
 import java.util.List;
 
-public record TextFilterSettingsRequest(
-        @Schema(
-                description = "Состояние фильтра",
-                example = "false",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        Boolean enabled,
-        @Schema(
-                description = "Режим работы фильтра",
-                example = "BLACK_LIST",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record TextFilterSettingsResponse(
+        @Schema(description = "Состояние фильтра", example = "false")
+        boolean enabled,
+        @Schema(description = "Режим работы фильтра", example = "BLACK_LIST")
         FilterMode exclusionMode,
         @ArraySchema(
                 arraySchema = @Schema(
