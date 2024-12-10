@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Negative;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +26,7 @@ import ru.tbank.admin.mapper.TextModerationSettingsMapper;
 import ru.tbank.admin.service.settings.TextModerationSettingsService;
 import ru.tbank.common.entity.enums.FilterType;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer Authentication")
@@ -64,6 +68,7 @@ public class TextModerationRestController {
     public TextModerationSettingsResponse getTextModerationSettings(
             @PathVariable("chatId")
             @Parameter(description = "ID Telegram чата", example = "-123456789", required = true)
+            @Negative(message = "{chat_id.negative}")
             Long id
     ) {
         var textModerationSettings = configService.getSettings(id);
@@ -101,6 +106,7 @@ public class TextModerationRestController {
     public TextFilterSettingsResponse getTextFilterSettings(
             @PathVariable("chatId")
             @Parameter(description = "ID Telegram чата", example = "-123456789", required = true)
+            @Negative(message = "{chat_id.negative}")
             Long id,
             @PathVariable("filterType")
             @Schema(
@@ -147,6 +153,7 @@ public class TextModerationRestController {
     public TextFilterSettingsResponse updateChatConfig(
             @PathVariable("chatId")
             @Parameter(description = "ID Telegram чата", example = "-123456789", required = true)
+            @Negative(message = "{chat_id.negative}")
             Long id,
             @PathVariable("filterType")
             @Schema(
@@ -157,7 +164,9 @@ public class TextModerationRestController {
                     example = "links"
             )
             FilterType filterType,
-            @RequestBody TextFilterSettingsRequest payload
+            @RequestBody
+            @Schema(implementation = TextFilterSettingsRequest.class)
+            @Valid TextFilterSettingsRequest payload
     ) {
         var updatedTextFilterSettings = configService.updateFilterSettings(id, filterType, payload);
         return textFilterSettingsMapper.toTextFilterSettingsResponse(updatedTextFilterSettings);

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,7 @@ public class AuthenticationController {
     public AuthenticationResponse authenticate(
             @RequestBody
             @Schema(implementation = AuthenticationRequest.class)
-            AuthenticationRequest request
+            @Valid AuthenticationRequest request
     ) {
         return authenticationService.authenticate(request);
     }

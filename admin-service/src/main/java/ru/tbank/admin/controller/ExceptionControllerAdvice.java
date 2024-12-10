@@ -1,5 +1,6 @@
 package ru.tbank.admin.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -7,6 +8,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
@@ -23,9 +26,53 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class ExceptionControllerAdvice {
 
-    private final MessageSource messageSource;
     private static final String ERROR_400_TITLE = "errors.400.title";
     private static final String ERROR_404_TITLE = "errors.404.title";
+    private static final String ERRORS_FIELD = "errors";
+    private final MessageSource messageSource;
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolationException(
+            @NonNull ConstraintViolationException exception,
+            Locale locale
+    ) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageSource.getMessage(ERROR_400_TITLE, new Object[0], ERROR_400_TITLE, locale)
+        );
+
+        problemDetail.setProperty(ERRORS_FIELD,
+                exception.getConstraintViolations().stream()
+                        .map(violation ->
+                                messageSource.getMessage(
+                                        violation.getMessage(),
+                                        new Object[0],
+                                        violation.getMessage(),
+                                        locale
+                                ))
+                        .toList());
+
+        return ResponseEntity.badRequest()
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ProblemDetail> handleBindException(@NonNull BindException exception, Locale locale) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageSource.getMessage(ERROR_400_TITLE, new Object[0], ERROR_400_TITLE, locale)
+        );
+
+        problemDetail.setProperty(
+                ERRORS_FIELD,
+                exception.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .toList()
+        );
+
+        return ResponseEntity.badRequest()
+                .body(problemDetail);
+    }
 
     @ExceptionHandler(InvalidFilterTypeException.class)
     public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(
@@ -92,7 +139,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.BAD_REQUEST,
                 ERROR_404_TITLE,
                 exception.getMessage(),
-                new Object[]{exception.getUserId()},
+                new Object[]{String.valueOf(exception.getUserId())},
                 locale
         );
     }

@@ -2,6 +2,7 @@ package ru.tbank.admin.controller.moderation.payload;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import ru.tbank.common.entity.enums.FilterMode;
 
 import java.util.List;
@@ -12,12 +13,14 @@ public record TextFilterSettingsRequest(
                 example = "false",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
+        @NotNull(message = "{filter.state.is_null}")
         Boolean enabled,
         @Schema(
                 description = "Режим работы фильтра",
                 example = "BLACK_LIST",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
+        @NotNull(message = "{filter.mode.is_null}")
         FilterMode exclusionMode,
         @ArraySchema(
                 arraySchema = @Schema(
@@ -30,6 +33,7 @@ public record TextFilterSettingsRequest(
                                 """
                 )
         )
+        @NotNull(message = "{filter.exclusions.is_null}")
         List<String> exclusions
 ) {
 }
