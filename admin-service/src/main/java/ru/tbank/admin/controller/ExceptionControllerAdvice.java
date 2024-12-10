@@ -36,15 +36,20 @@ public class ExceptionControllerAdvice {
             @NonNull ConstraintViolationException exception,
             Locale locale
     ) {
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                messageSource.getMessage(ERROR_400_TITLE, new Object[0], ERROR_400_TITLE, locale));
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageSource.getMessage(ERROR_400_TITLE, new Object[0], ERROR_400_TITLE, locale)
+        );
 
         problemDetail.setProperty(ERRORS_FIELD,
                 exception.getConstraintViolations().stream()
                         .map(violation ->
-                                messageSource.getMessage(violation.getMessage(), new Object[0],
-                                        violation.getMessage(), locale)
-                        )
+                                messageSource.getMessage(
+                                        violation.getMessage(),
+                                        new Object[0],
+                                        violation.getMessage(),
+                                        locale
+                                ))
                         .toList());
 
         return ResponseEntity.badRequest()
@@ -53,15 +58,17 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ProblemDetail> handleBindException(@NonNull BindException exception, Locale locale) {
-        var problemDetail = ProblemDetail
-                .forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                        messageSource.getMessage(ERROR_400_TITLE, new Object[0],
-                                ERROR_400_TITLE, locale));
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                messageSource.getMessage(ERROR_400_TITLE, new Object[0], ERROR_400_TITLE, locale)
+        );
 
-        problemDetail.setProperty(ERRORS_FIELD,
+        problemDetail.setProperty(
+                ERRORS_FIELD,
                 exception.getAllErrors().stream()
                         .map(ObjectError::getDefaultMessage)
-                        .toList());
+                        .toList()
+        );
 
         return ResponseEntity.badRequest()
                 .body(problemDetail);

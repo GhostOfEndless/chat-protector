@@ -3,14 +3,14 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
@@ -29,10 +29,11 @@ public final class AdminStateHandler extends PersonalUpdateHandler {
 
     public AdminStateHandler(
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService,
-            AppUserService appUserService) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.ADMIN);
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender,
+            AppUserService appUserService
+    ) {
+        super(personalChatService, callbackSender, messageSender, UserState.ADMIN);
         this.appUserService = appUserService;
     }
 

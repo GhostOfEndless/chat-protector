@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.common.entity.enums.UserRole;
@@ -25,10 +25,10 @@ public final class StartStateHandler extends PersonalUpdateHandler {
 
     public StartStateHandler(
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.START);
+        super(personalChatService, callbackSender, messageSender, UserState.START);
     }
 
     @Override

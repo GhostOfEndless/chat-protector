@@ -4,17 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import ru.tbank.common.entity.enums.FilterType;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.excpetion.ChatModerationSettingsNotFoundException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.moderation.TextModerationSettingsService;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
@@ -36,11 +36,11 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
     public GenericTextFilterStateHandler(
             TextModerationSettingsService textModerationSettingsService,
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService,
-            GroupChatService groupChatService
+            GroupChatService groupChatService,
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.TEXT_FILTER);
+        super(personalChatService, callbackSender, messageSender, UserState.TEXT_FILTER);
         this.textModerationSettingsService = textModerationSettingsService;
         this.groupChatService = groupChatService;
     }
@@ -81,7 +81,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         var pressedButton = callbackData.pressedButton();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackData.callbackId(), userRecord.getLocale());
+            callbackSender.showChatUnavailableCallback(callbackData.callbackId(), userRecord.getLocale());
             return ProcessingResult.create(UserState.CHATS, callbackMessageId);
         }
         if (pressedButton.isBackButton()) {
@@ -123,7 +123,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                         showFilterStateChangedCallback(userLocale, callbackId, newState);
                         goToState(userRecord, messageId, chatId, filterType);
                     } catch (ChatModerationSettingsNotFoundException ex) {
-                        showChatUnavailableCallback(callbackId, userLocale);
+                        callbackSender.showChatUnavailableCallback(callbackId, userLocale);
                     }
                     return ProcessingResult.create(processedUserState, messageId, chatId, filterType);
                 },
@@ -135,7 +135,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         var callbackText = newState
                 ? CallbackTextCode.FILTER_ENABLE
                 : CallbackTextCode.FILTER_DISABLE;
-        showAnswerCallback(
+        callbackSender.showAnswerCallback(
                 CallbackAnswerPayload.create(callbackText),
                 userLocale,
                 callbackId
