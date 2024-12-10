@@ -14,7 +14,7 @@ import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
-import ru.tbank.processor.service.personal.enums.UserRole;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
 import ru.tbank.processor.utils.TelegramUtils;
@@ -22,6 +22,7 @@ import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -44,16 +45,24 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     @Timed("personalMessageProcessing")
     @Override
     public void process(UpdateType updateType, Update update) {
-        Long userId = TelegramUtils.getUserFromUpdate(update).getId();
+        User user = TelegramUtils.getUserFromUpdate(update);
+        long userId = user.getId();
 
         if (userId == 0) {
             throw new UserIdParsingException("Unable to get user id from update!");
         }
 
         var personalChatRecord = personalChatService.findByUserId(userId);
-        var user = TelegramUtils.getUserFromUpdate(update);
         var userRecord = appUserService.findById(userId)
                 .orElseGet(() -> saveUser(user));
+        String username = user.getUserName();
+
+        if (!Objects.equals(username, userRecord.getUsername())
+                && !(username == null && userRecord.getUsername().isBlank())) {
+            log.info("Username for user with id={} updated to '{}'", userId, username);
+            appUserService.updateUsername(userId, username);
+            userRecord.setUsername(username);
+        }
 
         personalChatRecord.ifPresentOrElse(
                 it -> handleUpdate(updateType, update, userRecord, UserState.valueOf(it.getState())),
