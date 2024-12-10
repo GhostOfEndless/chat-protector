@@ -12,6 +12,7 @@ WORKDIR $APP_HOME
 COPY --from=dependencies /cache /home/gradle/.gradle
 COPY --from=dependencies $APP_HOME $APP_HOME
 COPY admin-service/src admin-service/src
+COPY admin-service/jooq admin-service/jooq
 COPY common/src common/src
 RUN gradle :admin-service:clean :admin-service:bootJar --no-daemon --stacktrace
 

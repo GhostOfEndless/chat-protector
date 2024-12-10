@@ -47,3 +47,13 @@ CREATE TABLE IF NOT EXISTS moderation.deleted_text_message
     deletion_time TIMESTAMP NOT NULL DEFAULT NOW(),
     reason        TEXT      NOT NULL
 );
+
+--changeset ghostofendless:7
+ALTER TABLE moderation.group_chat
+    ALTER COLUMN addition_date TYPE TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE moderation.app_user
+    ALTER COLUMN addition_date TYPE TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE moderation.deleted_text_message
+    ALTER COLUMN deletion_time TYPE TIMESTAMP WITH TIME ZONE;
