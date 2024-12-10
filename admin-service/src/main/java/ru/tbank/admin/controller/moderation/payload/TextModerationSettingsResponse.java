@@ -1,4 +1,4 @@
-package ru.tbank.admin.controller.payload;
+package ru.tbank.admin.controller.moderation.payload;
 
 public record TextModerationSettingsResponse(
         TextFilterSettingsSimpleResponse linksFilterSettings,

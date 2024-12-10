@@ -2,7 +2,7 @@ package ru.tbank.admin.service.settings;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
-import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
+import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
 import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.common.entity.enums.FilterType;
 

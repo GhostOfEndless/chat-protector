@@ -1,4 +1,4 @@
-package ru.tbank.admin.entity;
+package ru.tbank.admin.pojo;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

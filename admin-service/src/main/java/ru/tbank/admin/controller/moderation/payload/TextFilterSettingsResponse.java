@@ -1,4 +1,4 @@
-package ru.tbank.admin.controller.payload;
+package ru.tbank.admin.controller.moderation.payload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

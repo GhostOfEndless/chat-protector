@@ -1,4 +1,4 @@
-package ru.tbank.admin.controller;
+package ru.tbank.admin.controller.moderation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
-import ru.tbank.admin.controller.payload.TextFilterSettingsResponse;
-import ru.tbank.admin.controller.payload.TextModerationSettingsResponse;
+import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
+import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsResponse;
+import ru.tbank.admin.controller.moderation.payload.TextModerationSettingsResponse;
 import ru.tbank.admin.mapper.TextFilterSettingsMapper;
 import ru.tbank.admin.mapper.TextModerationSettingsMapper;
 import ru.tbank.admin.service.settings.TextModerationSettingsService;

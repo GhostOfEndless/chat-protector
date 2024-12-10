@@ -2,8 +2,8 @@ package ru.tbank.admin.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import ru.tbank.admin.controller.payload.ChatResponse;
-import ru.tbank.admin.entity.Chat;
+import ru.tbank.admin.controller.chats.payload.ChatResponse;
+import ru.tbank.admin.pojo.Chat;
 
 import java.util.List;
 

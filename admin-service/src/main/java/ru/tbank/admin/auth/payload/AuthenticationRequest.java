@@ -1,4 +1,4 @@
-package ru.tbank.admin.auth;
+package ru.tbank.admin.auth.payload;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

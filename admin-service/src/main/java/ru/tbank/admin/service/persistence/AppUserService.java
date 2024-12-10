@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.tbank.admin.entity.ApplicationUser;
+import ru.tbank.admin.pojo.ApplicationUser;
 import ru.tbank.admin.exceptions.UserNotFoundException;
 import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.admin.generated.tables.AppUser;

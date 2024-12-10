@@ -5,9 +5,9 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import ru.tbank.admin.auth.AuthenticationRequest;
-import ru.tbank.admin.auth.AuthenticationResponse;
-import ru.tbank.admin.entity.ApplicationUser;
+import ru.tbank.admin.auth.payload.AuthenticationRequest;
+import ru.tbank.admin.auth.payload.AuthenticationResponse;
+import ru.tbank.admin.pojo.ApplicationUser;
 import ru.tbank.admin.service.persistence.AppUserService;
 
 @Service

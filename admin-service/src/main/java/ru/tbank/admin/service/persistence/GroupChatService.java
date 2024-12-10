@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
-import ru.tbank.admin.entity.Chat;
+import ru.tbank.admin.pojo.Chat;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.admin.generated.tables.GroupChat;
 

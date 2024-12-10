@@ -3,7 +3,7 @@ package ru.tbank.admin.service.settings;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-import ru.tbank.admin.controller.payload.TextFilterSettingsRequest;
+import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
 import ru.tbank.common.entity.enums.FilterType;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;

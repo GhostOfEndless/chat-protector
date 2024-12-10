@@ -11,6 +11,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.tbank.admin.auth.payload.AuthenticationRequest;
+import ru.tbank.admin.auth.payload.AuthenticationResponse;
 import ru.tbank.admin.service.security.AuthenticationService;
 
 @RestController
