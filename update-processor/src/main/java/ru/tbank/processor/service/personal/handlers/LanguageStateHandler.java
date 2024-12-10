@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.Language;
@@ -35,11 +35,11 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
 
     public LanguageStateHandler(
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService,
-            AppUserService appUserService
+            AppUserService appUserService,
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.LANGUAGE);
+        super(personalChatService, callbackSender, messageSender, UserState.LANGUAGE);
         this.appUserService = appUserService;
     }
 
@@ -100,7 +100,7 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
     }
 
     private void showLanguageChangedCallback(Language newLanguage, String userLocale, String callbackId) {
-        showAnswerCallback(
+        callbackSender.showAnswerCallback(
                 CallbackAnswerPayload.create(
                         CallbackTextCode.LANGUAGE_CHANGED,
                         List.of(
@@ -114,7 +114,7 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
     }
 
     private void showLanguageNotChangedCallback(String userLocale, String callbackId) {
-        showAnswerCallback(
+        callbackSender.showAnswerCallback(
                 CallbackAnswerPayload.create(
                         CallbackTextCode.LANGUAGE_NOT_CHANGED
                 ),

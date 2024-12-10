@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
 import ru.tbank.processor.service.personal.enums.UserState;
@@ -24,12 +25,16 @@ import java.util.List;
 @Component
 public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
 
+    private final TelegramClientService telegramClientService;
+
     public ChatAdditionStateHandler(
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender,
+            TelegramClientService telegramClientService
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.CHAT_ADDITION);
+        super(personalChatService, callbackSender, messageSender, UserState.CHAT_ADDITION);
+        this.telegramClientService = telegramClientService;
     }
 
     @Override

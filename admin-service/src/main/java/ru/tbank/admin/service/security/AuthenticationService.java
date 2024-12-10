@@ -1,30 +1,31 @@
 package ru.tbank.admin.service.security;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import ru.tbank.admin.auth.AuthenticationRequest;
-import ru.tbank.admin.auth.AuthenticationResponse;
-import ru.tbank.admin.entity.AppUser;
-import ru.tbank.admin.repository.AppUserRepository;
+import ru.tbank.admin.auth.payload.AuthenticationRequest;
+import ru.tbank.admin.auth.payload.AuthenticationResponse;
+import ru.tbank.admin.pojo.ApplicationUser;
+import ru.tbank.admin.service.persistence.AppUserService;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final AppUserRepository repository;
+    private final AppUserService appUserService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(@NonNull AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.login(),
                         request.password()
                 )
         );
-        AppUser user = repository.findByLogin(request.login()).orElseThrow();
+        ApplicationUser user = appUserService.getByUsername(request.login());
         String jwtToken = jwtService.generateToken(user);
         return new AuthenticationResponse(jwtToken);
     }

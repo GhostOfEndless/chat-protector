@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,10 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.admin.service.security.ClaimsExtractorService;
 
 import java.io.IOException;
@@ -39,8 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
             var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -52,9 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var jwt = authHeader.substring(BEARER_TYPE.length());
             var userLogin = claimsExtractorService.extractUsername(jwt);
 
-            if (userLogin != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userLogin != null) {
                 setAuthentication(jwt, request);
-            } else if (userLogin == null) {
+            } else {
                 throw new IllegalArgumentException();
             }
 
@@ -64,14 +68,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException e) {
             addProblemDetailToResponse(request, response, "token.login_field_not_found", null);
         } catch (UsernameNotFoundException e) {
-            addProblemDetailToResponse(request, response, "username.not_found", new Object[]{e.getMessage()});
+            addProblemDetailToResponse(request, response, "username.not_found", new Object[]{e.getUsername()});
         } catch (SignatureException e) {
             addProblemDetailToResponse(request, response, "token.signature_invalid", null);
         }
     }
 
-    private void addProblemDetailToResponse(HttpServletRequest request, HttpServletResponse response, String detail,
-                                            Object[] args) throws IOException {
+    private void addProblemDetailToResponse(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            String detail,
+            Object[] args
+    ) throws IOException {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
                 messageSource.getMessage("errors.401.title", new Object[0],
                         "errors.401.title", request.getLocale()));
@@ -82,7 +90,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(problemDetail));
     }
 

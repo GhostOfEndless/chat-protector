@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @NullMarked
 @Slf4j
-public class TelegramUtils {
+public final class TelegramUtils {
 
     private static final String BOT_ADDITION_URL = """
             https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members

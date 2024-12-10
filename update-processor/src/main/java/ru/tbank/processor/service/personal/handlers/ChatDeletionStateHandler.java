@@ -3,16 +3,17 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
+import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
-import ru.tbank.processor.service.TextResourceService;
 import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
+import ru.tbank.processor.service.personal.CallbackAnswerSender;
+import ru.tbank.processor.service.personal.MessageSender;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-import ru.tbank.processor.service.personal.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.payload.CallbackAnswerPayload;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
@@ -29,17 +30,20 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
 
     private final GroupChatService groupChatService;
     private final ChatModerationSettingsService chatModerationSettingsService;
+    private final TelegramClientService telegramClientService;
 
     public ChatDeletionStateHandler(
             PersonalChatService personalChatService,
-            TelegramClientService telegramClientService,
-            TextResourceService textResourceService,
             GroupChatService groupChatService,
-            ChatModerationSettingsService chatModerationSettingsService
+            CallbackAnswerSender callbackSender,
+            MessageSender messageSender,
+            ChatModerationSettingsService chatModerationSettingsService,
+            TelegramClientService telegramClientService
     ) {
-        super(personalChatService, telegramClientService, textResourceService, UserState.CHAT_DELETION);
+        super(personalChatService, callbackSender, messageSender, UserState.CHAT_DELETION);
         this.chatModerationSettingsService = chatModerationSettingsService;
         this.groupChatService = groupChatService;
+        this.telegramClientService = telegramClientService;
     }
 
     @Override
@@ -63,7 +67,7 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
         String userLocale = userRecord.getLocale();
 
         if (chatId == 0) {
-            showChatUnavailableCallback(callbackId, userLocale);
+            callbackSender.showChatUnavailableCallback(callbackId, userLocale);
             return ProcessingResult.create(UserState.CHATS, messageId);
         }
 
@@ -88,7 +92,7 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
     }
 
     private void showChatRemovedCallback(String userLocale, String callbackId) {
-        showAnswerCallback(
+        callbackSender.showAnswerCallback(
                 CallbackAnswerPayload.create(
                         CallbackTextCode.CHAT_REMOVED
                 ),

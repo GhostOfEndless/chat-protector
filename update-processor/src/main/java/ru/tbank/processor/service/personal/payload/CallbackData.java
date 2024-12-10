@@ -1,7 +1,7 @@
 package ru.tbank.processor.service.personal.payload;
 
 import org.jspecify.annotations.NonNull;
-import ru.tbank.common.entity.FilterType;
+import ru.tbank.common.entity.enums.FilterType;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
 
 import java.util.NoSuchElementException;
