@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.tbank.admin.exceptions.UserNotFoundException;
+import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.admin.service.security.ClaimsExtractorService;
 
 import java.io.IOException;
@@ -56,9 +56,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var jwt = authHeader.substring(BEARER_TYPE.length());
             var userLogin = claimsExtractorService.extractUsername(jwt);
 
-            if (userLogin != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userLogin != null) {
                 setAuthentication(jwt, request);
-            } else if (userLogin == null) {
+            } else {
                 throw new IllegalArgumentException();
             }
 
@@ -67,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             addProblemDetailToResponse(request, response, "token.expired", null);
         } catch (IllegalArgumentException e) {
             addProblemDetailToResponse(request, response, "token.login_field_not_found", null);
-        } catch (UserNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             addProblemDetailToResponse(request, response, "username.not_found", new Object[]{e.getUsername()});
         } catch (SignatureException e) {
             addProblemDetailToResponse(request, response, "token.signature_invalid", null);

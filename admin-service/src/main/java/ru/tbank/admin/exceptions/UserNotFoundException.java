@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class UserNotFoundException extends ApplicationRuntimeException {
 
-    private final String username;
+    private final Long userId;
 
-    public UserNotFoundException(String username) {
-        super("username.not_found");
-        this.username = username;
+    public UserNotFoundException(Long userId) {
+        super("user.id.not_found");
+        this.userId = userId;
     }
 }

@@ -25,8 +25,11 @@ public class GroupChatService {
     }
 
     public List<Chat> findAll() {
-        return dslContext.select(table.ID, table.NAME, table.ADDITION_DATE)
-                .from(table)
+        return dslContext.selectFrom(table)
                 .fetch(r -> r.into(Chat.class));
+    }
+
+    public boolean existsById(Long chatId) {
+        return dslContext.fetchOptional(table, table.ID.eq(chatId)).isPresent();
     }
 }

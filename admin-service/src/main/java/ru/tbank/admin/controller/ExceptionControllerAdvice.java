@@ -13,6 +13,7 @@ import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
 import ru.tbank.admin.exceptions.UserNotFoundException;
+import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.common.entity.enums.FilterType;
 
 import java.util.Locale;
@@ -23,22 +24,21 @@ import java.util.Locale;
 public class ExceptionControllerAdvice {
 
     private final MessageSource messageSource;
+    private static final String ERROR_400_TITLE = "errors.400.title";
+    private static final String ERROR_404_TITLE = "errors.404.title";
 
     @ExceptionHandler(InvalidFilterTypeException.class)
     public ResponseEntity<ProblemDetail> handleInvalidFilterTypeException(
             @NonNull InvalidFilterTypeException exception,
             Locale locale
     ) {
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                messageSource.getMessage("errors.400.title", new Object[0],
-                        "errors.400.title", locale));
-
-        var errorMessage = messageSource.getMessage(exception.getMessage(),
-                new Object[]{FilterType.getAvailableTypes()}, exception.getMessage(), locale);
-
-        problemDetail.setProperty("error", errorMessage);
-        return ResponseEntity.badRequest()
-                .body(problemDetail);
+        return createProblemDetailResponse(
+                HttpStatus.BAD_REQUEST,
+                ERROR_400_TITLE,
+                exception.getMessage(),
+                new Object[]{FilterType.getAvailableTypes()},
+                locale
+        );
     }
 
     @ExceptionHandler(ChatNotFoundException.class)
@@ -46,31 +46,27 @@ public class ExceptionControllerAdvice {
             @NonNull ChatNotFoundException exception,
             Locale locale
     ) {
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND,
-                messageSource.getMessage("errors.404.title", new Object[0],
-                        "errors.404.title", locale));
-
-        problemDetail.setProperty("error", messageSource.getMessage(exception.getMessage(),
-                new Object[]{String.valueOf(exception.getChatId())}, exception.getMessage(), locale));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(problemDetail);
+        return createProblemDetailResponse(
+                HttpStatus.NOT_FOUND,
+                ERROR_404_TITLE,
+                exception.getMessage(),
+                new Object[]{String.valueOf(exception.getChatId())},
+                locale
+        );
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleUserNotFoundException(
-            @NonNull UserNotFoundException exception,
+            @NonNull UsernameNotFoundException exception,
             Locale locale
     ) {
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                messageSource.getMessage("errors.400.title", new Object[0],
-                        "errors.400.title", locale));
-
-        var errorMessage = messageSource.getMessage(exception.getMessage(),
-                new Object[]{exception.getUsername()}, exception.getMessage(), locale);
-
-        problemDetail.setProperty("error", errorMessage);
-        return ResponseEntity.badRequest()
-                .body(problemDetail);
+        return createProblemDetailResponse(
+                HttpStatus.BAD_REQUEST,
+                ERROR_400_TITLE,
+                exception.getMessage(),
+                new Object[]{exception.getUsername()},
+                locale
+        );
     }
 
     @ExceptionHandler(ExclusionValidationException.class)
@@ -78,15 +74,49 @@ public class ExceptionControllerAdvice {
             @NonNull ExclusionValidationException exception,
             Locale locale
     ) {
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
-                messageSource.getMessage("errors.400.title", new Object[0],
-                        "errors.400.title", locale));
+        return createProblemDetailResponse(
+                HttpStatus.BAD_REQUEST,
+                ERROR_400_TITLE,
+                exception.getMessage(),
+                new Object[]{exception.getExclusion()},
+                locale
+        );
+    }
 
-        var errorMessage = messageSource.getMessage(exception.getMessage(),
-                new Object[]{exception.getExclusion()}, exception.getMessage(), locale);
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUserNotFoundException(
+            @NonNull UserNotFoundException exception,
+            Locale locale
+    ) {
+        return createProblemDetailResponse(
+                HttpStatus.BAD_REQUEST,
+                ERROR_404_TITLE,
+                exception.getMessage(),
+                new Object[]{exception.getUserId()},
+                locale
+        );
+    }
+
+    private @NonNull ResponseEntity<ProblemDetail> createProblemDetailResponse(
+            HttpStatus status,
+            String titleCode,
+            String errorMessageCode,
+            Object[] errorMessageArgs,
+            Locale locale
+    ) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                status,
+                messageSource.getMessage(titleCode, new Object[0], titleCode, locale)
+        );
+
+        var errorMessage = messageSource.getMessage(
+                errorMessageCode,
+                errorMessageArgs,
+                errorMessageCode,
+                locale
+        );
 
         problemDetail.setProperty("error", errorMessage);
-        return ResponseEntity.badRequest()
-                .body(problemDetail);
+        return ResponseEntity.status(status).body(problemDetail);
     }
 }
