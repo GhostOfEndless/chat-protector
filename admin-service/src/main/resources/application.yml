@@ -29,7 +29,6 @@ redis:
     - host: ${REDIS_SLAVE_2_HOST:localhost}
       port: 7001
   chat-configs-db: 0
-  users-state-db: 1
 
 jwt:
   secret: ${ADMIN_SERVICE_JWT_SECRET}

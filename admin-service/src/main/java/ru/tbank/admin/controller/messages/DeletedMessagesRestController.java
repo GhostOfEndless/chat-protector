@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.tbank.admin.controller.messages.payload.DeletedMessageResponse;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.admin.exceptions.UserNotFoundException;
 import ru.tbank.admin.mapper.DeletedMessageMapper;

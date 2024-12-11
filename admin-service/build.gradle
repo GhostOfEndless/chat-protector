@@ -88,7 +88,15 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['ru/tbank/admin/generated/**']
+                    exclude: [
+                            'ru/tbank/admin/generated/**',
+                            'ru/tbank/admin/pojo/**',
+                            'ru/tbank/admin/controller/**/payload/**',
+                            'ru/tbank/admin/auth/payload/**',
+                            'ru/tbank/admin/config/**',
+                            "ru/tbank/admin/mapper/**",
+                            "**/AdminServiceApplication**"
+                    ]
             )
         }))
     }
@@ -125,6 +133,12 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql:42.7.4'
     jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
+
+    // test
+    testImplementation 'org.springframework.security:spring-security-test:6.3.4'
+    testImplementation 'com.redis:testcontainers-redis:2.2.2'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.liquibase:liquibase-core:4.30.0'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
