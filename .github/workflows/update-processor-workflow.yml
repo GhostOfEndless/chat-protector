@@ -31,12 +31,14 @@ jobs:
         run: chmod +x gradlew
 
       - name: Generate jOOQ classes
-        run: ./gradlew :update-processor:jooqCodegen
+        run: ./gradlew
 
       - name: Build with Gradle
         run: ./gradlew :update-processor:bootJar
 
   package:
+    needs:
+      - build
     runs-on: ubuntu-latest
     name: Package
     steps:
