@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import ru.tbank.admin.controller.messages.DeletedMessageResponse;
+import ru.tbank.admin.controller.messages.payload.DeletedMessageResponse;
 import ru.tbank.admin.pojo.DeletedMessage;
 
 import java.util.List;

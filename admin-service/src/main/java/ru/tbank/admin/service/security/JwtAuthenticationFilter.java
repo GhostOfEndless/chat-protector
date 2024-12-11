@@ -1,4 +1,4 @@
-package ru.tbank.admin.config.security;
+package ru.tbank.admin.service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,11 +22,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.tbank.admin.exceptions.UsernameNotFoundException;
-import ru.tbank.admin.service.security.ClaimsExtractorService;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -89,7 +87,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         problemDetail.setInstance(URI.create(request.getRequestURI()));
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(problemDetail));
     }

@@ -1,0 +1,9 @@
+spring:
+  liquibase:
+    enabled: false
+
+redis:
+  master:
+    host: ${REDIS_MASTER_HOST:localhost}
+    port: 6379
+  slaves:

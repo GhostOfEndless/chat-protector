@@ -49,17 +49,23 @@ subprojects {
         implementation 'org.jspecify:jspecify:1.0.0'
         compileOnly 'org.projectlombok:lombok:1.18.34'
         annotationProcessor 'org.projectlombok:lombok:1.18.34'
+        testCompileOnly 'org.projectlombok:lombok:1.18.34'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
         // metrics
         implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
 
         // test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+        testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
     }
 
     test {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
+        jvmArgs '-XX:+EnableDynamicAgentLoading'
+        maxParallelForks = 1
     }
 
     jacocoTestReport {
