@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Negative;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -78,7 +78,7 @@ public class DeletedMessagesRestController {
             Long chatId,
             @RequestParam(required = false, defaultValue = "0")
             @Parameter(description = "ID пользователя Telegram", example = "123456789")
-            @Positive(message = "{user_id.positive}")
+            @PositiveOrZero(message = "{user_id.positive}")
             Long userId,
             @RequestParam(required = false, defaultValue = "1")
             @Parameter(description = "Номер страницы", example = "1")

@@ -3,10 +3,12 @@ package ru.tbank.admin.controller.moderation.payload;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import ru.tbank.common.entity.enums.FilterMode;
 
 import java.util.List;
 
+@Builder
 public record TextFilterSettingsRequest(
         @Schema(
                 description = "Состояние фильтра",

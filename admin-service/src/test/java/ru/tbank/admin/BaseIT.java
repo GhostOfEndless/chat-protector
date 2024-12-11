@@ -11,6 +11,7 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
 import lombok.SneakyThrows;
+import org.jooq.DSLContext;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,11 +22,14 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import ru.tbank.admin.generated.tables.AppUser;
+import ru.tbank.admin.generated.tables.GroupChat;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.concurrent.atomic.AtomicLong;
 
 @AutoConfigureMockMvc
 @SpringBootTest(classes = AdminServiceApplication.class)
@@ -39,6 +43,11 @@ public abstract class BaseIT {
     protected MockMvc mockMvc;
     @Autowired
     protected ObjectMapper objectMapper;
+    @Autowired
+    protected DSLContext dsl;
+
+    protected final AtomicLong userIdCounter = new AtomicLong(1L);
+    protected final AtomicLong chatIdCounter = new AtomicLong(-1L);
 
     @SneakyThrows
     @DynamicPropertySource
@@ -74,5 +83,39 @@ public abstract class BaseIT {
         );
 
         liquibase.update(new Contexts(), new LabelExpression());
+    }
+
+    protected @NonNull Long createTestUser(String firstName, String lastName, String username) {
+        var table = AppUser.APP_USER;
+        Long userId = userIdCounter.incrementAndGet();
+        dsl.insertInto(table)
+                .columns(table.ID, table.FIRST_NAME, table.LAST_NAME, table.USERNAME)
+                .values(userId, firstName, lastName, username)
+                .execute();
+        return userId;
+    }
+
+    protected void deleteTestUser(Long id) {
+        var table = AppUser.APP_USER;
+        dsl.deleteFrom(table)
+                .where(table.ID.eq(id))
+                .execute();
+    }
+
+    protected @NonNull Long createTestChat(String name) {
+        var table = GroupChat.GROUP_CHAT;
+        Long chatId = chatIdCounter.decrementAndGet();
+        dsl.insertInto(table)
+                .columns(table.ID, table.NAME)
+                .values(chatId, name)
+                .execute();
+        return chatId;
+    }
+
+    protected void deleteTestChat(Long id) {
+        var table = GroupChat.GROUP_CHAT;
+        dsl.deleteFrom(table)
+                .where(table.ID.eq(id))
+                .execute();
     }
 }

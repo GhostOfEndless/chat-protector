@@ -65,6 +65,7 @@ subprojects {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
         jvmArgs '-XX:+EnableDynamicAgentLoading'
+        maxParallelForks = 1
     }
 
     jacocoTestReport {

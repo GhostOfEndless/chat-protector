@@ -31,7 +31,7 @@ redis:
   chat-configs-db: 0
 
 jwt:
-  secret: ${ADMIN_SERVICE_JWT_SECRET}
+  secret: ${ADMIN_SERVICE_JWT_SECRET:J6GOtcwC2NJI1l0VkHu20PacPFGTxpirBxWwynoHjsc=}
   ttl: 3600 # in seconds
 
 logging:

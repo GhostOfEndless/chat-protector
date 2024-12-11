@@ -27,6 +27,7 @@ import java.util.Locale;
 public class ExceptionControllerAdvice {
 
     private static final String ERROR_400_TITLE = "errors.400.title";
+    private static final String ERROR_401_TITLE = "errors.401.title";
     private static final String ERROR_404_TITLE = "errors.404.title";
     private static final String ERRORS_FIELD = "errors";
     private final MessageSource messageSource;
@@ -108,8 +109,8 @@ public class ExceptionControllerAdvice {
             Locale locale
     ) {
         return createProblemDetailResponse(
-                HttpStatus.BAD_REQUEST,
-                ERROR_400_TITLE,
+                HttpStatus.UNAUTHORIZED,
+                ERROR_401_TITLE,
                 exception.getMessage(),
                 new Object[]{exception.getUsername()},
                 locale
@@ -136,7 +137,7 @@ public class ExceptionControllerAdvice {
             Locale locale
     ) {
         return createProblemDetailResponse(
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.NOT_FOUND,
                 ERROR_404_TITLE,
                 exception.getMessage(),
                 new Object[]{String.valueOf(exception.getUserId())},

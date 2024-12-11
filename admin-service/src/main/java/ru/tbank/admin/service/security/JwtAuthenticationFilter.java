@@ -25,7 +25,6 @@ import ru.tbank.admin.exceptions.UsernameNotFoundException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -88,7 +87,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         problemDetail.setInstance(URI.create(request.getRequestURI()));
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(problemDetail));
     }
