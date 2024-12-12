@@ -25,17 +25,18 @@ services:
       test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'" ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 15
 
   logstash:
     image: logstash:8.16.1
     container_name: logstash
+    user: logstash
     build:
       context: ../../logging
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     volumes:
-      - ../../logback:/usr/share/logstash/data
+      - ../../logback:/usr/share/logstash/data:rw
       - ../../logging/logstash/config/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ../../logging/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ../../logs:/usr/share/logstash/logs
