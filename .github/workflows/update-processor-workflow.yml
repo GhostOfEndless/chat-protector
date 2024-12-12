@@ -31,7 +31,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Generate jOOQ classes
-        run: ./gradlew
+        run: ./gradlew :update-processor:jooqCodegen
 
       - name: Build with Gradle
         run: ./gradlew :update-processor:bootJar

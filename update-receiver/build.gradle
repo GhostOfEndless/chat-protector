@@ -5,3 +5,16 @@ dependencies {
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
     implementation 'org.telegram:telegrambots-client:7.10.0'
 }
+
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: [
+                            'ru/tbank/receiver/config/**',
+                            "**/ReceiverApplication**"
+                    ]
+            )
+        }))
+    }
+}
