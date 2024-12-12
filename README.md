@@ -1,3 +1,4 @@
+![Project tests](https://github.com/GhostOfEndless/chat-protector/actions/workflows/project-test-workflow.yml/badge.svg)
 # Система модерации контента в Telegram чатах
 
 ---
