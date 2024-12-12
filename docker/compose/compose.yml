@@ -43,6 +43,8 @@ services:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
       RABBIT_UPDATES_TOPIC_NAME: $RABBIT_UPDATES_TOPIC_NAME
       TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+    volumes:
+      - ../../logback:/opt/app/logback
     depends_on:
       liquibase:
         condition: service_completed_successfully
@@ -74,6 +76,8 @@ services:
       REDIS_MASTER_HOST: redis-master
       REDIS_SLAVE_1_HOST: redis-slave-1
       REDIS_SLAVE_2_HOST: redis-slave-2
+    volumes:
+      - ../../logback:/opt/app/logback
     depends_on:
       liquibase:
         condition: service_completed_successfully

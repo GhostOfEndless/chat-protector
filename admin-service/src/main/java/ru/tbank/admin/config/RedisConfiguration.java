@@ -31,11 +31,6 @@ public class RedisConfiguration {
         return createLettuceConnectionFactory(properties.chatConfigsDb());
     }
 
-    @Bean(name = "redisConnectionFactoryUserStateDB")
-    public LettuceConnectionFactory lettuceConnectionFactoryUserStateDB() {
-        return createLettuceConnectionFactory(properties.usersStateDb());
-    }
-
     @Bean(name = "redisConnectionFactoryUpdateTopic")
     public LettuceConnectionFactory lettuceConnectionFactoryUpdateTopic() {
         log.debug("PUB/SUB: Redis host {} port {}", properties.master().host(), properties.master().port());
@@ -76,7 +71,9 @@ public class RedisConfiguration {
         var staticMasterReplicaConfiguration = new RedisStaticMasterReplicaConfiguration(
                 properties.master().host(), properties.master().port());
         staticMasterReplicaConfiguration.setDatabase(database);
-        properties.slaves().forEach(slave -> staticMasterReplicaConfiguration.addNode(slave.host(), slave.port()));
+        properties.slaves().forEach(slave ->
+                staticMasterReplicaConfiguration.addNode(slave.host(), slave.port())
+        );
 
 
         return new LettuceConnectionFactory(staticMasterReplicaConfiguration, clientConfig);

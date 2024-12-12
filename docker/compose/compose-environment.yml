@@ -2,6 +2,7 @@ include:
   - compose-network.yml
   - compose-redis.yml
   - compose-metrics.yml
+  - compose-logging.yml
 
 services:
   postgres:

@@ -88,7 +88,13 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it,
-                    exclude: ['ru/tbank/processor/generated/**']
+                    exclude: [
+                            'ru/tbank/processor/generated/**',
+                            'ru/tbank/processor/exception/**',
+                            'ru/tbank/processor/config/**',
+                            'ru/tbank/processor/service/personal/payload/**',
+                            "**/ProcessorApplication**"
+                    ]
             )
         }))
     }

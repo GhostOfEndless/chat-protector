@@ -37,6 +37,8 @@ jobs:
         run: ./gradlew :update-processor:bootJar
 
   package:
+    needs:
+      - build
     runs-on: ubuntu-latest
     name: Package
     steps:

@@ -37,6 +37,8 @@ jobs:
         run: ./gradlew :admin-service:bootJar
 
   package:
+    needs:
+      - build
     runs-on: ubuntu-latest
     name: Package
     steps:

@@ -7,7 +7,6 @@ import java.util.List;
 @ConfigurationProperties("redis")
 public record RedisProperties(
         int chatConfigsDb,
-        int usersStateDb,
         RedisAddress master,
         List<RedisAddress> slaves
 ) {
