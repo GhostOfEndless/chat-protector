@@ -1,0 +1,67 @@
+include:
+  - compose-network.yml
+
+services:
+  elasticsearch:
+    image: elasticsearch:8.16.1
+    container_name: elasticsearch
+    environment:
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+      - "node.name=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - '9200:9200'
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    networks:
+      - app-tier
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  logstash:
+    image: logstash:8.16.1
+    container_name: logstash
+    build:
+      context: ../../logging
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ../../logback:/usr/share/logstash/data
+      - ../../logging/logstash/config/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ../../logging/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ../../logs:/usr/share/logstash/logs
+    networks:
+      - app-tier
+    ports:
+      - '9600:9600'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  kibana:
+    image: kibana:8.16.1
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - 'NODE_OPTIONS=--max-old-space-size=2048'
+    ports:
+      - '5601:5601'
+    networks:
+      - app-tier
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  elastic_data:
+    name: elastic_data
+    driver: local

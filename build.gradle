@@ -52,8 +52,9 @@ subprojects {
         testCompileOnly 'org.projectlombok:lombok:1.18.34'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
-        // metrics
+        // metrics and logging
         implementation 'io.micrometer:micrometer-registry-prometheus:1.13.6'
+        implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 
         // test
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
