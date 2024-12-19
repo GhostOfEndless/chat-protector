@@ -4,6 +4,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
     implementation 'org.telegram:telegrambots-client:7.10.0'
+
+    implementation project(":common-telegram")
+
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 }
 
 jacocoTestReport {
