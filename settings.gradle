@@ -4,4 +4,4 @@ include 'update-processor'
 include 'update-receiver'
 include 'admin-service'
 include 'common'
-
+include 'common-telegram'
