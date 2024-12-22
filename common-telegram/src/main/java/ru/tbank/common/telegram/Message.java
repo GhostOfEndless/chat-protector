@@ -1,5 +1,6 @@
 package ru.tbank.common.telegram;
 
+import java.io.Serializable;
 import java.util.List;
 
 public record Message(
@@ -8,5 +9,8 @@ public record Message(
         User user,
         Chat chat,
         List<MessageEntity> entities
-) {
+) implements Serializable {
+    public boolean hasEntities() {
+        return entities != null && !entities.isEmpty();
+    }
 }

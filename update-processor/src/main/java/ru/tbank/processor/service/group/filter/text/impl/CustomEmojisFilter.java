@@ -3,13 +3,13 @@ package ru.tbank.processor.service.group.filter.text.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
+import ru.tbank.common.entity.enums.TextProcessingResult;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
-import ru.tbank.common.entity.enums.TextProcessingResult;
+import ru.tbank.common.telegram.Message;
+import ru.tbank.common.telegram.enums.MessageEntityType;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.group.filter.text.FilterCost;
-import ru.tbank.processor.service.group.filter.text.TextEntityType;
 import ru.tbank.processor.service.group.filter.text.TextFilter;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class CustomEmojisFilter extends TextFilter {
         var filterSettings = moderationSettings.getCustomEmojisFilterSettings();
         boolean checkResult = filterSettings.isEnabled()
                 && message.hasEntities()
-                && isContainsBlockedEntity(message, filterSettings, TextEntityType.CUSTOM_EMOJI);
+                && isContainsBlockedEntity(message, filterSettings, MessageEntityType.CUSTOM_EMOJI);
         return checkResult
                 ? TextProcessingResult.CUSTOM_EMOJI_FOUND
                 : TextProcessingResult.OK;
@@ -37,11 +37,11 @@ public class CustomEmojisFilter extends TextFilter {
 
     @Override
     protected boolean isContainsBlockedEntity(Message message, TextFilterSettings filterSettings,
-                                              TextEntityType entityType) {
-        return message.getEntities().stream()
-                .filter(entity -> entityType.isTypeOf(entity.getType()))
+                                              MessageEntityType entityType) {
+        return message.entities().stream()
+                .filter(entity -> entity.type() == entityType)
                 .anyMatch(entity -> {
-                    var stickerSet = telegramClientService.getEmojiPack(entity.getCustomEmojiId());
+                    var stickerSet = telegramClientService.getEmojiPack(entity.customEmojiId());
                     boolean contains = filterSettings.getExclusions().contains(stickerSet.getFirst().getSetName());
                     return calcCheckResult(filterSettings.getExclusionMode(), contains);
                 });

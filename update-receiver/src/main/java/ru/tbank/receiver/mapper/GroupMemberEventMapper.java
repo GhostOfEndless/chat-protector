@@ -13,11 +13,15 @@ import ru.tbank.receiver.exception.UnknownGroupMemberEventTypeException;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = ChatMapper.class,
+        uses = {
+                ChatMapper.class,
+                UserMapper.class
+        },
         injectionStrategy = InjectionStrategy.CONSTRUCTOR
 )
 public interface GroupMemberEventMapper {
 
+    @Mapping(source = "from", target = "user")
     @Mapping(source = ".", target = "eventType", qualifiedByName = "parseGroupMemberEventType")
     GroupMemberEvent toGroupMemberEvent(ChatMemberUpdated chatMemberUpdated);
 

@@ -17,7 +17,7 @@ public interface MessageEntityMapper {
             List<org.telegram.telegrambots.meta.api.objects.MessageEntity> messageEntities
     );
 
-    @Mapping(target = "entityType", qualifiedByName = "parseEntityType", source = "type")
+    @Mapping(target = "type", qualifiedByName = "parseEntityType", source = "type")
     MessageEntity toMessageEntity(org.telegram.telegrambots.meta.api.objects.MessageEntity messageEntity);
 
     @Named("parseEntityType")

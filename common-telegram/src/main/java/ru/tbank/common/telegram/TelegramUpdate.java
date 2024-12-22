@@ -3,12 +3,14 @@ package ru.tbank.common.telegram;
 import org.jspecify.annotations.NonNull;
 import ru.tbank.common.telegram.enums.UpdateType;
 
+import java.io.Serializable;
+
 public record TelegramUpdate(
         UpdateType updateType,
         Message message,
         CallbackEvent callbackEvent,
         GroupMemberEvent groupMemberEvent
-) {
+) implements Serializable {
     public static @NonNull TelegramUpdate createMessageUpdate(Message message) {
         return new TelegramUpdate(UpdateType.MESSAGE, message, null, null);
     }

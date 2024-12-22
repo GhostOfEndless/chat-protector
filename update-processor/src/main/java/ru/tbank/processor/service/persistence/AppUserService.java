@@ -22,20 +22,16 @@ public class AppUserService {
 
     public AppUserRecord save(Long userId, String firstName, String lastName, String username, String role) {
         var storedUser = findById(userId);
-
         if (storedUser.isPresent()) {
             return storedUser.get();
+        } else {
+            lastName = Optional.ofNullable(lastName).orElse("");
+            username = Optional.ofNullable(username).orElse("");
+            dslContext.insertInto(table)
+                    .columns(table.ID, table.FIRST_NAME, table.LAST_NAME, table.USERNAME, table.ROLE)
+                    .values(userId, firstName, lastName, username, role)
+                    .execute();
         }
-
-        var newRecord = dslContext.newRecord(table);
-
-        newRecord.setId(userId);
-        newRecord.setFirstName(firstName);
-        newRecord.setRole(role);
-        newRecord.setLastName(lastName == null? "": lastName);
-        newRecord.setUsername(username == null? "": username);
-        newRecord.store();
-
         return findById(userId).orElseThrow(
                 () -> new EntityNotFoundException("User with id=%d not found".formatted(userId)));
     }
@@ -65,9 +61,10 @@ public class AppUserService {
                 .execute();
     }
 
-    public void updateUsername(Long userId, String newUsername) {
+    public void updateUsername(Long userId, String newUserName) {
+        newUserName = Optional.ofNullable(newUserName).orElse("");
         dslContext.update(table)
-                .set(table.USERNAME, newUsername == null? "": newUsername)
+                .set(table.USERNAME, newUserName)
                 .where(table.ID.eq(userId))
                 .execute();
     }

@@ -3,5 +3,12 @@ package ru.tbank.receiver.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("rabbit")
-public record RabbitProperties(String updatesTopicName) {
+public record RabbitProperties(
+        String updatesTopicName,
+        String exchangeName,
+        String groupUpdatesQueueName,
+        String groupUpdatesQueueKey,
+        String personalUpdatesQueueName,
+        String personalUpdatesQueueKey
+) {
 }

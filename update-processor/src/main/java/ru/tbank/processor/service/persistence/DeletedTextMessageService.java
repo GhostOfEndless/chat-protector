@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-import ru.tbank.common.entity.dto.DeletedTextMessageDTO;
+import ru.tbank.common.telegram.Message;
 import ru.tbank.processor.generated.tables.DeletedTextMessage;
 import ru.tbank.processor.generated.tables.records.DeletedTextMessageRecord;
 
@@ -19,16 +19,11 @@ public class DeletedTextMessageService {
     private final DeletedTextMessage table = DeletedTextMessage.DELETED_TEXT_MESSAGE;
     private final DSLContext dslContext;
 
-    public void save(@NonNull DeletedTextMessageDTO deletedTextMessage) {
-        DeletedTextMessageRecord record = dslContext.newRecord(table);
-
-        // setup fields
-        record.setChatId(deletedTextMessage.chatId());
-        record.setMessageId(deletedTextMessage.messageId());
-        record.setMessageText(deletedTextMessage.messageText());
-        record.setUserId(deletedTextMessage.userId());
-        record.setReason(deletedTextMessage.reason());
-        record.store();
+    public void save(@NonNull Message message, String reason) {
+        dslContext.insertInto(table)
+                .columns(table.CHAT_ID, table.USER_ID, table.MESSAGE_ID, table.MESSAGE_TEXT, table.REASON)
+                .values(message.chat().id(), message.user().id(), message.messageId(), message.text(), reason)
+                .execute();
     }
 
     public Optional<DeletedTextMessageRecord> findById(Long id) {

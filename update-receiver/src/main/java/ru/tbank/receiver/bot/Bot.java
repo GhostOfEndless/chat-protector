@@ -44,6 +44,7 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
         updateSenderService.sendUpdate(update);
         var telegramUpdate = buildTelegramUpdate(update);
         log.debug("Parsed update is: {}", telegramUpdate);
+        updateSenderService.sendUpdate(telegramUpdate);
     }
 
     @AfterBotRegistration
