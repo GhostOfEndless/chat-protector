@@ -43,14 +43,14 @@ public final class TextFiltersStateHandler extends PersonalUpdateHandler {
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTERS_MESSAGE,
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_TAGS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_EMAILS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_LINKS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_MENTIONS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_BOT_COMMANDS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_CUSTOM_EMOJIS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BUTTON_PHONE_NUMBERS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_TAGS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_EMAILS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_LINKS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_MENTIONS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_BOT_COMMANDS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_CUSTOM_EMOJIS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.TEXT_FILTERS_PHONE_NUMBERS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.BACK, chatId)
                         )
                 ))
                 .orElseGet(chatNotFoundMessage);

@@ -42,7 +42,7 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var backButton = List.of(
-                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                CallbackButtonPayload.create(ButtonTextCode.BACK)
         );
 
         if (args.length > 0 && AdminAdditionResult.isAdditionResult(args[0])) {

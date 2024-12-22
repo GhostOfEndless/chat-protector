@@ -8,6 +8,7 @@ import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.common.telegram.CallbackEvent;
 import ru.tbank.common.telegram.Message;
 import ru.tbank.common.telegram.TelegramUpdate;
+import ru.tbank.processor.excpetion.ButtonNotFoundException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.CallbackAnswerSender;
@@ -19,7 +20,6 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +41,7 @@ public abstract class PersonalUpdateHandler {
 
     protected final Supplier<MessagePayload> chatNotFoundMessage = () -> MessagePayload.create(
             MessageTextCode.CHAT_MESSAGE_NOT_FOUND,
-            List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
+            List.of(CallbackButtonPayload.create(ButtonTextCode.BACK))
     );
 
     public final ProcessingResult handle(TelegramUpdate update, AppUserRecord userRecord) {
@@ -49,8 +49,11 @@ public abstract class PersonalUpdateHandler {
     }
 
     public final void goToState(AppUserRecord userRecord, Integer messageId, Object... args) {
-        var messagePayload = buildMessagePayloadForUser(userRecord, args);
-        messageSender.updateUserMessage(userRecord, messageId, messagePayload, processedUserState.name());
+        MessagePayload messagePayload = buildMessagePayloadForUser(userRecord, args);
+        Long userId = userRecord.getId();
+        String userLocale = userRecord.getLocale();
+        Integer newMessageId = messageSender.updateUserMessage(userId, userLocale, messageId, messagePayload);
+        personalChatService.save(userId, processedUserState.name(), newMessageId);
     }
 
     protected final ProcessingResult processUpdate(TelegramUpdate update, AppUserRecord userRecord) {
@@ -69,13 +72,17 @@ public abstract class PersonalUpdateHandler {
         Integer lastMessageId = personalChatService.findByUserId(userRecord.getId())
                 .orElseThrow()
                 .getLastMessageId();
-
         if (!Objects.equals(callbackMessageId, lastMessageId)) {
             callbackSender.showMessageExpiredCallback(userRecord.getLocale(), callbackEvent.id());
             return ProcessingResult.create(UserState.NONE);
         }
-        var callbackData = TelegramUtils.parseCallbackData(callbackEvent);
-        return processCallbackButtonUpdate(callbackData, userRecord);
+        try {
+            var callbackData = CallbackData.parseCallbackData(callbackEvent);
+            return processCallbackButtonUpdate(callbackData, userRecord);
+        } catch (ButtonNotFoundException e) {
+            log.warn(e.getMessage());
+            return ProcessingResult.create(processedUserState);
+        }
     }
 
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {

@@ -4,6 +4,8 @@ import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 public enum UserState {
@@ -27,4 +29,10 @@ public enum UserState {
     private static final List<String> baseNames = Arrays.stream(UserState.values())
             .map(state -> state.name().toLowerCase().replace('_', '-'))
             .toList();
+    private static final Map<String, UserState> stateNames = Arrays.stream(UserState.values())
+            .collect(Collectors.toMap(Enum::name, userState -> userState));
+
+    public static UserState getUserStateByName(String userStateName) {
+        return stateNames.get(userStateName);
+    }
 }

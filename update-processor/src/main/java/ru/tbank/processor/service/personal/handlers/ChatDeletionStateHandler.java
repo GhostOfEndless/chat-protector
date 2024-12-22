@@ -53,8 +53,8 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.CHAT_DELETION_MESSAGE,
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.CHAT_DELETION_BUTTON_CONFIRM, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
+                                CallbackButtonPayload.create(ButtonTextCode.CHAT_DELETION_CONFIRM, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.BACK, chatId)
                         )))
                 .orElseGet(chatNotFoundMessage);
     }
@@ -72,8 +72,8 @@ public final class ChatDeletionStateHandler extends PersonalUpdateHandler {
         }
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
-            case CHAT_DELETION_BUTTON_CONFIRM -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
+            case CHAT_DELETION_CONFIRM -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> {

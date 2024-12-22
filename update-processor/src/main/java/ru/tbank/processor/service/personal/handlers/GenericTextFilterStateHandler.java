@@ -52,8 +52,8 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
 
         var filterSettings = textModerationSettingsService.getFilterSettings(chatId, filterType);
         var buttonText = filterSettings.isEnabled()
-                ? ButtonTextCode.TEXT_FILTER_BUTTON_DISABLE
-                : ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE;
+                ? ButtonTextCode.TEXT_FILTER_DISABLE
+                : ButtonTextCode.TEXT_FILTER_ENABLE;
         return groupChatService.findById(chatId)
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.TEXT_FILTER_MESSAGE,
@@ -67,7 +67,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
                                         filterType.name()
                                 ),
                                 CallbackButtonPayload.create(
-                                        ButtonTextCode.BUTTON_BACK,
+                                        ButtonTextCode.BACK,
                                         chatId
                                 )
                         )))
@@ -95,7 +95,7 @@ public final class GenericTextFilterStateHandler extends PersonalUpdateHandler {
         return processFilterStateChanged(
                 userRecord,
                 filterType,
-                pressedButton == ButtonTextCode.TEXT_FILTER_BUTTON_ENABLE,
+                pressedButton == ButtonTextCode.TEXT_FILTER_ENABLE,
                 callbackData
         );
     }

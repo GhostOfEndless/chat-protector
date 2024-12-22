@@ -16,11 +16,6 @@ public class RabbitConfiguration {
     private final RabbitProperties rabbitProperties;
 
     @Bean
-    public Queue queue() {
-        return new Queue(rabbitProperties.updatesTopicName());
-    }
-
-    @Bean
     public Queue groupUpdatesQueue() {
         return new Queue(rabbitProperties.groupUpdatesQueueName());
     }

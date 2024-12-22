@@ -15,7 +15,6 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 
@@ -56,18 +55,18 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
         return MessagePayload.create(
                 MessageTextCode.CHAT_ADDITION_ERROR_MESSAGE,
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }
 
     private MessagePayload buildChatAdditionMessage(String botUserName) {
-        String additionUrl = TelegramUtils.createBotAdditionUrl(botUserName);
+        String additionUrl = telegramClientService.createBotAdditionUrl(botUserName);
         return MessagePayload.create(
                 MessageTextCode.CHAT_ADDITION_MESSAGE,
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.CHAT_ADDITION_BUTTON_ADD, additionUrl),
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.createUrlButton(ButtonTextCode.CHAT_ADDITION_ADD, additionUrl),
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }

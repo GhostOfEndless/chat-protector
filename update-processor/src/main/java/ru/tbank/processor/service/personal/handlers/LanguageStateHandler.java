@@ -50,7 +50,7 @@ public final class LanguageStateHandler extends PersonalUpdateHandler {
                         CallbackButtonPayload.create(ButtonTextCode.getButtonForLanguage(language))
                 )
                 .collect(Collectors.toList());
-        languageButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        languageButtons.add(CallbackButtonPayload.create(ButtonTextCode.BACK));
         Language userLanguage = Language.fromCode(userRecord.getLocale());
         return MessagePayload.create(
                 MessageTextCode.LANGUAGE_MESSAGE,

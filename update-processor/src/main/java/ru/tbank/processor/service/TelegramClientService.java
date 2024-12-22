@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+import ru.tbank.processor.config.TelegramProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Optional;
 public class TelegramClientService {
 
     private static final String MESSAGE_TEXT_PARSE_MODE = "MarkdownV2";
+    private final TelegramProperties telegramProperties;
     private final TelegramClient telegramClient;
 
     public List<Sticker> getEmojiPack(String customEmojiId) {
@@ -105,5 +107,9 @@ public class TelegramClientService {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public String createBotAdditionUrl(String botUserName) {
+        return telegramProperties.botAdditionUrl().formatted(botUserName);
     }
 }
