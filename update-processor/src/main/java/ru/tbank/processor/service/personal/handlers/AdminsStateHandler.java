@@ -16,7 +16,9 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @NullMarked
@@ -38,7 +40,7 @@ public final class AdminsStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var admins = appUserService.findAllAdmins();
-        var adminsButtons = TelegramUtils.buildUserButtons(admins);
+        var adminsButtons = buildAdminButtons(admins);
         adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.ADMINS_ADMIN_ADDITION));
         adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BACK));
         return MessagePayload.create(MessageTextCode.ADMINS_MESSAGE, adminsButtons);
@@ -63,5 +65,15 @@ public final class AdminsStateHandler extends PersonalUpdateHandler {
             );
             default -> ProcessingResult.create(processedUserState, messageId);
         };
+    }
+
+    public List<CallbackButtonPayload> buildAdminButtons(List<AppUserRecord> appAdmins) {
+        return appAdmins.stream()
+                .map(user -> CallbackButtonPayload.createAdminButton(
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getId()
+                ))
+                .collect(Collectors.toList());
     }
 }

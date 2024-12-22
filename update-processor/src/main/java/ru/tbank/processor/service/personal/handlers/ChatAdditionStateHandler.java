@@ -65,7 +65,7 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
         return MessagePayload.create(
                 MessageTextCode.CHAT_ADDITION_MESSAGE,
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.CHAT_ADDITION_ADD, additionUrl),
+                        CallbackButtonPayload.createUrlButton(ButtonTextCode.CHAT_ADDITION_ADD, additionUrl),
                         CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );

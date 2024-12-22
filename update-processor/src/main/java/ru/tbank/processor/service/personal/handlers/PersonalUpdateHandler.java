@@ -20,7 +20,6 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,8 +49,11 @@ public abstract class PersonalUpdateHandler {
     }
 
     public final void goToState(AppUserRecord userRecord, Integer messageId, Object... args) {
-        var messagePayload = buildMessagePayloadForUser(userRecord, args);
-        messageSender.updateUserMessage(userRecord, messageId, messagePayload, processedUserState.name());
+        MessagePayload messagePayload = buildMessagePayloadForUser(userRecord, args);
+        Long userId = userRecord.getId();
+        String userLocale = userRecord.getLocale();
+        Integer newMessageId = messageSender.updateUserMessage(userId, userLocale, messageId, messagePayload);
+        personalChatService.save(userId, processedUserState.name(), newMessageId);
     }
 
     protected final ProcessingResult processUpdate(TelegramUpdate update, AppUserRecord userRecord) {
@@ -75,7 +77,7 @@ public abstract class PersonalUpdateHandler {
             return ProcessingResult.create(UserState.NONE);
         }
         try {
-            var callbackData = TelegramUtils.parseCallbackData(callbackEvent);
+            var callbackData = CallbackData.parseCallbackData(callbackEvent);
             return processCallbackButtonUpdate(callbackData, userRecord);
         } catch (ButtonNotFoundException e) {
             log.warn(e.getMessage());

@@ -17,7 +17,7 @@ public record CallbackButtonPayload(
         );
     }
 
-    public static CallbackButtonPayload createUserButton(String name, String surname, Long userId) {
+    public static CallbackButtonPayload createAdminButton(String name, String surname, Long userId) {
         return new CallbackButtonPayload(
                 "%s %s".formatted(name, surname),
                 "%s:%d".formatted(ButtonTextCode.ADMINS_ADMIN, userId),
@@ -29,7 +29,7 @@ public record CallbackButtonPayload(
         return new CallbackButtonPayload(textCode.getResourceName(), textCode.name(), false);
     }
 
-    public static CallbackButtonPayload create(ButtonTextCode textCode, String url) {
+    public static CallbackButtonPayload createUrlButton(ButtonTextCode textCode, String url) {
         return new CallbackButtonPayload(textCode.getResourceName(), url, true);
     }
 

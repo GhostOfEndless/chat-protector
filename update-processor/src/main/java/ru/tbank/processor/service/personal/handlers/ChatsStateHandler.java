@@ -5,6 +5,7 @@ import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
 import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
+import ru.tbank.processor.generated.tables.records.GroupChatRecord;
 import ru.tbank.processor.service.persistence.GroupChatService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.CallbackAnswerSender;
@@ -16,7 +17,9 @@ import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-import ru.tbank.processor.utils.TelegramUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NullMarked
 @Slf4j
@@ -38,14 +41,12 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var groupChats = groupChatService.findAll();
-        var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
+        var groupChatsButtons = buildChatButtons(groupChats);
         groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BACK));
         UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
-
         if (userRole != UserRole.OWNER) {
             return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_ADMIN, groupChatsButtons);
         }
-
         groupChatsButtons.add(groupChatsButtons.size() - 1,
                 CallbackButtonPayload.create(ButtonTextCode.CHATS_CHAT_ADDITION));
         return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
@@ -71,5 +72,11 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
             );
             default -> ProcessingResult.create(processedUserState, messageId);
         };
+    }
+
+    public List<CallbackButtonPayload> buildChatButtons(List<GroupChatRecord> groupChatRecords) {
+        return groupChatRecords.stream()
+                .map(chat -> CallbackButtonPayload.createChatButton(chat.getName(), chat.getId()))
+                .collect(Collectors.toList());
     }
 }

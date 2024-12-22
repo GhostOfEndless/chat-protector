@@ -8,10 +8,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.tbank.processor.generated.tables.records.AppUserRecord;
+import ru.tbank.processor.excpetion.StateNotUpdatedException;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.TextResourceService;
-import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.payload.CallbackButtonPayload;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 
@@ -23,24 +22,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageSender {
 
-    private final PersonalChatService personalChatService;
     private final TextResourceService textResourceService;
     private final TelegramClientService telegramClientService;
 
-    public void updateUserMessage(AppUserRecord userRecord, Integer messageId, MessagePayload payload, String state) {
-        var keyboardMarkup = buildKeyboard(payload.buttons(), userRecord.getLocale());
-        String messageText = buildMessageText(userRecord.getLocale(), payload);
-        Long userId = userRecord.getId();
+    public Integer updateUserMessage(Long userId, String userLocale, Integer messageId, MessagePayload payload) {
+        var keyboardMarkup = buildKeyboard(payload.buttons(), userLocale);
+        String messageText = buildMessageText(userLocale, payload);
         try {
             if (messageId == 0) {
-                var sentMessage = telegramClientService.sendMessage(userId, messageText, keyboardMarkup);
-                personalChatService.save(userId, state, sentMessage.getMessageId());
-                return;
+                return telegramClientService.sendMessage(userId, messageText, keyboardMarkup).getMessageId();
             }
             telegramClientService.editMessage(userId, messageId, messageText, keyboardMarkup);
-            personalChatService.save(userId, state, messageId);
+            return messageId;
         } catch (TelegramApiException e) {
             log.error("Telegram API Error: {}", e.getMessage());
+            throw new StateNotUpdatedException("User state not updated due to API exception");
         }
     }
 
@@ -65,13 +61,11 @@ public class MessageSender {
                             String buttonText = textResourceService.getText(callbackButton.text(), userLocale);
                             var inlineKeyboardButton = new InlineKeyboardButton(buttonText);
                             var inlineKeyboardRow = new InlineKeyboardRow(inlineKeyboardButton);
-
                             if (callbackButton.isUrl()) {
                                 inlineKeyboardButton.setUrl(callbackButton.code());
                             } else {
                                 inlineKeyboardButton.setCallbackData(callbackButton.code());
                             }
-
                             return inlineKeyboardRow;
                         }
                 )

@@ -53,7 +53,7 @@ public class PersonalUpdateProcessingService {
                 .orElseGet(() -> saveNewUser(user));
         checkUserName(user, userRecord);
         personalChatRecord.ifPresentOrElse(
-                it -> handleUpdate(update, userRecord, UserState.valueOf(it.getState())),
+                it -> handleUpdate(update, userRecord, UserState.getUserStateByName(it.getState())),
                 () -> handleUpdate(update, userRecord, UserState.START)
         );
         log.debug("Personal chat update: {}", update);
