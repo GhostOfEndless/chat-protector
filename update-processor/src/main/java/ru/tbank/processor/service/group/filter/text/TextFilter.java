@@ -2,11 +2,12 @@ package ru.tbank.processor.service.group.filter.text;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.enums.FilterMode;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 import ru.tbank.common.entity.enums.TextProcessingResult;
+import ru.tbank.common.telegram.Message;
+import ru.tbank.common.telegram.enums.MessageEntityType;
 
 @NullMarked
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public abstract class TextFilter implements Comparable<TextFilter> {
     protected TextProcessingResult processBasicEntity(
             Message message,
             TextFilterSettings textFilterSettings,
-            TextEntityType entityType,
+            MessageEntityType entityType,
             TextProcessingResult foundEntityResult
     ) {
         boolean checkResult = textFilterSettings.isEnabled()
@@ -31,12 +32,12 @@ public abstract class TextFilter implements Comparable<TextFilter> {
     }
 
     protected boolean isContainsBlockedEntity(Message message, TextFilterSettings filterSettings,
-                                              TextEntityType entityType) {
-        return message.getEntities().stream()
-                .filter(entity -> entityType.isTypeOf(entity.getType()))
+                                              MessageEntityType entityType) {
+        return message.entities().stream()
+                .filter(entity -> entity.type() == entityType)
                 .anyMatch(entity -> {
                     boolean contains = filterSettings.getExclusions().stream()
-                            .anyMatch(exclusion -> entity.getText().startsWith(exclusion));
+                            .anyMatch(exclusion -> entity.text().startsWith(exclusion));
                     return calcCheckResult(filterSettings.getExclusionMode(), contains);
                 });
     }

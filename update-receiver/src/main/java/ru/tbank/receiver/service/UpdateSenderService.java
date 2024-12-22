@@ -2,9 +2,10 @@ package ru.tbank.receiver.service;
 
 import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.tbank.common.telegram.TelegramUpdate;
 import ru.tbank.receiver.config.RabbitProperties;
 
 @Service
@@ -15,7 +16,11 @@ public class UpdateSenderService {
     private final RabbitTemplate rabbitTemplate;
 
     @Timed("telegramApiUpdate")
-    public void sendUpdate(Update update) {
-        rabbitTemplate.convertAndSend(rabbitProperties.updatesTopicName(), update);
+    public void sendUpdate(@NonNull TelegramUpdate update) {
+        String routingKey = switch (update.updateType()) {
+            case GROUP_MESSAGE, GROUP_MEMBER_EVENT -> rabbitProperties.groupUpdatesQueueName();
+            case CALLBACK_EVENT, PERSONAL_MESSAGE -> rabbitProperties.personalUpdatesQueueKey();
+        };
+        rabbitTemplate.convertAndSend(rabbitProperties.exchangeName(), routingKey, update);
     }
 }

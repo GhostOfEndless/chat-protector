@@ -3,7 +3,6 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.TelegramClientService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
@@ -39,18 +38,14 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
 
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
-        User bot = telegramClientService.getMe();
-
-        if (bot.getUserName() == null) {
-            return buildErrorMessage();
-        }
-        return buildChatAdditionMessage(bot);
+        return telegramClientService.getBotUserName()
+                .map(this::buildChatAdditionMessage)
+                .orElseGet(this::buildErrorMessage);
     }
 
     @Override
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         Integer messageId = callbackData.messageId();
-
         if (!callbackData.pressedButton().isBackButton()) {
             return ProcessingResult.create(processedUserState, messageId);
         }
@@ -66,8 +61,8 @@ public final class ChatAdditionStateHandler extends PersonalUpdateHandler {
         );
     }
 
-    private MessagePayload buildChatAdditionMessage(User bot) {
-        String additionUrl = TelegramUtils.createBotAdditionUrl(bot.getUserName());
+    private MessagePayload buildChatAdditionMessage(String botUserName) {
+        String additionUrl = TelegramUtils.createBotAdditionUrl(botUserName);
         return MessagePayload.create(
                 MessageTextCode.CHAT_ADDITION_MESSAGE,
                 List.of(

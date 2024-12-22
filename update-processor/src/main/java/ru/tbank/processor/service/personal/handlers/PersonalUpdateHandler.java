@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.enums.UserRole;
+import ru.tbank.common.telegram.CallbackEvent;
+import ru.tbank.common.telegram.Message;
+import ru.tbank.common.telegram.TelegramUpdate;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.CallbackAnswerSender;
@@ -20,7 +20,6 @@ import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
 import ru.tbank.processor.utils.TelegramUtils;
-import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,8 +44,8 @@ public abstract class PersonalUpdateHandler {
             List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
     );
 
-    public final ProcessingResult handle(UpdateType updateType, Update update, AppUserRecord userRecord) {
-        return processUpdate(updateType, update, userRecord);
+    public final ProcessingResult handle(TelegramUpdate update, AppUserRecord userRecord) {
+        return processUpdate(update, userRecord);
     }
 
     public final void goToState(AppUserRecord userRecord, Integer messageId, Object... args) {
@@ -54,28 +53,28 @@ public abstract class PersonalUpdateHandler {
         messageSender.updateUserMessage(userRecord, messageId, messagePayload, processedUserState.name());
     }
 
-    protected final ProcessingResult processUpdate(UpdateType updateType, Update update, AppUserRecord userRecord) {
-        return switch (updateType) {
-            case PERSONAL_MESSAGE -> processTextMessageUpdate(update.getMessage(), userRecord);
-            case CALLBACK -> processCallbackUpdate(update.getCallbackQuery(), userRecord);
+    protected final ProcessingResult processUpdate(TelegramUpdate update, AppUserRecord userRecord) {
+        return switch (update.updateType()) {
+            case PERSONAL_MESSAGE -> processTextMessageUpdate(update.message(), userRecord);
+            case CALLBACK_EVENT -> processCallbackUpdate(update.callbackEvent(), userRecord);
             default -> ProcessingResult.create(processedUserState);
         };
     }
 
     private ProcessingResult processCallbackUpdate(
-            CallbackQuery callbackQuery,
+            CallbackEvent callbackEvent,
             AppUserRecord userRecord
     ) {
-        var callbackMessageId = callbackQuery.getMessage().getMessageId();
+        var callbackMessageId = callbackEvent.messageId();
         Integer lastMessageId = personalChatService.findByUserId(userRecord.getId())
                 .orElseThrow()
                 .getLastMessageId();
 
         if (!Objects.equals(callbackMessageId, lastMessageId)) {
-            callbackSender.showMessageExpiredCallback(userRecord.getLocale(), callbackQuery.getId());
+            callbackSender.showMessageExpiredCallback(userRecord.getLocale(), callbackEvent.id());
             return ProcessingResult.create(UserState.NONE);
         }
-        var callbackData = TelegramUtils.parseCallbackData(callbackQuery);
+        var callbackData = TelegramUtils.parseCallbackData(callbackEvent);
         return processCallbackButtonUpdate(callbackData, userRecord);
     }
 
@@ -84,7 +83,7 @@ public abstract class PersonalUpdateHandler {
     }
 
     protected ProcessingResult processTextMessageUpdate(Message message, AppUserRecord userRecord) {
-        if (message.hasText() && message.getText().startsWith(START_COMMAND)) {
+        if (message.hasText() && message.text().startsWith(START_COMMAND)) {
             return ProcessingResult.create(UserState.START);
         }
         return ProcessingResult.create(processedUserState);

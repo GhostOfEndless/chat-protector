@@ -18,6 +18,11 @@ telegram:
 
 rabbit:
   updates-topic-name: ${RABBIT_UPDATES_TOPIC_NAME:updates-queue}
+  exchange-name: updates-exchange
+  group-updates-queue-name: group-updates-queue
+  group-updates-queue-key: queue.group
+  personal-updates-queue-name: personal-updates-queue
+  personal-updates-queue-key: queue.personal
 
 spring:
   datasource:
