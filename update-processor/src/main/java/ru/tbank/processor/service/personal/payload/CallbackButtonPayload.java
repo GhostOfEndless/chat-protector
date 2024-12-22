@@ -12,7 +12,7 @@ public record CallbackButtonPayload(
     public static CallbackButtonPayload createChatButton(String chatName, Long chatId) {
         return new CallbackButtonPayload(
                 chatName,
-                "%s:%d".formatted(ButtonTextCode.CHATS_BUTTON_CHAT, chatId),
+                "%s:%d".formatted(ButtonTextCode.CHATS_CHAT, chatId),
                 false
         );
     }
@@ -20,7 +20,7 @@ public record CallbackButtonPayload(
     public static CallbackButtonPayload createUserButton(String name, String surname, Long userId) {
         return new CallbackButtonPayload(
                 "%s %s".formatted(name, surname),
-                "%s:%d".formatted(ButtonTextCode.ADMINS_BUTTON_ADMIN, userId),
+                "%s:%d".formatted(ButtonTextCode.ADMINS_ADMIN, userId),
                 false
         );
     }

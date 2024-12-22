@@ -16,7 +16,6 @@ telegram:
   token: ${TELEGRAM_BOT_TOKEN}
 
 rabbit:
-  updates-topic-name: ${RABBIT_UPDATES_TOPIC_NAME:updates-queue}
   exchange-name: updates-exchange
   group-updates-queue-name: group-updates-queue
   group-updates-queue-key: queue.group

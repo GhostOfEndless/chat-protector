@@ -39,7 +39,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var groupChats = groupChatService.findAll();
         var groupChatsButtons = TelegramUtils.buildChatButtons(groupChats);
-        groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        groupChatsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BACK));
         UserRole userRole = UserRole.getRoleByName(userRecord.getRole());
 
         if (userRole != UserRole.OWNER) {
@@ -47,7 +47,7 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         }
 
         groupChatsButtons.add(groupChatsButtons.size() - 1,
-                CallbackButtonPayload.create(ButtonTextCode.CHATS_BUTTON_CHAT_ADDITION));
+                CallbackButtonPayload.create(ButtonTextCode.CHATS_CHAT_ADDITION));
         return MessagePayload.create(MessageTextCode.CHATS_MESSAGE_OWNER, groupChatsButtons);
     }
 
@@ -56,14 +56,14 @@ public final class ChatsStateHandler extends PersonalUpdateHandler {
         Integer messageId = callbackData.messageId();
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
-            case CHATS_BUTTON_CHAT_ADDITION -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.START, messageId);
+            case CHATS_CHAT_ADDITION -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> ProcessingResult.create(UserState.CHAT_ADDITION, messageId),
                     callbackData
             );
-            case CHATS_BUTTON_CHAT -> checkPermissionAndProcess(
+            case CHATS_CHAT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.CHAT, messageId, callbackData.getChatId()),

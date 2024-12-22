@@ -51,7 +51,7 @@ public final class ChangePasswordStateHandler extends PersonalUpdateHandler {
                         MessageArgument.createTextArgument(newPassword)
                 ),
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }

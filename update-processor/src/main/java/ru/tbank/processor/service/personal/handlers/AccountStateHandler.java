@@ -50,8 +50,8 @@ public final class AccountStateHandler extends PersonalUpdateHandler {
         Integer messageId = callbackData.messageId();
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
-            case ACCOUNT_BUTTON_CHANGE_PASSWORD -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.START, messageId);
+            case ACCOUNT_CHANGE_PASSWORD -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.CHANGE_PASSWORD, messageId),
@@ -65,7 +65,7 @@ public final class AccountStateHandler extends PersonalUpdateHandler {
         return MessagePayload.create(
                 MessageTextCode.ACCOUNT_MESSAGE_USERNAME_ERROR,
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }
@@ -77,8 +77,8 @@ public final class AccountStateHandler extends PersonalUpdateHandler {
                         MessageArgument.createTextArgument(username)
                 ),
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.ACCOUNT_BUTTON_CHANGE_PASSWORD),
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.create(ButtonTextCode.ACCOUNT_CHANGE_PASSWORD),
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }
@@ -90,8 +90,8 @@ public final class AccountStateHandler extends PersonalUpdateHandler {
                         MessageArgument.createTextArgument(username)
                 ),
                 List.of(
-                        CallbackButtonPayload.create(ButtonTextCode.ACCOUNT_BUTTON_CHANGE_PASSWORD),
-                        CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                        CallbackButtonPayload.create(ButtonTextCode.ACCOUNT_CHANGE_PASSWORD),
+                        CallbackButtonPayload.create(ButtonTextCode.BACK)
                 )
         );
     }

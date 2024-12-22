@@ -38,24 +38,24 @@ public final class StartStateHandler extends PersonalUpdateHandler {
             case USER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_USER,
                     List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
+                            CallbackButtonPayload.create(ButtonTextCode.START_LANGUAGE)
                     )
             );
             case ADMIN -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_ADMIN,
                     List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
+                            CallbackButtonPayload.create(ButtonTextCode.START_CHATS),
+                            CallbackButtonPayload.create(ButtonTextCode.START_ACCOUNT),
+                            CallbackButtonPayload.create(ButtonTextCode.START_LANGUAGE)
                     )
             );
             case OWNER -> MessagePayload.create(
                     MessageTextCode.START_MESSAGE_OWNER,
                     List.of(
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_CHATS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ADMINS),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_ACCOUNT),
-                            CallbackButtonPayload.create(ButtonTextCode.START_BUTTON_LANGUAGE)
+                            CallbackButtonPayload.create(ButtonTextCode.START_CHATS),
+                            CallbackButtonPayload.create(ButtonTextCode.START_ADMINS),
+                            CallbackButtonPayload.create(ButtonTextCode.START_ACCOUNT),
+                            CallbackButtonPayload.create(ButtonTextCode.START_LANGUAGE)
                     )
             );
         };
@@ -65,20 +65,20 @@ public final class StartStateHandler extends PersonalUpdateHandler {
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         Integer messageId = callbackData.messageId();
         return switch (callbackData.pressedButton()) {
-            case START_BUTTON_LANGUAGE -> ProcessingResult.create(UserState.LANGUAGE, messageId);
-            case START_BUTTON_CHATS -> checkPermissionAndProcess(
+            case START_LANGUAGE -> ProcessingResult.create(UserState.LANGUAGE, messageId);
+            case START_CHATS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.CHATS, messageId),
                     callbackData
             );
-            case START_BUTTON_ADMINS -> checkPermissionAndProcess(
+            case START_ADMINS -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> ProcessingResult.create(UserState.ADMINS, messageId),
                     callbackData
             );
-            case START_BUTTON_ACCOUNT -> checkPermissionAndProcess(
+            case START_ACCOUNT -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.ACCOUNT, messageId),

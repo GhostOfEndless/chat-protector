@@ -39,8 +39,8 @@ public final class AdminsStateHandler extends PersonalUpdateHandler {
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var admins = appUserService.findAllAdmins();
         var adminsButtons = TelegramUtils.buildUserButtons(admins);
-        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.ADMINS_BUTTON_ADMIN_ADDITION));
-        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK));
+        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.ADMINS_ADMIN_ADDITION));
+        adminsButtons.add(CallbackButtonPayload.create(ButtonTextCode.BACK));
         return MessagePayload.create(MessageTextCode.ADMINS_MESSAGE, adminsButtons);
     }
 
@@ -48,14 +48,14 @@ public final class AdminsStateHandler extends PersonalUpdateHandler {
     protected ProcessingResult processCallbackButtonUpdate(CallbackData callbackData, AppUserRecord userRecord) {
         Integer messageId = callbackData.messageId();
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.START, messageId);
-            case ADMINS_BUTTON_ADMIN_ADDITION -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.START, messageId);
+            case ADMINS_ADMIN_ADDITION -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> ProcessingResult.create(UserState.ADMIN_ADDITION, messageId),
                     callbackData
             );
-            case ADMINS_BUTTON_ADMIN -> checkPermissionAndProcess(
+            case ADMINS_ADMIN -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> ProcessingResult.create(UserState.ADMIN, messageId, callbackData.getAdminId()),

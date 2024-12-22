@@ -47,9 +47,9 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
                                 MessageArgument.createTextArgument(chatRecord.getName())
                         ),
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_FILTERS_SETTINGS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.CHAT_BUTTON_EXCLUDE, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                                CallbackButtonPayload.create(ButtonTextCode.CHAT_FILTERS_SETTINGS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.CHAT_EXCLUDE, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.BACK)
                         )))
                 .orElseGet(chatNotFoundMessage);
     }
@@ -59,14 +59,14 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
         Integer messageId = callbackData.messageId();
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.CHATS, messageId);
-            case CHAT_BUTTON_FILTERS_SETTINGS -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.CHATS, messageId);
+            case CHAT_FILTERS_SETTINGS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.FILTERS, messageId, callbackData.getChatId()),
                     callbackData
             );
-            case CHAT_BUTTON_EXCLUDE -> checkPermissionAndProcess(
+            case CHAT_EXCLUDE -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.CHAT_DELETION, messageId, callbackData.getChatId()),

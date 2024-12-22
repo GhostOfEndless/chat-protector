@@ -15,11 +15,6 @@ public class RabbitConfiguration {
     private final RabbitProperties rabbitProperties;
 
     @Bean
-    public Queue queue() {
-        return new Queue(rabbitProperties.updatesTopicName());
-    }
-
-    @Bean
     public SimpleMessageConverter converter() {
         SimpleMessageConverter converter = new SimpleMessageConverter();
         converter.setAllowedListPatterns(List.of("java.*", "ru.tbank.common.telegram.*"));
