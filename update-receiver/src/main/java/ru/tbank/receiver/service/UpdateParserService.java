@@ -1,4 +1,4 @@
-package ru.tbank.receiver.bot;
+package ru.tbank.receiver.service;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -24,7 +24,7 @@ public class UpdateParserService {
 
     public UpdateType parseUpdateType(Update update) {
         if (update.hasMessage()) {
-            return UpdateType.MESSAGE;
+            return parseMessageUpdateType(update);
         } else if (update.hasMyChatMember()
                 && update.getMyChatMember().getChat().isGroupChat()
                 && update.getMyChatMember().getChat().isSuperGroupChat()
@@ -46,5 +46,15 @@ public class UpdateParserService {
 
     public CallbackEvent parseCallbackEventFromUpdate(Update update) {
         return callbackEventMapper.toCallbackEvent(update.getCallbackQuery());
+    }
+
+    private UpdateType parseMessageUpdateType(Update update) {
+        var chat = update.getMessage().getChat();
+        if (chat.isGroupChat() || chat.isSuperGroupChat()) {
+            return UpdateType.GROUP_MESSAGE;
+        } else if (chat.isUserChat()) {
+            return UpdateType.PERSONAL_MESSAGE;
+        }
+        throw new UnknownUpdateTypeException("Can not parse update type for update: %s".formatted(update));
     }
 }

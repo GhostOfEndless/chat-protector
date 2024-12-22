@@ -11,8 +11,12 @@ public record TelegramUpdate(
         CallbackEvent callbackEvent,
         GroupMemberEvent groupMemberEvent
 ) implements Serializable {
-    public static @NonNull TelegramUpdate createMessageUpdate(Message message) {
-        return new TelegramUpdate(UpdateType.MESSAGE, message, null, null);
+    public static @NonNull TelegramUpdate createPersonalMessageUpdate(Message message) {
+        return new TelegramUpdate(UpdateType.PERSONAL_MESSAGE, message, null, null);
+    }
+
+    public static @NonNull TelegramUpdate createGroupMessageUpdate(Message message) {
+        return new TelegramUpdate(UpdateType.GROUP_MESSAGE, message, null, null);
     }
 
     public static @NonNull TelegramUpdate createCallbackEventUpdate(CallbackEvent callbackEvent) {

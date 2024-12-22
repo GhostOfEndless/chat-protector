@@ -17,6 +17,7 @@ import ru.tbank.common.telegram.TelegramUpdate;
 import ru.tbank.common.telegram.enums.UpdateType;
 import ru.tbank.receiver.config.TelegramProperties;
 import ru.tbank.receiver.exception.UnsupportedUpdateTypeException;
+import ru.tbank.receiver.service.UpdateParserService;
 import ru.tbank.receiver.service.UpdateSenderService;
 
 @Slf4j
@@ -41,7 +42,6 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
     @Override
     public void consume(Update update) {
         log.debug("New update is: {}", update);
-        updateSenderService.sendUpdate(update);
         var telegramUpdate = buildTelegramUpdate(update);
         log.debug("Parsed update is: {}", telegramUpdate);
         updateSenderService.sendUpdate(telegramUpdate);
@@ -55,9 +55,13 @@ public class Bot implements SpringLongPollingBot, LongPollingSingleThreadUpdateC
     private @NonNull TelegramUpdate buildTelegramUpdate(Update update) {
         UpdateType updateType = updateParserService.parseUpdateType(update);
         switch (updateType) {
-            case MESSAGE -> {
+            case PERSONAL_MESSAGE -> {
                 Message message = updateParserService.parseMessageFromUpdate(update);
-                return TelegramUpdate.createMessageUpdate(message);
+                return TelegramUpdate.createPersonalMessageUpdate(message);
+            }
+            case GROUP_MESSAGE -> {
+                Message message = updateParserService.parseMessageFromUpdate(update);
+                return TelegramUpdate.createGroupMessageUpdate(message);
             }
             case CALLBACK_EVENT -> {
                 CallbackEvent callbackEvent = updateParserService.parseCallbackEventFromUpdate(update);

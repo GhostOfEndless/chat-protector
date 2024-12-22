@@ -18,7 +18,7 @@ public class DeletedMessageReportService {
 
     public void saveReport(@NonNull Message message, @NonNull TextProcessingResult result) {
         User user = message.user();
-        appUserService.save(user.id(), user.firstName(), user.lastName(), user.userName());
+        appUserService.save(message.user(), user.userName());
         deletedTextMessageService.save(message, result.name());
     }
 }

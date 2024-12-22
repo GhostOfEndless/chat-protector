@@ -22,7 +22,7 @@ public class RabbitConfiguration {
     @Bean
     public SimpleMessageConverter converter() {
         SimpleMessageConverter converter = new SimpleMessageConverter();
-        converter.setAllowedListPatterns(List.of("org.telegram.telegrambots.meta.api.objects.*", "java.*", "ru.tbank.common.telegram.*"));
+        converter.setAllowedListPatterns(List.of("java.*", "ru.tbank.common.telegram.*"));
         return converter;
     }
 

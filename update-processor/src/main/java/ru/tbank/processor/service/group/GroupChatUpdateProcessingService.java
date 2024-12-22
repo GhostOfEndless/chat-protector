@@ -48,8 +48,8 @@ public class GroupChatUpdateProcessingService {
         log.debug("Group update is: {}", update);
         switch (update.updateType()) {
             case GROUP_MEMBER_EVENT -> processGroupMemberEvent(update.groupMemberEvent());
-            case MESSAGE -> processGroupMessage(update.message());
-            default -> log.warn("Unknown update type: {}", update);
+            case GROUP_MESSAGE -> processGroupMessage(update.message());
+            default -> log.warn("Unhandled update type: {}", update);
         }
     }
 
