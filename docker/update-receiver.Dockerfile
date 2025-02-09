@@ -3,6 +3,7 @@ WORKDIR /opt/app
 ENV GRADLE_USER_HOME=/cache
 COPY build.gradle settings.gradle ./
 COPY update-receiver/build.gradle update-receiver/build.gradle
+COPY common-telegram/build.gradle common-telegram/build.gradle
 RUN gradle :update-receiver:dependencies --no-daemon --stacktrace
 
 FROM gradle:jdk21-alpine AS builder
@@ -11,6 +12,7 @@ WORKDIR $APP_HOME
 COPY --from=dependencies /cache /home/gradle/.gradle
 COPY --from=dependencies $APP_HOME $APP_HOME
 COPY update-receiver/src update-receiver/src
+COPY common-telegram/src common-telegram/src
 RUN gradle :update-receiver:clean :update-receiver:bootJar --no-daemon --stacktrace
 
 FROM eclipse-temurin:21.0.4_7-jre-alpine AS optimizer
