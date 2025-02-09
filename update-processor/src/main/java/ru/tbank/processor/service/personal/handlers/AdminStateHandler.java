@@ -49,12 +49,12 @@ public final class AdminStateHandler extends PersonalUpdateHandler {
                                 )
                         ),
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.ADMIN_BUTTON_REMOVE, userId),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                                CallbackButtonPayload.create(ButtonTextCode.ADMIN_REMOVE, userId),
+                                CallbackButtonPayload.create(ButtonTextCode.BACK)
                         )))
                 .orElseGet(() -> MessagePayload.create(
                         MessageTextCode.ADMIN_MESSAGE_NOT_FOUND,
-                        List.of(CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK))
+                        List.of(CallbackButtonPayload.create(ButtonTextCode.BACK))
                 ));
     }
 
@@ -63,8 +63,8 @@ public final class AdminStateHandler extends PersonalUpdateHandler {
         Integer messageId = callbackData.messageId();
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.ADMINS, messageId);
-            case ADMIN_BUTTON_REMOVE -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.ADMINS, messageId);
+            case ADMIN_REMOVE -> checkPermissionAndProcess(
                     UserRole.OWNER,
                     userRecord,
                     () -> {

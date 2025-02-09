@@ -5,20 +5,19 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import ru.tbank.common.entity.enums.UserRole;
+import ru.tbank.common.telegram.TelegramUpdate;
+import ru.tbank.common.telegram.User;
 import ru.tbank.processor.config.TelegramProperties;
+import ru.tbank.processor.excpetion.UnsupportedUpdateType;
 import ru.tbank.processor.excpetion.UserIdParsingException;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.UpdateProcessingService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
-import ru.tbank.common.entity.enums.UserRole;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
-import ru.tbank.processor.utils.TelegramUtils;
-import ru.tbank.processor.utils.enums.UpdateType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PersonalUpdateProcessingService implements UpdateProcessingService {
+public class PersonalUpdateProcessingService {
 
     protected final AppUserService appUserService;
     private final HashMap<UserState, PersonalUpdateHandler> updateHandlerMap = new HashMap<>();
@@ -43,39 +42,26 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
     }
 
     @Timed("personalMessageProcessing")
-    @Override
-    public void process(UpdateType updateType, Update update) {
-        User user = TelegramUtils.getUserFromUpdate(update);
-        long userId = user.getId();
-
-        if (userId == 0) {
+    @RabbitListener(queues = "${rabbit.personal-updates-queue-name}")
+    public void process(TelegramUpdate update) {
+        User user = parseUserFromUpdate(update);
+        if (user.id()== 0) {
             throw new UserIdParsingException("Unable to get user id from update!");
         }
-
-        var personalChatRecord = personalChatService.findByUserId(userId);
-        var userRecord = appUserService.findById(userId)
-                .orElseGet(() -> saveUser(user));
-        String username = user.getUserName();
-
-        if (!Objects.equals(username, userRecord.getUsername())
-                && !(username == null && userRecord.getUsername().isBlank())) {
-            log.info("Username for user with id={} updated to '{}'", userId, username);
-            appUserService.updateUsername(userId, username);
-            userRecord.setUsername(username);
-        }
-
+        var personalChatRecord = personalChatService.findByUserId(user.id());
+        var userRecord = appUserService.findById(user.id())
+                .orElseGet(() -> saveNewUser(user));
+        checkUserName(user, userRecord);
         personalChatRecord.ifPresentOrElse(
-                it -> handleUpdate(updateType, update, userRecord, UserState.valueOf(it.getState())),
-                () -> handleUpdate(updateType, update, userRecord, UserState.START)
+                it -> handleUpdate(update, userRecord, UserState.getUserStateByName(it.getState())),
+                () -> handleUpdate(update, userRecord, UserState.START)
         );
-
         log.debug("Personal chat update: {}", update);
     }
 
-    private void handleUpdate(UpdateType updateType, Update update, AppUserRecord userRecord, UserState userState) {
+    private void handleUpdate(TelegramUpdate update, AppUserRecord userRecord, UserState userState) {
         var processingResult = updateHandlerMap.get(userState)
-                .handle(updateType, update, userRecord);
-
+                .handle(update, userRecord);
         if (processingResult.newState() != userState || processingResult.newState() == UserState.START) {
             var handler = updateHandlerMap.get(processingResult.newState());
             if (handler != null) {
@@ -84,25 +70,31 @@ public class PersonalUpdateProcessingService implements UpdateProcessingService 
         }
     }
 
-    private AppUserRecord saveUser(@NonNull User user) {
-        log.info("User id is: {}, Owner id is: {}", user.getId(), telegramProperties.ownerId());
-        if (user.getId().equals(telegramProperties.ownerId())) {
+    private AppUserRecord saveNewUser(@NonNull User user) {
+        log.info("User id is: {}, Owner id is: {}", user.id(), telegramProperties.ownerId());
+        if (user.id().equals(telegramProperties.ownerId())) {
             log.info("Save OWNER");
-            return appUserService.save(
-                    user.getId(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getUserName(),
-                    UserRole.OWNER.name()
-            );
+            return appUserService.save(user, UserRole.OWNER.name());
         }
-
         log.info("Save USER");
-        return appUserService.save(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUserName()
-        );
+        return appUserService.save(user);
+    }
+
+    private void checkUserName(@NonNull User user, @NonNull AppUserRecord userRecord) {
+        String username = user.userName();
+        if (!Objects.equals(username, userRecord.getUsername())
+                && !(username == null && userRecord.getUsername().isBlank())) {
+            log.info("Username for user with id={} updated to '{}'", user.id(), username);
+            appUserService.updateUsername(user.id(), username);
+            userRecord.setUsername(username);
+        }
+    }
+
+    private User parseUserFromUpdate(@NonNull TelegramUpdate update) {
+        return switch (update.updateType()) {
+            case PERSONAL_MESSAGE -> update.message().user();
+            case CALLBACK_EVENT -> update.callbackEvent().user();
+            default -> throw new UnsupportedUpdateType("Update with this type is unsupported: %s".formatted(update));
+        };
     }
 }

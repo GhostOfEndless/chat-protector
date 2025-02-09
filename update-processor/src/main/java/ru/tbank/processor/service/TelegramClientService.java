@@ -11,15 +11,16 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.stickers.GetCustomEmojiStickers;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+import ru.tbank.processor.config.TelegramProperties;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,6 +29,7 @@ import java.util.List;
 public class TelegramClientService {
 
     private static final String MESSAGE_TEXT_PARSE_MODE = "MarkdownV2";
+    private final TelegramProperties telegramProperties;
     private final TelegramClient telegramClient;
 
     public List<Sticker> getEmojiPack(String customEmojiId) {
@@ -89,12 +91,13 @@ public class TelegramClientService {
         }
     }
 
-    public User getMe() {
+    public Optional<String> getBotUserName() {
         try {
-            return telegramClient.execute(new GetMe());
+            String userName = telegramClient.execute(new GetMe()).getUserName();
+            return Optional.of(userName);
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
-            return new User(0L, "", true);
+            return Optional.empty();
         }
     }
 
@@ -104,5 +107,9 @@ public class TelegramClientService {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public String createBotAdditionUrl(String botUserName) {
+        return telegramProperties.botAdditionUrl().formatted(botUserName);
     }
 }

@@ -1,9 +1,5 @@
 group = 'ru.tbank.common'
 
-dependencies {
-    implementation 'org.telegram:telegrambots-client:7.10.0'
-}
-
 jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {

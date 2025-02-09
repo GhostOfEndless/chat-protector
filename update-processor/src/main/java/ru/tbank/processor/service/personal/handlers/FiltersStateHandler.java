@@ -43,8 +43,8 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
                 .map(chatRecord -> MessagePayload.create(
                         MessageTextCode.FILTERS_MESSAGE,
                         List.of(
-                                CallbackButtonPayload.create(ButtonTextCode.FILTERS_BUTTON_TEXT_FILTERS, chatId),
-                                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK, chatId)
+                                CallbackButtonPayload.create(ButtonTextCode.FILTERS_TEXT_FILTERS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.BACK, chatId)
                         )))
                 .orElseGet(chatNotFoundMessage);
     }
@@ -60,8 +60,8 @@ public final class FiltersStateHandler extends PersonalUpdateHandler {
         }
 
         return switch (callbackData.pressedButton()) {
-            case BUTTON_BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
-            case FILTERS_BUTTON_TEXT_FILTERS -> checkPermissionAndProcess(
+            case BACK -> ProcessingResult.create(UserState.CHAT, messageId, chatId);
+            case FILTERS_TEXT_FILTERS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,
                     () -> ProcessingResult.create(UserState.TEXT_FILTERS, messageId, chatId),

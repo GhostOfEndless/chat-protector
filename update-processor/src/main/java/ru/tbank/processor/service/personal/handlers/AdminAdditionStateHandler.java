@@ -3,10 +3,10 @@ package ru.tbank.processor.service.personal.handlers;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import ru.tbank.common.entity.enums.UserRole;
+import ru.tbank.common.telegram.Message;
+import ru.tbank.common.telegram.enums.MessageEntityType;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
-import ru.tbank.processor.service.group.filter.text.TextEntityType;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.CallbackAnswerSender;
@@ -42,7 +42,7 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
     @Override
     protected MessagePayload buildMessagePayloadForUser(AppUserRecord userRecord, Object[] args) {
         var backButton = List.of(
-                CallbackButtonPayload.create(ButtonTextCode.BUTTON_BACK)
+                CallbackButtonPayload.create(ButtonTextCode.BACK)
         );
 
         if (args.length > 0 && AdminAdditionResult.isAdditionResult(args[0])) {
@@ -80,12 +80,12 @@ public final class AdminAdditionStateHandler extends PersonalUpdateHandler {
     @Override
     protected ProcessingResult processTextMessageUpdate(Message message, AppUserRecord userRecord) {
         if (message.hasEntities()) {
-            var messageEntity = message.getEntities().stream()
-                    .filter(entity -> TextEntityType.MENTION.isTypeOf(entity.getType()))
+            var messageEntity = message.entities().stream()
+                    .filter(entity -> entity.type() == MessageEntityType.MENTION)
                     .findFirst();
 
             if (messageEntity.isPresent()) {
-                String username = messageEntity.get().getText().substring(1);
+                String username = messageEntity.get().text().substring(1);
                 var addedUser = appUserService.findByUsername(username);
 
                 if (addedUser.isEmpty()) {

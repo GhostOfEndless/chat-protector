@@ -115,6 +115,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql:42.7.4'
     jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
+    implementation project(":common-telegram")
 
     // other libs
     implementation 'org.telegram:telegrambots-client:7.10.0'

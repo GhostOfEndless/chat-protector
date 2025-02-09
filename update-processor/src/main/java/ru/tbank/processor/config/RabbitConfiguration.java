@@ -15,14 +15,19 @@ public class RabbitConfiguration {
     private final RabbitProperties rabbitProperties;
 
     @Bean
-    public Queue queue() {
-        return new Queue(rabbitProperties.updatesTopicName());
+    public SimpleMessageConverter converter() {
+        SimpleMessageConverter converter = new SimpleMessageConverter();
+        converter.setAllowedListPatterns(List.of("java.*", "ru.tbank.common.telegram.*"));
+        return converter;
     }
 
     @Bean
-    public SimpleMessageConverter converter() {
-        SimpleMessageConverter converter = new SimpleMessageConverter();
-        converter.setAllowedListPatterns(List.of("org.telegram.telegrambots.meta.api.objects.*", "java.*"));
-        return converter;
+    public Queue groupUpdatesQueue() {
+        return new Queue(rabbitProperties.groupUpdatesQueueName());
+    }
+
+    @Bean
+    public Queue personalUpdatesQueue() {
+        return new Queue(rabbitProperties.personalUpdatesQueueName());
     }
 }

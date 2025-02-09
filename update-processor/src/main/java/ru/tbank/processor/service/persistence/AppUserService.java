@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.tbank.common.telegram.User;
 import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.AppUser;
 import ru.tbank.processor.generated.tables.records.AppUserRecord;
@@ -20,28 +21,24 @@ public class AppUserService {
     private final PasswordEncoder passwordEncoder;
     private final DSLContext dslContext;
 
-    public AppUserRecord save(Long userId, String firstName, String lastName, String username, String role) {
-        var storedUser = findById(userId);
-
+    public AppUserRecord save(User user, String role) {
+        var storedUser = findById(user.id());
         if (storedUser.isPresent()) {
             return storedUser.get();
+        } else {
+            String lastName = Optional.ofNullable(user.lastName()).orElse("");
+            String username = Optional.ofNullable(user.userName()).orElse("");
+            dslContext.insertInto(table)
+                    .columns(table.ID, table.FIRST_NAME, table.LAST_NAME, table.USERNAME, table.ROLE)
+                    .values(user.id(), user.firstName(), lastName, username, role)
+                    .execute();
         }
-
-        var newRecord = dslContext.newRecord(table);
-
-        newRecord.setId(userId);
-        newRecord.setFirstName(firstName);
-        newRecord.setRole(role);
-        newRecord.setLastName(lastName == null? "": lastName);
-        newRecord.setUsername(username == null? "": username);
-        newRecord.store();
-
-        return findById(userId).orElseThrow(
-                () -> new EntityNotFoundException("User with id=%d not found".formatted(userId)));
+        return findById(user.id()).orElseThrow(
+                () -> new EntityNotFoundException("User with id=%d not found".formatted(user.id())));
     }
 
-    public AppUserRecord save(Long userId, String firstName, String lastName, String username) {
-        return save(userId, firstName, lastName, username, UserRole.USER.name());
+    public AppUserRecord save(User user) {
+        return save(user, UserRole.USER.name());
     }
 
     public void updateLocale(Long userId, String locale) {
@@ -65,9 +62,10 @@ public class AppUserService {
                 .execute();
     }
 
-    public void updateUsername(Long userId, String newUsername) {
+    public void updateUsername(Long userId, String newUserName) {
+        newUserName = Optional.ofNullable(newUserName).orElse("");
         dslContext.update(table)
-                .set(table.USERNAME, newUsername == null? "": newUsername)
+                .set(table.USERNAME, newUserName)
                 .where(table.ID.eq(userId))
                 .execute();
     }
