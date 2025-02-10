@@ -1,4 +1,4 @@
-name: Project tests
+name: Measure coverage
 
 on:
   pull_request:
@@ -8,6 +8,7 @@ on:
       - 'admin-service/**'
       - 'update-receiver/**'
       - 'update-processor/**'
+      - 'common-telegram/**'
       - 'common/**'
 
 permissions:
@@ -16,9 +17,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
+  measure-coverage:
     runs-on: ubuntu-latest
-    name: Integration Testing
+    name: Generate coverage message
     steps:
       - uses: actions/checkout@v4
 
@@ -34,9 +35,6 @@ jobs:
 
       - name: Generate jOOQ classes
         run: ./gradlew :admin-service:jooqCodegen :update-processor:jooqCodegen
-
-      - name: Run tests
-        run: ./gradlew test
 
       - name: Generate JaCoCo Report
         run: ./gradlew jacocoTestReport

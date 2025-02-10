@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'update-processor/**'
+      - 'common-telegram/**'
       - 'common/**'
 
 permissions:
