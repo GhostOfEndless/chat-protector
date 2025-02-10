@@ -58,7 +58,7 @@ jobs:
         run: ./gradlew :admin-service:jooqCodegen :update-processor:jooqCodegen
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew :admin-service:test
 
   package:
     needs:
