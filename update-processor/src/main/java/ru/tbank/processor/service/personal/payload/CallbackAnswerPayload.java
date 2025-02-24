@@ -1,10 +1,9 @@
 package ru.tbank.processor.service.personal.payload;
 
-import org.jspecify.annotations.NonNull;
-import ru.tbank.processor.service.personal.enums.CallbackTextCode;
-
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
+import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 
 public record CallbackAnswerPayload(
         CallbackTextCode callbackText,

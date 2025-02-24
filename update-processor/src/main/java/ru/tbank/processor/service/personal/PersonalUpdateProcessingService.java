@@ -2,6 +2,9 @@ package ru.tbank.processor.service.personal;
 
 import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -18,10 +21,6 @@ import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.PersonalChatService;
 import ru.tbank.processor.service.personal.enums.UserState;
 import ru.tbank.processor.service.personal.handlers.PersonalUpdateHandler;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -45,7 +44,7 @@ public class PersonalUpdateProcessingService {
     @RabbitListener(queues = "${rabbit.personal-updates-queue-name}")
     public void process(TelegramUpdate update) {
         User user = parseUserFromUpdate(update);
-        if (user.id()== 0) {
+        if (user.id() == 0) {
             throw new UserIdParsingException("Unable to get user id from update!");
         }
         var personalChatRecord = personalChatService.findByUserId(user.id());

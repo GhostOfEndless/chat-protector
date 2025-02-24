@@ -3,9 +3,9 @@ package ru.tbank.processor.service.group.filter.text;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import ru.tbank.common.entity.enums.FilterMode;
+import ru.tbank.common.entity.enums.TextProcessingResult;
 import ru.tbank.common.entity.text.TextFilterSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
-import ru.tbank.common.entity.enums.TextProcessingResult;
 import ru.tbank.common.telegram.Message;
 import ru.tbank.common.telegram.enums.MessageEntityType;
 

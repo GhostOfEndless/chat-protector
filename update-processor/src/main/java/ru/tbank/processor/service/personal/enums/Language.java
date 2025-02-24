@@ -1,9 +1,8 @@
 package ru.tbank.processor.service.personal.enums;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
@@ -11,17 +10,17 @@ public enum Language {
     RUSSIAN("ru"),
     ENGLISH("en");
 
-    private final String languageCode;
-    private static final Map<String, Language> codeToLanguage = Map.of(
+    private static final Map<String, Language> CODE_TO_LANGUAGE = Map.of(
             "ru", RUSSIAN,
             "en", ENGLISH
     );
+    private final String languageCode;
 
     public static Language fromCode(String languageCode) {
-        if (!codeToLanguage.containsKey(languageCode)) {
+        if (!CODE_TO_LANGUAGE.containsKey(languageCode)) {
             throw new IllegalArgumentException();
         }
 
-        return codeToLanguage.get(languageCode);
+        return CODE_TO_LANGUAGE.get(languageCode);
     }
 }

@@ -1,11 +1,10 @@
 package ru.tbank.processor.service.personal.enums;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 @Getter
 public enum UserState {
@@ -26,13 +25,13 @@ public enum UserState {
     TEXT_FILTERS;
 
     @Getter
-    private static final List<String> baseNames = Arrays.stream(UserState.values())
+    private static final List<String> BASE_NAMES = Arrays.stream(UserState.values())
             .map(state -> state.name().toLowerCase().replace('_', '-'))
             .toList();
-    private static final Map<String, UserState> stateNames = Arrays.stream(UserState.values())
+    private static final Map<String, UserState> STATE_NAMES = Arrays.stream(UserState.values())
             .collect(Collectors.toMap(Enum::name, userState -> userState));
 
     public static UserState getUserStateByName(String userStateName) {
-        return stateNames.get(userStateName);
+        return STATE_NAMES.get(userStateName);
     }
 }

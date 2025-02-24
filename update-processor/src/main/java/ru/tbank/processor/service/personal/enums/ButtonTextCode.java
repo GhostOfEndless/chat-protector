@@ -1,13 +1,12 @@
 package ru.tbank.processor.service.personal.enums;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import ru.tbank.common.entity.enums.FilterType;
-
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import ru.tbank.common.entity.enums.FilterType;
 
 @Getter
 @RequiredArgsConstructor
@@ -40,9 +39,9 @@ public enum ButtonTextCode {
     CHATS_CHAT(""),
     ADMINS_ADMIN("");
 
-    private static final Map<String, ButtonTextCode> buttonNames = Arrays.stream(ButtonTextCode.values())
+    private static final Map<String, ButtonTextCode> BUTTON_NAMES = Arrays.stream(ButtonTextCode.values())
             .collect(Collectors.toMap(Enum::name, buttonTextCode -> buttonTextCode));
-    private static final EnumMap<ButtonTextCode, FilterType> buttonToFilterType = new EnumMap<>(Map.of(
+    private static final EnumMap<ButtonTextCode, FilterType> BUTTON_TO_FILTER_TYPE = new EnumMap<>(Map.of(
             TEXT_FILTERS_TAGS, FilterType.TAGS,
             TEXT_FILTERS_MENTIONS, FilterType.MENTIONS,
             TEXT_FILTERS_LINKS, FilterType.LINKS,
@@ -51,42 +50,42 @@ public enum ButtonTextCode {
             TEXT_FILTERS_BOT_COMMANDS, FilterType.BOT_COMMANDS,
             TEXT_FILTERS_CUSTOM_EMOJIS, FilterType.CUSTOM_EMOJIS
     ));
-    private static final EnumMap<ButtonTextCode, Language> buttonToLanguage = new EnumMap<>(Map.of(
+    private static final EnumMap<ButtonTextCode, Language> BUTTON_TO_LANGUAGE = new EnumMap<>(Map.of(
             LANGUAGE_RUSSIAN, Language.RUSSIAN,
             LANGUAGE_ENGLISH, Language.ENGLISH
     ));
-    private static final EnumMap<Language, ButtonTextCode> languageToButton = new EnumMap<>(Map.of(
+    private static final EnumMap<Language, ButtonTextCode> LANGUAGE_TO_BUTTON = new EnumMap<>(Map.of(
             Language.RUSSIAN, LANGUAGE_RUSSIAN,
             Language.ENGLISH, LANGUAGE_ENGLISH
     ));
     private final String resourceName;
 
     public static boolean isButton(String buttonName) {
-        return buttonNames.containsKey(buttonName);
+        return BUTTON_NAMES.containsKey(buttonName);
     }
 
     public static ButtonTextCode getButtonByName(String buttonName) {
-        return buttonNames.get(buttonName);
+        return BUTTON_NAMES.get(buttonName);
     }
 
     public static ButtonTextCode getButtonForLanguage(Language language) {
-        return languageToButton.get(language);
+        return LANGUAGE_TO_BUTTON.get(language);
     }
 
     public boolean isButtonFilterType() {
-        return buttonToFilterType.containsKey(this);
+        return BUTTON_TO_FILTER_TYPE.containsKey(this);
     }
 
     public FilterType getFilterTypeFromButton() {
-        return buttonToFilterType.get(this);
+        return BUTTON_TO_FILTER_TYPE.get(this);
     }
 
     public boolean isButtonLanguage() {
-        return buttonToLanguage.containsKey(this);
+        return BUTTON_TO_LANGUAGE.containsKey(this);
     }
 
     public Language getLanguageFromButton() {
-        return buttonToLanguage.get(this);
+        return BUTTON_TO_LANGUAGE.get(this);
     }
 
     public boolean isBackButton() {

@@ -12,7 +12,7 @@ public enum LanguageTextCode {
 
     private final String languageTextCode;
 
-    public static  LanguageTextCode getFromLanguage(@NonNull Language language) {
+    public static LanguageTextCode getFromLanguage(@NonNull Language language) {
         return switch (language) {
             case ENGLISH -> LanguageTextCode.ENGLISH;
             case RUSSIAN -> LanguageTextCode.RUSSIAN;

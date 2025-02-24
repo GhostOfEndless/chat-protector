@@ -1,12 +1,11 @@
 package ru.tbank.processor.service.personal.payload;
 
+import java.util.NoSuchElementException;
 import org.jspecify.annotations.NonNull;
 import ru.tbank.common.entity.enums.FilterType;
 import ru.tbank.common.telegram.CallbackEvent;
 import ru.tbank.processor.excpetion.ButtonNotFoundException;
 import ru.tbank.processor.service.personal.enums.ButtonTextCode;
-
-import java.util.NoSuchElementException;
 
 public record CallbackData(
         Integer messageId,
@@ -46,7 +45,7 @@ public record CallbackData(
 
     public @NonNull FilterType getFilterType() {
         if (args.length <= 1 || !FilterType.isFilterType(args[1])) {
-            throw new NoSuchElementException("Callback data doesn't contains chat id");
+            throw new NoSuchElementException("Callback data doesn't contains filter type");
         }
         return FilterType.getFilterType(args[1]);
     }

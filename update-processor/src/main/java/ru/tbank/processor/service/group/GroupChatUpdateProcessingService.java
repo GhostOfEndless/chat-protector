@@ -2,6 +2,8 @@ package ru.tbank.processor.service.group;
 
 import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -20,9 +22,6 @@ import ru.tbank.processor.service.group.filter.text.TextFilter;
 import ru.tbank.processor.service.moderation.ChatModerationSettingsService;
 import ru.tbank.processor.service.persistence.AppUserService;
 import ru.tbank.processor.service.persistence.GroupChatService;
-
-import java.util.Collections;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -57,6 +56,7 @@ public class GroupChatUpdateProcessingService {
         switch (groupMemberEvent.eventType()) {
             case GROUP_BOT_ADDED -> processGroupBotAddEvent(groupMemberEvent.user(), groupMemberEvent.chat());
             case GROUP_BOT_LEFT, GROUP_BOT_KICKED -> processGroupBotKickEvent(groupMemberEvent.chat());
+            default -> throw new IllegalArgumentException("Unsupported groupMemberEventType!");
         }
     }
 

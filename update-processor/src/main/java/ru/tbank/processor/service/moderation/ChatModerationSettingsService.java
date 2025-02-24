@@ -1,6 +1,10 @@
 package ru.tbank.processor.service.moderation;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -12,15 +16,13 @@ import org.springframework.stereotype.Service;
 import ru.tbank.common.entity.ChatModerationSettings;
 import ru.tbank.processor.excpetion.ChatModerationSettingsNotFoundException;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatModerationSettingsService {
+
+    private static final String UPDATE_CHANNEL_NAME = "configUpdateNotificationChannel";
+    private static final String CHAT_PREFIX = "chat:";
 
     private final RedisTemplate<String, ChatModerationSettings> redisTemplate;
     private final RedisMessageListenerContainer listenerContainer;
@@ -36,12 +38,12 @@ public class ChatModerationSettingsService {
                     var chatId = new String(message.getBody());
                     updateLocalConfig(chatId);
                 },
-                new ChannelTopic("configUpdateNotificationChannel")
+                new ChannelTopic(UPDATE_CHANNEL_NAME)
         );
     }
 
     private void loadAllChatConfigs() {
-        var keys = redisTemplate.keys("chat:*");
+        var keys = redisTemplate.keys(CHAT_PREFIX + "*");
 
         Objects.requireNonNull(keys).forEach(key ->
                 Optional.ofNullable(redisTemplate.opsForValue().get(key))
@@ -60,7 +62,7 @@ public class ChatModerationSettingsService {
     public ChatModerationSettings getChatConfigById(Long chatId) {
         return findChatConfigById(chatId).orElseThrow(() -> new ChatModerationSettingsNotFoundException(
                 "Not found setting for chat with id=%d".formatted(chatId)
-                ));
+        ));
     }
 
     public void createChatConfig(Long chatId, String chatName) {
@@ -73,13 +75,13 @@ public class ChatModerationSettingsService {
     }
 
     public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
-        var key = "chat:" + chatModerationSettings.getChatId();
+        var key = CHAT_PREFIX + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
-        stringRedisTemplate.convertAndSend("configUpdateNotificationChannel", key);
+        stringRedisTemplate.convertAndSend(UPDATE_CHANNEL_NAME, key);
     }
 
     public void deleteChatConfig(Long chatId) {
-        redisTemplate.delete("chat:" + chatId);
+        redisTemplate.delete(CHAT_PREFIX + chatId);
     }
 
     private void updateLocalConfig(String chatId) {

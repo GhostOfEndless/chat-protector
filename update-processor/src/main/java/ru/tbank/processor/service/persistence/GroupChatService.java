@@ -1,5 +1,7 @@
 package ru.tbank.processor.service.persistence;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.impl.UpdatableRecordImpl;
@@ -7,9 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.tbank.processor.excpetion.EntityNotFoundException;
 import ru.tbank.processor.generated.tables.GroupChat;
 import ru.tbank.processor.generated.tables.records.GroupChatRecord;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

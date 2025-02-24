@@ -1,5 +1,7 @@
 package ru.tbank.processor.service.personal.handlers;
 
+import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,6 @@ import ru.tbank.processor.service.personal.payload.CallbackData;
 import ru.tbank.processor.service.personal.payload.MessageArgument;
 import ru.tbank.processor.service.personal.payload.MessagePayload;
 import ru.tbank.processor.service.personal.payload.ProcessingResult;
-
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @NullMarked
