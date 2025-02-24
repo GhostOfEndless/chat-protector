@@ -1,15 +1,15 @@
 package ru.tbank.admin.controller.chats;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.tbank.admin.BaseIT;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class GroupChatsRestControllerIT extends BaseIT {
 
@@ -19,7 +19,7 @@ public class GroupChatsRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return empty list when no chats exists")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_empty() {
+    public void findAllEmpty() {
         mockMvc.perform(get(URI))
                 .andExpectAll(
                         status().isOk(),
@@ -32,7 +32,7 @@ public class GroupChatsRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 404 when chat with id not found")
     @WithMockUser(authorities = "ADMIN")
-    public void getById_notFound() {
+    public void getByIdNotFound() {
         mockMvc.perform(get(URI + "/{chatId}", chatIdCounter.get() - 1))
                 .andExpectAll(
                         status().isNotFound(),
@@ -45,7 +45,7 @@ public class GroupChatsRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return chat when chat with id found")
     @WithMockUser(authorities = "ADMIN")
-    public void getById_success() {
+    public void getByIdSuccess() {
         Long chatId = createTestChat("Chat");
         mockMvc.perform(get(URI + "/{chatId}", chatId))
                 .andExpectAll(

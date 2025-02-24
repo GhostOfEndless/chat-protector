@@ -3,6 +3,11 @@ package ru.tbank.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redis.testcontainers.RedisContainer;
+import java.io.File;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.concurrent.atomic.AtomicLong;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -25,12 +30,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.tbank.admin.generated.tables.AppUser;
 import ru.tbank.admin.generated.tables.GroupChat;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.concurrent.atomic.AtomicLong;
-
 @AutoConfigureMockMvc
 @SpringBootTest(classes = AdminServiceApplication.class)
 @Testcontainers
@@ -39,15 +38,14 @@ public abstract class BaseIT {
 
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
     private static final RedisContainer redisMaster = new RedisContainer("redis:7.4.1");
+    protected final AtomicLong userIdCounter = new AtomicLong(1L);
+    protected final AtomicLong chatIdCounter = new AtomicLong(-1L);
     @Autowired
     protected MockMvc mockMvc;
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired
     protected DSLContext dsl;
-
-    protected final AtomicLong userIdCounter = new AtomicLong(1L);
-    protected final AtomicLong chatIdCounter = new AtomicLong(-1L);
 
     @SneakyThrows
     @DynamicPropertySource

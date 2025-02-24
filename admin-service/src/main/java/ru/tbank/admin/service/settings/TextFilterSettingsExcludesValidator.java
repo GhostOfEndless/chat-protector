@@ -1,13 +1,12 @@
 package ru.tbank.admin.service.settings;
 
+import java.util.List;
+import java.util.regex.Pattern;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
 import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.common.entity.enums.FilterType;
-
-import java.util.List;
-import java.util.regex.Pattern;
 
 @Component
 public class TextFilterSettingsExcludesValidator {
@@ -33,6 +32,7 @@ public class TextFilterSettingsExcludesValidator {
             case LINKS -> validateExclusions(request.exclusions(), LINK_PATTERN);
             case MENTIONS -> validateExclusions(request.exclusions(), MENTION_PATTERN);
             case PHONE_NUMBERS -> validateExclusions(request.exclusions(), PHONE_NUMBER_PATTERN);
+            default -> throw new IllegalArgumentException("Unsupported filter type");
         }
     }
 

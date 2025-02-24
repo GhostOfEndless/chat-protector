@@ -1,6 +1,7 @@
 package ru.tbank.admin.config;
 
 import io.lettuce.core.ReadFrom;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -16,8 +17,6 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import ru.tbank.common.entity.ChatModerationSettings;
-
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Configuration
