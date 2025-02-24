@@ -33,7 +33,7 @@ public class UpdateParserService {
         } else if (update.hasCallbackQuery()) {
             return UpdateType.CALLBACK_EVENT;
         }
-        throw new UnknownUpdateTypeException("Can not parse update type for update: %s".formatted(update));
+        throw new UnknownUpdateTypeException(update);
     }
 
     public Message parseMessageFromUpdate(Update update) {
@@ -55,6 +55,6 @@ public class UpdateParserService {
         } else if (chat.isUserChat()) {
             return UpdateType.PERSONAL_MESSAGE;
         }
-        throw new UnknownUpdateTypeException("Can not parse update type for update: %s".formatted(update));
+        throw new UnknownUpdateTypeException(update);
     }
 }

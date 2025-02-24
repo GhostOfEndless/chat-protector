@@ -1,15 +1,15 @@
 package ru.tbank.admin.controller.messages;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.tbank.admin.BaseIT;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DeletedMessagesRestControllerIT extends BaseIT {
 
@@ -19,7 +19,7 @@ public class DeletedMessagesRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return empty list when no deleted messages exists")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_empty() {
+    public void findAllEmpty() {
         Long chatId = createTestChat("Chat");
         mockMvc.perform(get(URI, chatId))
                 .andExpectAll(
@@ -34,7 +34,7 @@ public class DeletedMessagesRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 404 when chat not found")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_invalidChatId() {
+    public void findAllInvalidChatId() {
         mockMvc.perform(get(URI, chatIdCounter.get() - 1))
                 .andExpectAll(
                         status().isNotFound(),
@@ -47,7 +47,7 @@ public class DeletedMessagesRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 404 when user not found")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_invalidUserId() {
+    public void findAllInvalidUserId() {
         Long chatId = createTestChat("Chat");
         mockMvc.perform(get(URI, -1)
                         .param("userId", "2"))
@@ -63,7 +63,7 @@ public class DeletedMessagesRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return deleted messages of user")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_withUserId() {
+    public void findAllWithUserId() {
         Long chatId = createTestChat("Test chat");
         Long userId = createTestUser("Name", "Surname", "username");
         mockMvc.perform(get(URI, -1)

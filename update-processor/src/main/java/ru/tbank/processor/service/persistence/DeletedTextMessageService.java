@@ -1,5 +1,6 @@
 package ru.tbank.processor.service.persistence;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
@@ -8,8 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.tbank.common.telegram.Message;
 import ru.tbank.processor.generated.tables.DeletedTextMessage;
 import ru.tbank.processor.generated.tables.records.DeletedTextMessageRecord;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

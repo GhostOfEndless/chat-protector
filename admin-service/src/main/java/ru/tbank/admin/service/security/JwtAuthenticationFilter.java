@@ -7,6 +7,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -23,14 +25,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.tbank.admin.exceptions.UsernameNotFoundException;
 
-import java.io.IOException;
-import java.net.URI;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String BAD_REQUEST_TITLE = "errors.401.title";
     private static final String BEARER_TYPE = "Bearer ";
     private final ClaimsExtractorService claimsExtractorService;
     private final UserDetailsService userDetailsService;
@@ -66,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException e) {
             addProblemDetailToResponse(request, response, "token.login_field_not_found", null);
         } catch (UsernameNotFoundException e) {
-            addProblemDetailToResponse(request, response, "username.not_found", new Object[]{e.getUsername()});
+            addProblemDetailToResponse(request, response, "username.not_found", new Object[] {e.getUsername()});
         } catch (SignatureException e) {
             addProblemDetailToResponse(request, response, "token.signature_invalid", null);
         }
@@ -79,8 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Object[] args
     ) throws IOException {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED,
-                messageSource.getMessage("errors.401.title", new Object[0],
-                        "errors.401.title", request.getLocale()));
+                messageSource.getMessage(BAD_REQUEST_TITLE, new Object[0],
+                        BAD_REQUEST_TITLE, request.getLocale()));
 
         problemDetail.setProperty("error", messageSource.getMessage(detail, args,
                 detail, request.getLocale()));

@@ -9,10 +9,12 @@ public record CallbackButtonPayload(
         String code,
         boolean isUrl
 ) {
+    private static final String BUTTON_DATA_PATTERN = "%s:%d";
+
     public static CallbackButtonPayload createChatButton(String chatName, Long chatId) {
         return new CallbackButtonPayload(
                 chatName,
-                "%s:%d".formatted(ButtonTextCode.CHATS_CHAT, chatId),
+                BUTTON_DATA_PATTERN.formatted(ButtonTextCode.CHATS_CHAT, chatId),
                 false
         );
     }
@@ -20,7 +22,7 @@ public record CallbackButtonPayload(
     public static CallbackButtonPayload createAdminButton(String name, String surname, Long userId) {
         return new CallbackButtonPayload(
                 "%s %s".formatted(name, surname),
-                "%s:%d".formatted(ButtonTextCode.ADMINS_ADMIN, userId),
+                BUTTON_DATA_PATTERN.formatted(ButtonTextCode.ADMINS_ADMIN, userId),
                 false
         );
     }
@@ -36,7 +38,7 @@ public record CallbackButtonPayload(
     public static CallbackButtonPayload create(ButtonTextCode textCode, Long chatId) {
         return new CallbackButtonPayload(
                 textCode.getResourceName(),
-                "%s:%d".formatted(textCode.name(), chatId),
+                BUTTON_DATA_PATTERN.formatted(textCode.name(), chatId),
                 false);
     }
 

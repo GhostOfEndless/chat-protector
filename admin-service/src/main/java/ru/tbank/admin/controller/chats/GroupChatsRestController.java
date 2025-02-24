@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Negative;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.annotation.Validated;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.admin.controller.chats.payload.ChatResponse;
 import ru.tbank.admin.mapper.ChatMapper;
 import ru.tbank.admin.service.persistence.GroupChatService;
-
-import java.util.List;
 
 @Validated
 @RestController

@@ -2,13 +2,12 @@ package ru.tbank.admin.config.security;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import javax.crypto.SecretKey;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
-
-import javax.crypto.SecretKey;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 @ConfigurationProperties("jwt")
 public record JwtProperties(

@@ -1,5 +1,10 @@
 package ru.tbank.admin.auth;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import lombok.SneakyThrows;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
@@ -12,11 +17,6 @@ import ru.tbank.admin.auth.payload.AuthenticationRequest;
 import ru.tbank.admin.auth.payload.AuthenticationResponse;
 import ru.tbank.admin.generated.tables.AppUser;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 public class AuthenticationControllerIT extends BaseIT {
 
     private static final String URI = "/api/v1/auth/authenticate";
@@ -28,7 +28,7 @@ public class AuthenticationControllerIT extends BaseIT {
     @SneakyThrows
     @Test
     @DisplayName("Should not authenticate not register user")
-    public void authenticate_error() {
+    public void authenticateError() {
         var payload = AuthenticationRequest.builder()
                 .login("login")
                 .password("password")
@@ -46,7 +46,7 @@ public class AuthenticationControllerIT extends BaseIT {
     @SneakyThrows
     @Test
     @DisplayName("Should not return 403 while payload is invalid")
-    public void authenticate_badRequest() {
+    public void authenticateBadRequest() {
         var payload = AuthenticationRequest.builder()
                 .build();
         mockMvc.perform(post(URI)
@@ -63,7 +63,7 @@ public class AuthenticationControllerIT extends BaseIT {
     @SneakyThrows
     @Test
     @DisplayName("Should authenticate registered user")
-    public void authenticate_success() {
+    public void authenticateSuccess() {
         var payload = AuthenticationRequest.builder()
                 .login("login")
                 .password("password")
@@ -93,7 +93,7 @@ public class AuthenticationControllerIT extends BaseIT {
     @SneakyThrows
     @Test
     @DisplayName("Should return 401 error due to token invalid")
-    public void authenticate_unauthorized() {
+    public void authenticateUnauthorized() {
         var payload = AuthenticationRequest.builder()
                 .login("login")
                 .password("password")

@@ -2,7 +2,6 @@ package ru.tbank.admin.controller.chats.payload;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.time.LocalDateTime;
 
 public record ChatResponse(

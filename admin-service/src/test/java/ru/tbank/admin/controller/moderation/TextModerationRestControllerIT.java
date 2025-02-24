@@ -1,5 +1,12 @@
 package ru.tbank.admin.controller.moderation;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Collections;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,14 +19,6 @@ import ru.tbank.admin.BaseIT;
 import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
 import ru.tbank.common.entity.ChatModerationSettings;
 import ru.tbank.common.entity.enums.FilterMode;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TextModerationRestControllerIT extends BaseIT {
 
@@ -34,7 +33,7 @@ public class TextModerationRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return text moderation settings when config with id was found")
     @WithMockUser(authorities = "ADMIN")
-    public void getTextModerationSettings_success() {
+    public void getTextModerationSettingsSuccess() {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         mockMvc.perform(get(URI, chatId))
@@ -50,7 +49,7 @@ public class TextModerationRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return text filter settings when config with id was found")
     @WithMockUser(authorities = "ADMIN")
-    public void getTextFilterSettings_success() {
+    public void getTextFilterSettingsSuccess() {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         mockMvc.perform(get(URI + "/{filterType}", chatId, "links"))
@@ -66,7 +65,7 @@ public class TextModerationRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return text filter settings when config with id was found")
     @WithMockUser(authorities = "ADMIN")
-    public void updateChatConfig_success() {
+    public void updateChatConfigSuccess() {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         var updatedSettings = TextFilterSettingsRequest.builder()
@@ -89,7 +88,7 @@ public class TextModerationRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 400 error due to invalid filter type")
     @WithMockUser(authorities = "ADMIN")
-    public void updateChatConfig_invalidFilterType() {
+    public void updateChatConfigInvalidFilterType() {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         var updatedSettings = TextFilterSettingsRequest.builder()
@@ -112,7 +111,7 @@ public class TextModerationRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 400error due to invalid exclusion format")
     @WithMockUser(authorities = "ADMIN")
-    public void updateChatConfig_invalidExclusionFormat() {
+    public void updateChatConfigInvalidExclusionFormat() {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         var updatedSettings = TextFilterSettingsRequest.builder()

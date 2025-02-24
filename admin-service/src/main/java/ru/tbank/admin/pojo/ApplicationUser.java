@@ -1,13 +1,12 @@
 package ru.tbank.admin.pojo;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @Data
 public class ApplicationUser implements UserDetails {

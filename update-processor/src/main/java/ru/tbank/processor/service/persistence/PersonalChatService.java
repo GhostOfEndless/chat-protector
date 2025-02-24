@@ -1,12 +1,11 @@
 package ru.tbank.processor.service.persistence;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import ru.tbank.processor.generated.tables.PersonalChat;
 import ru.tbank.processor.generated.tables.records.PersonalChatRecord;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

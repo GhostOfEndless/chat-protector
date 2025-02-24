@@ -2,13 +2,12 @@ package ru.tbank.admin.service.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Date;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import ru.tbank.admin.config.security.JwtProperties;
-
-import java.util.Date;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor

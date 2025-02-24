@@ -1,5 +1,6 @@
 package ru.tbank.processor.config;
 
+import java.nio.charset.StandardCharsets;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,8 +8,6 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.tbank.processor.service.personal.enums.UserState;
-
-import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -19,7 +18,7 @@ public class ApplicationConfiguration {
     @Bean
     public MessageSource messageSource() {
         var messageSource = new ReloadableResourceBundleMessageSource();
-        String[] baseNames = UserState.getBaseNames().stream()
+        String[] baseNames = UserState.getBASE_NAMES().stream()
                 .map(baseName -> MESSAGES_PATH + baseName)
                 .toArray(String[]::new);
 

@@ -1,10 +1,9 @@
 package ru.tbank.processor.service.personal.payload;
 
-import org.jspecify.annotations.NonNull;
-import ru.tbank.processor.service.personal.enums.MessageTextCode;
-
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
+import ru.tbank.processor.service.personal.enums.MessageTextCode;
 
 public record MessagePayload(
         MessageTextCode messageText,
