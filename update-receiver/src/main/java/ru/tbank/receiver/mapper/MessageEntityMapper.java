@@ -1,5 +1,6 @@
 package ru.tbank.receiver.mapper;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -7,8 +8,6 @@ import org.mapstruct.Named;
 import ru.tbank.common.telegram.MessageEntity;
 import ru.tbank.common.telegram.enums.MessageEntityType;
 import ru.tbank.receiver.exception.UnknownMessageEntityTypeException;
-
-import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface MessageEntityMapper {
