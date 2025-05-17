@@ -1,13 +1,12 @@
 package ru.tbank.processor.service;
 
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ru.tbank.processor.service.personal.enums.CallbackTextCode;
 import ru.tbank.processor.service.personal.enums.MessageTextCode;
-
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor

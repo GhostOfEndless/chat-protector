@@ -1,8 +1,7 @@
 package ru.tbank.admin.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.List;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("redis")
 public record RedisProperties(

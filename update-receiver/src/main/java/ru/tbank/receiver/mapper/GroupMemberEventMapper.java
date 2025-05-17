@@ -21,6 +21,9 @@ import ru.tbank.receiver.exception.UnknownGroupMemberEventTypeException;
 )
 public interface GroupMemberEventMapper {
 
+    String LEFT_ACTION = "left";
+    String KICKED_ACTION = "kicked";
+
     @Mapping(source = "from", target = "user")
     @Mapping(source = ".", target = "eventType", qualifiedByName = "parseGroupMemberEventType")
     GroupMemberEvent toGroupMemberEvent(ChatMemberUpdated chatMemberUpdated);
@@ -29,10 +32,10 @@ public interface GroupMemberEventMapper {
     default GroupMemberEventType parseGroupMemberEventType(@NonNull ChatMemberUpdated chatMemberUpdated) {
         String oldStatus = chatMemberUpdated.getOldChatMember().getStatus();
         String newStatus = chatMemberUpdated.getNewChatMember().getStatus();
-        if ((oldStatus.equals("left") || oldStatus.equals("kicked"))
+        if ((oldStatus.equals(LEFT_ACTION) || oldStatus.equals(KICKED_ACTION))
                 && (newStatus.equals("administrator") || newStatus.equals("member"))) {
             return GroupMemberEventType.GROUP_BOT_ADDED;
-        } else if (newStatus.equals("kicked") || newStatus.equals("left")) {
+        } else if (newStatus.equals(LEFT_ACTION) || newStatus.equals(KICKED_ACTION)) {
             return chatMemberUpdated.getFrom().getIsBot()
                     ? GroupMemberEventType.GROUP_BOT_LEFT
                     : GroupMemberEventType.GROUP_BOT_KICKED;

@@ -1,6 +1,10 @@
 package ru.tbank.admin.service.settings;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -12,17 +16,13 @@ import org.springframework.stereotype.Service;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
 import ru.tbank.common.entity.ChatModerationSettings;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatModerationSettingsService {
 
     private static final String UPDATE_CHANNEL_NAME = "configUpdateNotificationChannel";
+    private static final String CHAT_PREFIX = "chat:";
     private final RedisTemplate<String, ChatModerationSettings> redisTemplate;
     private final RedisMessageListenerContainer listenerContainer;
     private final StringRedisTemplate stringRedisTemplate;
@@ -50,13 +50,13 @@ public class ChatModerationSettingsService {
     }
 
     public void updateChatConfig(@NonNull ChatModerationSettings chatModerationSettings) {
-        var key = "chat:" + chatModerationSettings.getChatId();
+        var key = CHAT_PREFIX + chatModerationSettings.getChatId();
         redisTemplate.opsForValue().set(key, chatModerationSettings);
         stringRedisTemplate.convertAndSend(UPDATE_CHANNEL_NAME, key);
     }
 
     private ChatModerationSettings fetchFromRedis(Long chatId) {
-        var key = "chat:" + chatId;
+        var key = CHAT_PREFIX + chatId;
         return redisTemplate.opsForValue().get(key);
     }
 

@@ -1,6 +1,7 @@
 package ru.tbank.admin.controller;
 
 import jakarta.validation.ConstraintViolationException;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -18,8 +19,6 @@ import ru.tbank.admin.exceptions.InvalidFilterTypeException;
 import ru.tbank.admin.exceptions.UserNotFoundException;
 import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.common.entity.enums.FilterType;
-
-import java.util.Locale;
 
 @Slf4j
 @ControllerAdvice
@@ -84,7 +83,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.BAD_REQUEST,
                 ERROR_400_TITLE,
                 exception.getMessage(),
-                new Object[]{FilterType.getAvailableTypes()},
+                new Object[] {FilterType.getAvailableTypes()},
                 locale
         );
     }
@@ -98,7 +97,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.NOT_FOUND,
                 ERROR_404_TITLE,
                 exception.getMessage(),
-                new Object[]{String.valueOf(exception.getChatId())},
+                new Object[] {String.valueOf(exception.getChatId())},
                 locale
         );
     }
@@ -112,7 +111,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.UNAUTHORIZED,
                 ERROR_401_TITLE,
                 exception.getMessage(),
-                new Object[]{exception.getUsername()},
+                new Object[] {exception.getUsername()},
                 locale
         );
     }
@@ -126,7 +125,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.BAD_REQUEST,
                 ERROR_400_TITLE,
                 exception.getMessage(),
-                new Object[]{exception.getExclusion()},
+                new Object[] {exception.getExclusion()},
                 locale
         );
     }
@@ -140,7 +139,7 @@ public class ExceptionControllerAdvice {
                 HttpStatus.NOT_FOUND,
                 ERROR_404_TITLE,
                 exception.getMessage(),
-                new Object[]{String.valueOf(exception.getUserId())},
+                new Object[] {String.valueOf(exception.getUserId())},
                 locale
         );
     }

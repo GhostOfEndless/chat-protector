@@ -1,15 +1,15 @@
 package ru.tbank.admin.controller.users;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.tbank.admin.BaseIT;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UsersRestControllerIT extends BaseIT {
 
@@ -19,7 +19,7 @@ public class UsersRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return empty list when no users exists")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_empty() {
+    public void findAllEmpty() {
         mockMvc.perform(get(URI))
                 .andExpectAll(
                         status().isOk(),
@@ -32,7 +32,7 @@ public class UsersRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 403 when param is invalid")
     @WithMockUser(authorities = "ADMIN")
-    public void findAll_badRequest() {
+    public void findAllBadRequest() {
         mockMvc.perform(get(URI)
                         .param("page", "-1"))
                 .andExpectAll(
@@ -46,7 +46,7 @@ public class UsersRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return 404 when user with id not found")
     @WithMockUser(authorities = "ADMIN")
-    public void getById_notFound() {
+    public void getByIdNotFound() {
         mockMvc.perform(get(URI + "/{userId}", userIdCounter.get() + 1))
                 .andExpectAll(
                         status().isNotFound(),
@@ -59,7 +59,7 @@ public class UsersRestControllerIT extends BaseIT {
     @Test
     @DisplayName("Should return user when user with id found")
     @WithMockUser(authorities = "ADMIN")
-    public void getById_success() {
+    public void getByIdSuccess() {
         Long userId = createTestUser("Name", "Surname", "username");
         mockMvc.perform(get(URI + "/{userId}", userId))
                 .andExpectAll(
