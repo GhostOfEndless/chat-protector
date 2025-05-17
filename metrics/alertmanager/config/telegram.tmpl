@@ -1,0 +1,31 @@
+    {{ define "telegram.default" }}
+    {{ range .Alerts }}
+    {{ if eq .Status "firing"}}&#x1F525<b>{{ .Status | toUpper }}</b>&#x1F525{{ else }}&#x2705<b>{{ .Status | toUpper }}</b>&#x2705{{ end }}
+    <b>{{ .Labels.alertname }}</b>
+    {{- if .Labels.severity }}
+    <b>Severity:</b> {{ .Labels.severity }}
+    {{- end }}
+    {{- if .Labels.ds_name }}
+    <b>Database:</b> {{ .Labels.ds_name }}
+    {{- if .Labels.ds_group }}
+    <b>Database group:</b> {{ .Labels.ds_group }}
+    {{- end }}
+    {{- end }}
+    {{- if .Labels.ds_id }}
+    <b>Cluster UUID: </b>
+    <code>{{ .Labels.ds_id }}</code>
+    {{- end }}
+    {{- if .Labels.instance }}
+    <b>DBaaS region:</b> {{ .Labels.instance }}
+    {{- end }}
+    {{- if .Annotations.message }}
+    {{ .Annotations.message }}
+    {{- end }}
+    {{- if .Annotations.summary }}
+    {{ .Annotations.summary }}
+    {{- end }}
+    {{- if .Annotations.description }}
+    {{ .Annotations.description }}
+    {{- end }}
+    {{ end }}
+    {{ end }}

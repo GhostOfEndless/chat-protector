@@ -1,0 +1,11 @@
+groups:
+  - name: dbaas
+    rules:
+      - alert: DBaaS down
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DBaaS down in {{ $labels.instance }}"
+          description: "DBaas cluster {{ $labels.ds_id }} is down. Please check your cluster or write a ticket to the support team."

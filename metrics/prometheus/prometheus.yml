@@ -22,3 +22,11 @@ scrape_configs:
       - targets: [ 'host.docker.internal:8080' ]
         labels:
           application: 'Chat Protector admin service'
+
+rule_files:
+  - rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['host.docker.internal:9093']
