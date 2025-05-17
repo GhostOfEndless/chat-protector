@@ -1,25 +1,19 @@
+global:
+  resolve_timeout: 10s
+
 templates:
   - '/etc/alertmanager/*.tmpl'
 
 route:
   group_by: ['alertname']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 1h
-  receiver: "telegram"
+  group_wait: 3s
+  receiver: 'telegram_bot'
 
 receivers:
-  - name: 'telegram'
+  - name: 'telegram_bot'
     telegram_configs:
-      - api_url: https://api.telegram.org
-        bot_token: ''
+      - bot_token: ''
+        api_url: 'https://api.telegram.org'
         chat_id:
-        parse_mode: HTML
+        parse_mode: 'HTML'
         message: '{{ template "telegram.default" . }}'
-
-inhibit_rules:
-  - source_match:
-      severity: 'critical'
-    target_match:
-      severity: 'warning'
-    equal: ['alertname', 'dev', 'instance']
