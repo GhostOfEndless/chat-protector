@@ -7,13 +7,15 @@ templates:
 route:
   group_by: ['alertname']
   group_wait: 3s
+  group_interval: 30s
+  repeat_interval: 30s
   receiver: 'telegram_bot'
 
 receivers:
   - name: 'telegram_bot'
     telegram_configs:
-      - bot_token: ''
+      - bot_token: ${TELEGRAM_ALERT_BOT_TOKEN}
         api_url: 'https://api.telegram.org'
-        chat_id:
+        chat_id: ${TELEGRAM_OWNER_ACCOUNT_ID}
         parse_mode: 'HTML'
         message: '{{ template "telegram.default" . }}'

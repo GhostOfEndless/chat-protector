@@ -3,15 +3,18 @@ include:
 
 services:
   alertmanager:
-    image: prom/alertmanager:v0.28.1
+    build:
+      context: ../..
+      dockerfile: ./docker/alertmanager/alertmanager.Dockerfile
     container_name: alertmanager
+    env_file: .env
+    environment:
+      TELEGRAM_ALERT_BOT_TOKEN: $TELEGRAM_ALERT_BOT_TOKEN
+      TELEGRAM_OWNER_ACCOUNT_ID: $TELEGRAM_OWNER_ACCOUNT_ID
     networks:
       - app-tier
     volumes:
-      - ../../metrics/alertmanager:/alertmanager/data
-      - ../../metrics/alertmanager/config:/etc/alertmanager/
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - ../../metrics/alertmanager/config/telegram.tmpl:/etc/alertmanager/telegram.tmpl
     ports:
       - '9093:9093'
 
