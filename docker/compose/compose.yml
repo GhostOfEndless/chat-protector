@@ -1,10 +1,12 @@
 include:
   - compose-environment.yml
+  - compose-frontend.yml
 
 services:
   admin-service:
     image: ghcr.io/ghostofendless/admin-service:latest
     container_name: admin-service
+    hostname: admin-service
     networks:
       - app-tier
     restart: unless-stopped

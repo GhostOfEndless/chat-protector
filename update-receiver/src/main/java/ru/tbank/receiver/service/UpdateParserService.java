@@ -26,9 +26,9 @@ public class UpdateParserService {
         if (update.hasMessage()) {
             return parseMessageUpdateType(update);
         } else if (update.hasMyChatMember()
-                && update.getMyChatMember().getChat().isGroupChat()
-                && update.getMyChatMember().getChat().isSuperGroupChat()
-        ) {
+                && (update.getMyChatMember().getChat().isGroupChat()
+                || update.getMyChatMember().getChat().isSuperGroupChat()
+        )) {
             return UpdateType.GROUP_MEMBER_EVENT;
         } else if (update.hasCallbackQuery()) {
             return UpdateType.CALLBACK_EVENT;
