@@ -18,7 +18,7 @@ public class UpdateSenderService {
     @Timed("telegramApiUpdate")
     public void sendUpdate(@NonNull TelegramUpdate update) {
         String routingKey = switch (update.updateType()) {
-            case GROUP_MESSAGE, GROUP_MEMBER_EVENT -> rabbitProperties.groupUpdatesQueueName();
+            case GROUP_MESSAGE, GROUP_MEMBER_EVENT -> rabbitProperties.groupUpdatesQueueKey();
             case CALLBACK_EVENT, PERSONAL_MESSAGE -> rabbitProperties.personalUpdatesQueueKey();
         };
         rabbitTemplate.convertAndSend(rabbitProperties.exchangeName(), routingKey, update);
