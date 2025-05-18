@@ -1,3 +1,8 @@
+global:
+  scrape_interval: 3s
+  scrape_timeout: 3s
+  evaluation_interval: 3s
+
 scrape_configs:
   - job_name: 'ProcessorService'
     metrics_path: '/actuator/prometheus'
@@ -22,3 +27,13 @@ scrape_configs:
       - targets: [ 'host.docker.internal:8080' ]
         labels:
           application: 'Chat Protector admin service'
+
+rule_files:
+  - rules.yml
+
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets:
+            - 'host.docker.internal:9093'

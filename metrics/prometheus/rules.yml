@@ -1,0 +1,20 @@
+groups:
+  - name: receiver
+    rules:
+      - alert: Receiver service is down
+        expr: up{job="ReceiverService"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис получения сообщений оффлайн"
+
+  - name: processor
+    rules:
+      - alert: Processor service is down
+        expr: up{job="ProcessorService"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис обработки сообщений оффлайн"

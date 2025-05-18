@@ -2,6 +2,22 @@ include:
   - compose-network.yml
 
 services:
+  alertmanager:
+    build:
+      context: ../..
+      dockerfile: ./docker/alertmanager/alertmanager.Dockerfile
+    container_name: alertmanager
+    env_file: .env
+    environment:
+      TELEGRAM_ALERT_BOT_TOKEN: $TELEGRAM_ALERT_BOT_TOKEN
+      TELEGRAM_OWNER_ACCOUNT_ID: $TELEGRAM_OWNER_ACCOUNT_ID
+    networks:
+      - app-tier
+    volumes:
+      - ../../metrics/alertmanager/config/telegram.tmpl:/etc/alertmanager/telegram.tmpl
+    ports:
+      - '9093:9093'
+
   prometheus:
     image: prom/prometheus:v2.55.1
     container_name: prometheus
@@ -11,6 +27,7 @@ services:
       - '9090:9090'
     volumes:
       - ../../metrics/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../../metrics/prometheus/rules.yml:/etc/prometheus/rules.yml
       - prometheus:/prometheus
 
   grafana:
