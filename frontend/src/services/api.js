@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/api/v1';
 
-// Создаем экземпляр axios с базовой конфигурацией
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -10,7 +9,6 @@ const api = axios.create({
     }
 });
 
-// Добавляем перехватчик запросов для установки токена авторизации
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -25,9 +23,7 @@ api.interceptors.response.use(
     response => response,
     error => {
         if (error.response && error.response.status === 401) {
-            // Токен истек или недействителен
             localStorage.removeItem('token');
-            // Перенаправление на страницу входа
             window.location = '/login';
         }
         return Promise.reject(error);
@@ -76,7 +72,6 @@ export const getDeletedMessages = async (chatId, page = 1) => {
 
 export const getUsers = async (page = 1, size = null) => {
     try {
-        // Принудительно устанавливаем page >= 1
         const safePage = Math.max(1, Number(page));
         const params = { page: safePage };
         if (size !== null) {
@@ -119,7 +114,6 @@ export const getTextModerationSettings = async (chatId) => {
 };
 
 export const updateTextModerationSettings = async (chatId, filterType, settings) => {
-    // Проверяем, что filterType один из разрешенных
     const allowedFilterTypes = [
         "emails", "tags", "mentions", "links",
         "phone-numbers", "bot-commands", "custom-emojis"
@@ -129,7 +123,6 @@ export const updateTextModerationSettings = async (chatId, filterType, settings)
         throw new Error(`Неверный тип фильтра: ${filterType}. Доступные типы: ${allowedFilterTypes.join(', ')}`);
     }
 
-    // Проверяем наличие всех необходимых полей
     if (settings.enabled === undefined ||
         settings.exclusionMode === undefined ||
         settings.exclusions === undefined) {

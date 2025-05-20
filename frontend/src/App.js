@@ -14,7 +14,6 @@ const App = () => (
         <Routes>
             <Route path="/login" element={<Login />} />
 
-            {/* Защищенные маршруты */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/chats" element={<ChatList />} />
                 <Route path="/chats/:chatId" element={<Chat />} />
@@ -24,7 +23,6 @@ const App = () => (
                 <Route path="/users/:userId" element={<User />} />
             </Route>
 
-            {/* Перенаправление с корневого пути */}
             <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
     </Router>
