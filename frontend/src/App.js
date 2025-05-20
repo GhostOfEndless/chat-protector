@@ -8,6 +8,7 @@ import Moderation from './pages/Moderation';
 import DeletedMessages from './pages/DeletedMessages';
 import ProtectedRoute from './components/ProtectedRoute';
 import UsersList from './pages/UsersList';
+import Home from './pages/Home';
 
 const App = () => (
     <Router>
@@ -15,6 +16,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
 
             <Route element={<ProtectedRoute />}>
+                <Route path="/home" element={<Home />} />
                 <Route path="/chats" element={<ChatList />} />
                 <Route path="/chats/:chatId" element={<Chat />} />
                 <Route path="/chats/:chatId/moderation" element={<Moderation />} />
@@ -24,6 +26,7 @@ const App = () => (
             </Route>
 
             <Route path="/" element={<Navigate to="/login" />} />
+
         </Routes>
     </Router>
 );

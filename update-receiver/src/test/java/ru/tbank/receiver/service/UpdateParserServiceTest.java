@@ -20,9 +20,7 @@ import ru.tbank.receiver.mapper.MessageMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateParserServiceTest {
@@ -83,7 +81,6 @@ class UpdateParserServiceTest {
         when(update.getMyChatMember()).thenReturn(myChatMember);
         when(myChatMember.getChat()).thenReturn(chat);
         when(chat.isGroupChat()).thenReturn(true);
-        when(chat.isSuperGroupChat()).thenReturn(true);
 
         UpdateType result = updateParserService.parseUpdateType(update);
 

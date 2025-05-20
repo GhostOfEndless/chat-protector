@@ -22,6 +22,8 @@ import ru.tbank.admin.service.security.JwtAuthenticationFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String JWT_AUTH_HEADER = "Authorization";
+
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -49,10 +51,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4000")); // Ваш фронтенд
+        configuration.setAllowedOrigins(List.of("http://localhost:4000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowedHeaders(Arrays.asList(JWT_AUTH_HEADER, "Content-Type"));
+        configuration.setExposedHeaders(List.of(JWT_AUTH_HEADER));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
