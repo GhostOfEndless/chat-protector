@@ -118,7 +118,7 @@ dependencies {
     implementation project(":common-telegram")
 
     // other libs
-    implementation 'org.telegram:telegrambots-client:7.10.0'
+    implementation 'org.telegram:telegrambots-client:8.3.0'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
     implementation 'org.springframework.security:spring-security-crypto:6.4.1'
