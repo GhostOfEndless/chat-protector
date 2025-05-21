@@ -29,7 +29,7 @@ class UpdateSenderServiceTest {
     void shouldSendGroupMessageToGroupQueue() {
         TelegramUpdate update = new TelegramUpdate(UpdateType.GROUP_MESSAGE, null, null, null);
 
-        when(rabbitProperties.groupUpdatesQueueName()).thenReturn("group.updates");
+        when(rabbitProperties.groupUpdatesQueueKey()).thenReturn("group.updates");
         when(rabbitProperties.exchangeName()).thenReturn("telegram.exchange");
 
         updateSenderService.sendUpdate(update);
@@ -45,7 +45,7 @@ class UpdateSenderServiceTest {
     void shouldSendGroupMemberEventToGroupQueue() {
         TelegramUpdate update = new TelegramUpdate(UpdateType.GROUP_MEMBER_EVENT, null, null, null);
 
-        when(rabbitProperties.groupUpdatesQueueName()).thenReturn("group.updates");
+        when(rabbitProperties.groupUpdatesQueueKey()).thenReturn("group.updates");
         when(rabbitProperties.exchangeName()).thenReturn("telegram.exchange");
 
         updateSenderService.sendUpdate(update);

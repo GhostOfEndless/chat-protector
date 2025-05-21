@@ -1,0 +1,14 @@
+include:
+  - compose-network.yml
+
+services:
+  frontend:
+    build:
+      context: ../..
+      dockerfile: ./docker/frontend/frontend.Dockerfile
+    container_name: frontend
+    networks:
+      - app-tier
+    restart: unless-stopped
+    ports:
+      - '4000:4000'

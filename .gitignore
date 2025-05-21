@@ -16,3 +16,5 @@ out/
 update-processor/jooq
 admin-service/jooq
 logback/
+/frontend/node_modules/
+/frontend/package-lock.json
