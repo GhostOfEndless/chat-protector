@@ -2,8 +2,8 @@ group = 'ru.tbank.receiver'
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    implementation 'org.telegram:telegrambots-springboot-longpolling-starter:8.3.0'
-    implementation 'org.telegram:telegrambots-client:8.3.0'
+    implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.10.0'
+    implementation 'org.telegram:telegrambots-client:7.10.0'
 
     implementation project(":common-telegram")
 

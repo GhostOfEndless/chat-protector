@@ -7,14 +7,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.liquibase:liquibase-core:4.31.1'
-        classpath 'org.testcontainers:postgresql:1.21.0'
+        classpath 'org.liquibase:liquibase-core:4.30.0'
+        classpath 'org.testcontainers:postgresql:1.20.4'
     }
 }
 
 plugins {
-    id 'org.jooq.jooq-codegen-gradle' version '3.20.4'
-    id 'org.liquibase.gradle' version '3.0.2'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.14'
+    id 'org.liquibase.gradle' version '3.0.1'
 }
 
 group = 'ru.tbank.processor'
@@ -107,21 +107,21 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
 
     // migration
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.31.1'
-    liquibaseRuntime 'org.postgresql:postgresql:42.7.5'
-    liquibaseRuntime 'info.picocli:picocli:4.7.7'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.30.0'
+    liquibaseRuntime 'org.postgresql:postgresql:42.7.4'
+    liquibaseRuntime 'info.picocli:picocli:4.7.6'
 
     // data
-    runtimeOnly 'org.postgresql:postgresql:42.7.5'
-    jooqCodegen 'org.postgresql:postgresql:42.7.5'
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    jooqCodegen 'org.postgresql:postgresql:42.7.4'
     implementation project(":common")
     implementation project(":common-telegram")
 
     // other libs
-    implementation 'org.telegram:telegrambots-client:8.3.0'
+    implementation 'org.telegram:telegrambots-client:7.10.0'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.3.0'
-    implementation 'org.springframework.security:spring-security-crypto:6.4.5'
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'org.springframework.security:spring-security-crypto:6.4.1'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
