@@ -192,7 +192,7 @@ const ChatList = () => {
                                                 )}
                                             </div>
                                             <div className="flex-shrink-0 ml-4">
-                                                <div className="p-1.5 rounded-full group-hover:bg-blue-100 transition-colors"> {/* Уменьшены отступы вокруг стрелки */}
+                                                <div className="p-1.5 rounded-full group-hover:bg-blue-100 transition-colors">
                                                     <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                                                     </svg>
