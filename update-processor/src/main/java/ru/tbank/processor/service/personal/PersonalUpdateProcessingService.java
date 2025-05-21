@@ -58,7 +58,7 @@ public class PersonalUpdateProcessingService {
         log.debug("Personal chat update: {}", update);
     }
 
-    private void handleUpdate(TelegramUpdate update, AppUserRecord userRecord, UserState userState) {
+    protected void handleUpdate(TelegramUpdate update, AppUserRecord userRecord, UserState userState) {
         var processingResult = updateHandlerMap.get(userState)
                 .handle(update, userRecord);
         if (processingResult.newState() != userState || processingResult.newState() == UserState.START) {
@@ -69,7 +69,7 @@ public class PersonalUpdateProcessingService {
         }
     }
 
-    private AppUserRecord saveNewUser(@NonNull User user) {
+    protected AppUserRecord saveNewUser(@NonNull User user) {
         log.info("User id is: {}, Owner id is: {}", user.id(), telegramProperties.ownerId());
         if (user.id().equals(telegramProperties.ownerId())) {
             log.info("Save OWNER");
@@ -79,7 +79,7 @@ public class PersonalUpdateProcessingService {
         return appUserService.save(user);
     }
 
-    private void checkUserName(@NonNull User user, @NonNull AppUserRecord userRecord) {
+    protected void checkUserName(@NonNull User user, @NonNull AppUserRecord userRecord) {
         String username = user.userName();
         if (!Objects.equals(username, userRecord.getUsername())
                 && !(username == null && userRecord.getUsername().isBlank())) {
@@ -89,7 +89,7 @@ public class PersonalUpdateProcessingService {
         }
     }
 
-    private User parseUserFromUpdate(@NonNull TelegramUpdate update) {
+    protected User parseUserFromUpdate(@NonNull TelegramUpdate update) {
         return switch (update.updateType()) {
             case PERSONAL_MESSAGE -> update.message().user();
             case CALLBACK_EVENT -> update.callbackEvent().user();
