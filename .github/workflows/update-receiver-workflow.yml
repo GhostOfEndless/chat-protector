@@ -15,8 +15,6 @@ permissions:
 
 jobs:
   checkstyle:
-    needs:
-      - build
     runs-on: ubuntu-latest
     name: Checkstyle
     steps:
