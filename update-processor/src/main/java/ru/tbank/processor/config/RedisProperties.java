@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("redis")
 public record RedisProperties(
         int chatConfigsDb,
-        int usersStateDb,
+        int chatUsersDb,
         RedisAddress master,
         List<RedisAddress> slaves
 ) {

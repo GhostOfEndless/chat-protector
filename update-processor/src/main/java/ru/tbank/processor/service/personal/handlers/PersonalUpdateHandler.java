@@ -68,9 +68,14 @@ public abstract class PersonalUpdateHandler {
             AppUserRecord userRecord
     ) {
         var callbackMessageId = callbackEvent.messageId();
-        Integer lastMessageId = personalChatService.findByUserId(userRecord.getId())
-                .orElseThrow()
-                .getLastMessageId();
+        var userOpt = personalChatService.findByUserId(userRecord.getId());
+        final int lastMessageId;
+        if (userOpt.isEmpty()) {
+            callbackSender.showMessageExpiredCallback(userRecord.getLocale(), callbackEvent.id());
+            return ProcessingResult.create(UserState.NONE);
+        } else {
+            lastMessageId = userOpt.get().getLastMessageId();
+        }
         if (!Objects.equals(callbackMessageId, lastMessageId)) {
             callbackSender.showMessageExpiredCallback(userRecord.getLocale(), callbackEvent.id());
             return ProcessingResult.create(UserState.NONE);

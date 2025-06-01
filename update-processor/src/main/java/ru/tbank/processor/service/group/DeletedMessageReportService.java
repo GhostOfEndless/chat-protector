@@ -13,6 +13,8 @@ import ru.tbank.processor.service.persistence.DeletedTextMessageService;
 @RequiredArgsConstructor
 public class DeletedMessageReportService {
 
+    private static final String SPAM_REASON = "SPAM";
+
     private final DeletedTextMessageService deletedTextMessageService;
     private final AppUserService appUserService;
 
@@ -20,5 +22,11 @@ public class DeletedMessageReportService {
         User user = message.user();
         appUserService.save(message.user(), user.userName());
         deletedTextMessageService.save(message, result.name());
+    }
+
+    public void saveSpamReport(@NonNull Message message) {
+        User user = message.user();
+        appUserService.save(message.user(), user.userName());
+        deletedTextMessageService.save(message, SPAM_REASON);
     }
 }

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 import ru.tbank.admin.controller.moderation.payload.TextFilterSettingsRequest;
-import ru.tbank.admin.exceptions.ExclusionValidationException;
+import ru.tbank.admin.exceptions.TextFilterExclusionValidationException;
 import ru.tbank.common.entity.enums.FilterType;
 
 @Component
@@ -39,7 +39,7 @@ public class TextFilterSettingsExcludesValidator {
     private void validateExclusions(@NonNull List<String> exclusions, Pattern pattern) {
         exclusions.forEach(exclusion -> {
             if (!pattern.matcher(exclusion).matches()) {
-                throw new ExclusionValidationException(exclusion);
+                throw new TextFilterExclusionValidationException(exclusion);
             }
         });
     }
