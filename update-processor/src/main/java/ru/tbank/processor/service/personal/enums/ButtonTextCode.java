@@ -23,6 +23,7 @@ public enum ButtonTextCode {
     ADMINS_ADMIN_ADDITION("telegram.chats_level.button.add_admin"),
     ADMIN_REMOVE("telegram.admin_level.button.remove"),
     CHAT_FILTERS_SETTINGS("telegram.chat_level.button.filter_settings"),
+    CHAT_SPAM_PROTECTION("telegram.chat_level.button.spam_protection_settings"),
     FILTERS_TEXT_FILTERS("telegram.filters_level.button.text_filters"),
     TEXT_FILTERS_LINKS("telegram.text_filters_level.button.links_filter"),
     TEXT_FILTERS_TAGS("telegram.text_filters_level.button.tags_filter"),
@@ -34,6 +35,8 @@ public enum ButtonTextCode {
     BACK("telegram.any_level.button_back"),
     TEXT_FILTER_ENABLE("telegram.text_filter_level.button.enable"),
     TEXT_FILTER_DISABLE("telegram.text_filter_level.button.disable"),
+    SPAM_PROTECTION_ENABLE("telegram.spam_protection_level.button.enable"),
+    SPAM_PROTECTION_DISABLE("telegram.spam_protection_level.button.disable"),
     CHAT_EXCLUDE("telegram.chat_level.button.exclude_chat"),
     CHAT_DELETION_CONFIRM("telegram.chat_deletion_level.confirm"),
     CHATS_CHAT(""),
@@ -94,5 +97,8 @@ public enum ButtonTextCode {
 
     public boolean isFilterControlButton() {
         return this == TEXT_FILTER_ENABLE || this == TEXT_FILTER_DISABLE;
+    }
+    public boolean isSpamProtectionControlButton() {
+        return this == SPAM_PROTECTION_ENABLE || this == SPAM_PROTECTION_DISABLE;
     }
 }

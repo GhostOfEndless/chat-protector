@@ -22,7 +22,8 @@ public enum UserState {
     NONE,
     START,
     TEXT_FILTER,
-    TEXT_FILTERS;
+    TEXT_FILTERS,
+    SPAM_PROTECTION;
 
     @Getter
     private static final List<String> BASE_NAMES = Arrays.stream(UserState.values())
