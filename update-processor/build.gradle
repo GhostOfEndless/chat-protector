@@ -123,6 +123,13 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
     implementation 'org.springframework.security:spring-security-crypto:6.4.1'
+
+    // test
+    testImplementation 'com.redis:testcontainers-redis:2.2.2'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.liquibase:liquibase-core:4.30.0'
+    testImplementation 'org.testcontainers:rabbitmq:1.21.1'
+    testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 }
 
 abstract class PostgresService implements BuildService<BuildServiceParameters.None>, AutoCloseable {

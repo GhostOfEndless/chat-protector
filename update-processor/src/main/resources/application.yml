@@ -15,6 +15,9 @@ telegram:
   token: ${TELEGRAM_BOT_TOKEN}
   bot-addition-url: https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
   owner-id: ${OWNER_ACCOUNT_ID}
+  schema: https
+  host: api.telegram.org
+  port: 443
 
 rabbit:
   exchange-name: updates-exchange

@@ -6,6 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record TelegramProperties(
         String token,
         String botAdditionUrl,
-        Long ownerId
+        Long ownerId,
+        String schema,
+        String host,
+        Integer port
 ) {
 }
