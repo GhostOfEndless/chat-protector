@@ -15,6 +15,9 @@ telegram:
   token: ${TELEGRAM_BOT_TOKEN}
   bot-addition-url: https://t.me/%s?startgroup&admin=promote_members+delete_messages+restrict_members
   owner-id: ${OWNER_ACCOUNT_ID}
+  schema: https
+  host: api.telegram.org
+  port: 443
 
 rabbit:
   exchange-name: updates-exchange
@@ -46,7 +49,7 @@ redis:
     - host: ${REDIS_SLAVE_2_HOST:localhost}
       port: 7001
   chat-configs-db: 0
-  users-state-db: 1
+  chat-users-db: 1
 
 logging:
   level:

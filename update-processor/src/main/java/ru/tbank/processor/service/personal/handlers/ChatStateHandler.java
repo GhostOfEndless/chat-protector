@@ -47,6 +47,7 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
                         ),
                         List.of(
                                 CallbackButtonPayload.create(ButtonTextCode.CHAT_FILTERS_SETTINGS, chatId),
+                                CallbackButtonPayload.create(ButtonTextCode.CHAT_SPAM_PROTECTION, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.CHAT_EXCLUDE, chatId),
                                 CallbackButtonPayload.create(ButtonTextCode.BACK)
                         )))
@@ -59,6 +60,12 @@ public final class ChatStateHandler extends PersonalUpdateHandler {
 
         return switch (callbackData.pressedButton()) {
             case BACK -> ProcessingResult.create(UserState.CHATS, messageId);
+            case CHAT_SPAM_PROTECTION -> checkPermissionAndProcess(
+                    UserRole.ADMIN,
+                    userRecord,
+                    () -> ProcessingResult.create(UserState.SPAM_PROTECTION, messageId, callbackData.getChatId()),
+                    callbackData
+            );
             case CHAT_FILTERS_SETTINGS -> checkPermissionAndProcess(
                     UserRole.ADMIN,
                     userRecord,

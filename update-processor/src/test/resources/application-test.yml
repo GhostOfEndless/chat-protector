@@ -1,0 +1,10 @@
+spring:
+  liquibase:
+    enabled: false
+
+telegram:
+  token: token
+  bot-addition-url: http://localhost:8070/%s?startgroup&admin=promote_members+delete_messages+restrict_members
+  owner-id: 123456789
+  schema: http
+  host: localhost

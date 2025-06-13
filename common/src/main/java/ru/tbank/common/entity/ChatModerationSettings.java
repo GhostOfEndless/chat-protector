@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.tbank.common.entity.spam.SpamProtectionSettings;
 import ru.tbank.common.entity.text.TextModerationSettings;
 
 @Data
@@ -17,4 +18,7 @@ public class ChatModerationSettings {
 
     @Builder.Default
     private TextModerationSettings textModerationSettings = new TextModerationSettings();
+
+    @Builder.Default
+    private SpamProtectionSettings spamProtectionSettings = new SpamProtectionSettings();
 }

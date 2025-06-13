@@ -19,6 +19,7 @@ public enum MessageTextCode {
     FILTERS_MESSAGE("telegram.filters_level.message"),
     TEXT_FILTERS_MESSAGE("telegram.text_filters_level.message"),
     TEXT_FILTER_MESSAGE("telegram.text_filter_level.message"),
+    SPAM_PROTECTION_MESSAGE("telegram.spam_protection_level.message"),
     CHAT_ADDITION_MESSAGE("telegram.chat_addition_level.message"),
     CHAT_ADDITION_ERROR_MESSAGE("telegram.chat_addition_level.message.error"),
     CHAT_DELETION_MESSAGE("telegram.chat_deletion_level.message"),

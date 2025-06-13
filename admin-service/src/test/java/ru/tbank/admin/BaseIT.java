@@ -7,6 +7,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
@@ -62,6 +63,7 @@ public abstract class BaseIT {
         redisMaster.start();
         registry.add("redis.master.host", redisMaster::getRedisHost);
         registry.add("redis.master.port", redisMaster::getRedisPort);
+        registry.add("redis.slaves", Collections::emptyList);
     }
 
     private static void runMigrations() throws Exception {

@@ -14,8 +14,9 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tbank.admin.exceptions.ChatNotFoundException;
-import ru.tbank.admin.exceptions.ExclusionValidationException;
 import ru.tbank.admin.exceptions.InvalidFilterTypeException;
+import ru.tbank.admin.exceptions.SpamProtectionExclusionValidationException;
+import ru.tbank.admin.exceptions.TextFilterExclusionValidationException;
 import ru.tbank.admin.exceptions.UserNotFoundException;
 import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.common.entity.enums.FilterType;
@@ -116,9 +117,23 @@ public class ExceptionControllerAdvice {
         );
     }
 
-    @ExceptionHandler(ExclusionValidationException.class)
-    public ResponseEntity<ProblemDetail> handleExclusionValidationException(
-            @NonNull ExclusionValidationException exception,
+    @ExceptionHandler(TextFilterExclusionValidationException.class)
+    public ResponseEntity<ProblemDetail> handleTextFilterExclusionValidationException(
+            @NonNull TextFilterExclusionValidationException exception,
+            Locale locale
+    ) {
+        return createProblemDetailResponse(
+                HttpStatus.BAD_REQUEST,
+                ERROR_400_TITLE,
+                exception.getMessage(),
+                new Object[] {exception.getExclusion()},
+                locale
+        );
+    }
+
+    @ExceptionHandler(SpamProtectionExclusionValidationException.class)
+    public ResponseEntity<ProblemDetail> handleSpamProtectionExclusionValidationException(
+            @NonNull SpamProtectionExclusionValidationException exception,
             Locale locale
     ) {
         return createProblemDetailResponse(

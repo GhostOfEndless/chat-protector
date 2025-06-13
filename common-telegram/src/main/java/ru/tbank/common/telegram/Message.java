@@ -1,8 +1,11 @@
 package ru.tbank.common.telegram;
 
+import lombok.Builder;
+
 import java.io.Serializable;
 import java.util.List;
 
+@Builder
 public record Message(
         Integer messageId,
         String text,

@@ -1,5 +1,8 @@
 package ru.tbank.processor.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.lettuce.core.ReadFrom;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import ru.tbank.common.entity.ChatModerationSettings;
+import ru.tbank.processor.entity.ChatUser;
 
 @Slf4j
 @Configuration
@@ -32,7 +36,7 @@ public class RedisConfiguration {
 
     @Bean(name = "redisConnectionFactoryUserStateDB")
     public LettuceConnectionFactory lettuceConnectionFactoryUserStateDB() {
-        return createLettuceConnectionFactory(properties.usersStateDb());
+        return createLettuceConnectionFactory(properties.chatUsersDb());
     }
 
     @Bean(name = "redisConnectionFactoryUpdateTopic")
@@ -55,6 +59,21 @@ public class RedisConfiguration {
         var template = new RedisTemplate<String, ChatModerationSettings>();
         template.setConnectionFactory(lettuceConnectionFactoryConfigDB());
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatModerationSettings.class));
+        template.setKeySerializer(new StringRedisSerializer(StandardCharsets.UTF_8));
+        return template;
+    }
+
+    @Bean(name = "redisChatUsersTemplate")
+    public RedisTemplate<String, ChatUser> redisChatUsersTemplate() {
+        var template = new RedisTemplate<String, ChatUser>();
+        template.setConnectionFactory(lettuceConnectionFactoryUserStateDB());
+
+        var objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        var serializer = new Jackson2JsonRedisSerializer<>(objectMapper, ChatUser.class);
+
+        template.setValueSerializer(serializer);
         template.setKeySerializer(new StringRedisSerializer(StandardCharsets.UTF_8));
         return template;
     }
