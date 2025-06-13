@@ -10,6 +10,9 @@ import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -62,18 +65,27 @@ public class TextModerationRestControllerIT extends BaseIT {
     }
 
     @SneakyThrows
-    @Test
     @DisplayName("Should return text filter settings when config with id was found")
     @WithMockUser(authorities = "ADMIN")
-    public void updateChatConfigSuccess() {
+    @ParameterizedTest
+    @CsvSource({
+            "links,ya.ru",
+            "tags,#tag",
+            "emails,email@mai.ru",
+            "phone-numbers,+79876543210",
+            "mentions,@user",
+            "bot-commands,/start",
+            "custom-emojis,money"
+    })
+    public void updateChatConfigSuccess(String filterType, String exclusion) {
         Long chatId = createTestChat("Chat");
         createConfig(chatId, "Chat");
         var updatedSettings = TextFilterSettingsRequest.builder()
                 .enabled(true)
                 .exclusionMode(FilterMode.WHITE_LIST)
-                .exclusions(Collections.emptyList())
+                .exclusions(List.of(exclusion))
                 .build();
-        mockMvc.perform(patch(URI + "/{filterType}", chatId, "links")
+        mockMvc.perform(patch(URI + "/{filterType}", chatId, filterType)
                         .content(objectMapper.writeValueAsString(updatedSettings))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
