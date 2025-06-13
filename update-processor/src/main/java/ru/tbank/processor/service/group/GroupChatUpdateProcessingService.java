@@ -2,7 +2,6 @@ package ru.tbank.processor.service.group;
 
 import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PostConstruct;
-
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -118,7 +117,10 @@ public class GroupChatUpdateProcessingService {
             chatUsersService.findChatUser(message.chat().id(), message.user().id())
                     .ifPresentOrElse(chatUser -> {
                         var coolDownPeriod = Duration.ofSeconds(spamProtectionSettings.getCoolDownPeriod());
-                        var currentPeriod = Duration.between(chatUser.getLastProcessedMessageDt(), OffsetDateTime.now(ZoneOffset.UTC));
+                        var currentPeriod = Duration.between(
+                                chatUser.getLastProcessedMessageDt(),
+                                OffsetDateTime.now(ZoneOffset.UTC)
+                        );
                         if (currentPeriod.compareTo(coolDownPeriod) <= 0) {
                             telegramClientService.deleteMessage(message.chat().id(), message.messageId());
                             reportService.saveSpamReport(message);

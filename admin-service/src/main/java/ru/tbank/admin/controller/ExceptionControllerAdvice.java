@@ -13,7 +13,12 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.tbank.admin.exceptions.*;
+import ru.tbank.admin.exceptions.ChatNotFoundException;
+import ru.tbank.admin.exceptions.InvalidFilterTypeException;
+import ru.tbank.admin.exceptions.SpamProtectionExclusionValidationException;
+import ru.tbank.admin.exceptions.TextFilterExclusionValidationException;
+import ru.tbank.admin.exceptions.UserNotFoundException;
+import ru.tbank.admin.exceptions.UsernameNotFoundException;
 import ru.tbank.common.entity.enums.FilterType;
 
 @Slf4j

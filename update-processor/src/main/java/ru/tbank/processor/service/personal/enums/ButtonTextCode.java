@@ -98,6 +98,7 @@ public enum ButtonTextCode {
     public boolean isFilterControlButton() {
         return this == TEXT_FILTER_ENABLE || this == TEXT_FILTER_DISABLE;
     }
+
     public boolean isSpamProtectionControlButton() {
         return this == SPAM_PROTECTION_ENABLE || this == SPAM_PROTECTION_DISABLE;
     }
