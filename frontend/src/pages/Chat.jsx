@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getChat } from '../services/api';
-import { CogIcon, TrashIcon } from '@heroicons/react/24/outline'; // Оставляем иконки
+import { CogIcon, TrashIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const Chat = () => {
     const { chatId } = useParams();
@@ -15,11 +15,9 @@ const Chat = () => {
             setLoading(true);
             setError(null);
             try {
-                // Имитация задержки для демонстрации загрузчика
-                // await new Promise(resolve => setTimeout(resolve, 1000));
                 const data = await getChat(chatId);
                 setChat(data);
-                if (!data) { // Если API вернуло null или undefined для чата
+                if (!data) {
                     setError('Не удалось найти информацию о чате.');
                 }
             } catch (err) {
@@ -33,7 +31,7 @@ const Chat = () => {
     }, [chatId]);
 
     const handleBack = () => {
-        navigate(-1); // Возвращает на предыдущую страницу
+        navigate('/chats');
     };
 
     if (loading) {
@@ -50,7 +48,7 @@ const Chat = () => {
         );
     }
 
-    if (error || !chat) { // Показываем ошибку если есть ошибка или чат не найден
+    if (error || !chat) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-red-50 p-4">
                 <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md">
@@ -67,7 +65,7 @@ const Chat = () => {
                         onClick={handleBack}
                         className="mt-6 inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out"
                     >
-                        Назад
+                        Назад к списку чатов
                     </button>
                 </div>
             </div>
@@ -76,7 +74,7 @@ const Chat = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-            <div className="w-full max-w-lg"> {/* Можно использовать max-w-lg или max-w-xl для схожести с карточкой User */}
+            <div className="w-full max-w-lg">
                 <button
                     onClick={handleBack}
                     className="mb-6 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out group"
@@ -84,7 +82,7 @@ const Chat = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-[#3366ff] group-hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Назад
+                    Назад к списку чатов
                 </button>
 
                 <div className="bg-white shadow-xl rounded-lg overflow-hidden">
@@ -94,7 +92,7 @@ const Chat = () => {
                         </h2>
                     </div>
 
-                    <div className="p-6 sm:p-8 space-y-4"> {/* Уменьшил space-y для кнопок */}
+                    <div className="p-6 sm:p-8 space-y-4">
                         <Link
                             to={`/chats/${chatId}/deleted-messages`}
                             className="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition duration-150 ease-in-out"
@@ -108,6 +106,13 @@ const Chat = () => {
                         >
                             <CogIcon className="h-5 w-5 mr-2" />
                             Настройки модерации
+                        </Link>
+                        <Link
+                            to={`/chats/${chatId}/spam-protection`}
+                            className="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition duration-150 ease-in-out"
+                        >
+                            <ShieldCheckIcon className="h-5 w-5 mr-2" />
+                            Защита от спама
                         </Link>
                     </div>
                 </div>

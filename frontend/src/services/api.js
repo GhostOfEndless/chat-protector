@@ -140,3 +140,26 @@ export const updateTextModerationSettings = async (chatId, filterType, settings)
         throw error;
     }
 };
+
+export const getSpamProtectionSettings = async (chatId) => {
+    try {
+        const response = await api.get(`/admin/settings/chats/${chatId}/spam-protection`);
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка получения настроек защиты от спама:', error);
+        throw error;
+    }
+};
+
+export const updateSpamProtectionSettings = async (chatId, settings) => {
+    try {
+        const response = await api.patch(
+            `/admin/settings/chats/${chatId}/spam-protection`,
+            settings
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка обновления настроек защиты от спама:', error);
+        throw error;
+    }
+};
