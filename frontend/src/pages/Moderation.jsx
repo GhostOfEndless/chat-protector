@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTextModerationSettings, updateTextModerationSettings } from '../services/api';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Moderation = () => {
     const { chatId } = useParams();
@@ -10,6 +10,7 @@ const Moderation = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('general');
+    const [newExclusions, setNewExclusions] = useState({}); // State for new exclusion inputs
 
     const allowedFilterTypes = [
         'emails', 'tags', 'mentions', 'links',
@@ -39,6 +40,10 @@ const Moderation = () => {
                     return acc;
                 }, {});
                 setSettings(normalizedSettings);
+                setNewExclusions(Object.keys(normalizedSettings).reduce((acc, key) => ({
+                    ...acc,
+                    [key]: ''
+                }), {}));
                 setError(null);
             } catch (error) {
                 console.error('Ошибка загрузки настроек модерации:', error.response?.data || error);
@@ -50,6 +55,89 @@ const Moderation = () => {
         fetchSettings();
     }, [chatId]);
 
+    const validateExclusion = (filterType, value) => {
+        if (!value.trim()) return false;
+
+        switch (filterType) {
+            case 'emails':
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            case 'links':
+                return /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/.test(value);
+            case 'phone-numbers':
+                return /^\+?[\d\s-]{10,}$/.test(value);
+            default:
+                return true; // For tags, mentions, bot-commands, custom-emojis
+        }
+    };
+
+    const handleAddExclusion = async (filterType) => {
+        const newExclusion = newExclusions[filterType]?.trim();
+        if (!newExclusion) {
+            alert('Пожалуйста, введите значение для исключения');
+            return;
+        }
+
+        if (!validateExclusion(filterType, newExclusion)) {
+            alert(`Недопустимый формат для ${getFilterName(filterType)}`);
+            return;
+        }
+
+        try {
+            const currentFilterSettings = settings[filterType] || {};
+            const updatedExclusions = [...(currentFilterSettings.exclusions || []), newExclusion];
+            const updatedSettings = {
+                enabled: currentFilterSettings.enabled || false,
+                exclusionMode: currentFilterSettings.exclusionMode || 'WHITE_LIST',
+                exclusions: updatedExclusions
+            };
+
+            await updateTextModerationSettings(chatId, filterType, updatedSettings);
+
+            setSettings(prev => ({
+                ...prev,
+                [filterType]: {
+                    ...prev[filterType],
+                    exclusions: updatedExclusions
+                }
+            }));
+
+            setNewExclusions(prev => ({
+                ...prev,
+                [filterType]: ''
+            }));
+        } catch (error) {
+            console.error('Ошибка добавления исключения:', error);
+            alert(`Ошибка при добавлении исключения для ${getFilterName(filterType)}`);
+        }
+    };
+
+    const handleRemoveExclusion = async (filterType, exclusionToRemove) => {
+        try {
+            const currentFilterSettings = settings[filterType] || {};
+            const updatedExclusions = (currentFilterSettings.exclusions || []).filter(
+                exclusion => exclusion !== exclusionToRemove
+            );
+            const updatedSettings = {
+                enabled: currentFilterSettings.enabled || false,
+                exclusionMode: currentFilterSettings.exclusionMode || 'WHITE_LIST',
+                exclusions: updatedExclusions
+            };
+
+            await updateTextModerationSettings(chatId, filterType, updatedSettings);
+
+            setSettings(prev => ({
+                ...prev,
+                [filterType]: {
+                    ...prev[filterType],
+                    exclusions: updatedExclusions
+                }
+            }));
+        } catch (error) {
+            console.error('Ошибка удаления исключения:', error);
+            alert(`Ошибка при удалении исключения для ${getFilterName(filterType)}`);
+        }
+    };
+
     const handleUpdate = async (filterType) => {
         try {
             if (!allowedFilterTypes.includes(filterType)) {
@@ -58,7 +146,7 @@ const Moderation = () => {
             const currentFilterSettings = settings[filterType] || {};
             const updatedSettings = {
                 enabled: !currentFilterSettings.enabled,
-                exclusionMode: currentFilterSettings.exclusionMode || 'BLACK_LIST',
+                exclusionMode: currentFilterSettings.exclusionMode || 'WHITE_LIST',
                 exclusions: currentFilterSettings.exclusions || []
             };
             await updateTextModerationSettings(chatId, filterType, updatedSettings);
@@ -73,6 +161,13 @@ const Moderation = () => {
             console.error('Ошибка обновления модерации:', error);
             alert(`Ошибка при обновлении настроек для ${getFilterName(filterType)}: ${error.message}`);
         }
+    };
+
+    const handleExclusionInputChange = (filterType, value) => {
+        setNewExclusions(prev => ({
+            ...prev,
+            [filterType]: value
+        }));
     };
 
     const getFilterName = (filterType) => {
@@ -91,7 +186,7 @@ const Moderation = () => {
     const getFilterIcon = (filterType) => {
         const icons = {
             emails: ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path> </svg> ),
-            tags: ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path> </svg> ),
+            tags: ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 Wanda 4 0 014-4z"></path> </svg> ),
             mentions: ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path> </svg> ),
             links: ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path> </svg> ),
             'phone-numbers': ( <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path> </svg> ),
@@ -141,6 +236,7 @@ const Moderation = () => {
                                 <p className="text-sm text-blue-700">
                                     Включенный переключатель означает, что функция <strong>запрещена</strong> в чате.
                                     Выключенный переключатель означает, что функция <strong>разрешена</strong> в чате.
+                                    Добавляйте исключения для разрешения определенных значений.
                                 </p>
                             </div>
                         </div>
@@ -176,26 +272,26 @@ const Moderation = () => {
                                     <p className="mt-2 text-sm text-gray-400">Доступные фильтры: {allowedFilterTypes.join(', ')}</p>
                                 </div>
                             ) : (
-                                <div className="grid gap-4 md:grid-cols-2">
+                                <div className="grid gap-6 md:grid-cols-2">
                                     {Object.keys(settings)
                                         .filter(key => allowedFilterTypes.includes(key))
                                         .map(filterType => (
                                             <div
                                                 key={filterType}
-                                                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-200"
+                                                className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-200"
                                             >
-                                                <div className="flex items-center space-x-3">
-                                                    <div className={`flex-shrink-0 rounded-full p-2.5 ${settings[filterType]?.enabled ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                                                        {getFilterIcon(filterType)}
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div className="flex items-center space-x-3">
+                                                        <div className={`flex-shrink-0 rounded-full p-2.5 ${settings[filterType]?.enabled ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                                                            {getFilterIcon(filterType)}
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-medium text-gray-800">{getFilterName(filterType)}</h3>
+                                                            <p className={`text-sm ${settings[filterType]?.enabled ? 'text-red-600' : 'text-green-600'}`}>
+                                                                {settings[filterType]?.enabled ? 'Запрещено' : 'Разрешено'}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="font-medium text-gray-800">{getFilterName(filterType)}</h3>
-                                                        <p className={`text-sm ${settings[filterType]?.enabled ? 'text-red-600' : 'text-green-600'}`}>
-                                                            {settings[filterType]?.enabled ? 'Запрещено' : 'Разрешено'}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div>
                                                     <label className="inline-flex items-center cursor-pointer">
                                                         <input
                                                             type="checkbox"
@@ -205,6 +301,45 @@ const Moderation = () => {
                                                         />
                                                         <div className="relative w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
                                                     </label>
+                                                </div>
+
+                                                <div className="mt-4">
+                                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Исключения</h4>
+                                                    <div className="flex space-x-2 mb-3">
+                                                        <input
+                                                            type="text"
+                                                            value={newExclusions[filterType] || ''}
+                                                            onChange={(e) => handleExclusionInputChange(filterType, e.target.value)}
+                                                            placeholder={`Введите ${getFilterName(filterType).toLowerCase()}`}
+                                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                        <button
+                                                            onClick={() => handleAddExclusion(filterType)}
+                                                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        >
+                                                            Добавить
+                                                        </button>
+                                                    </div>
+                                                    {settings[filterType]?.exclusions?.length > 0 ? (
+                                                        <div className="mt-2 space-y-2">
+                                                            {settings[filterType].exclusions.map((exclusion, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="flex items-center justify-between bg-gray-100 p-2 rounded-md"
+                                                                >
+                                                                    <span className="text-sm text-gray-700">{exclusion}</span>
+                                                                    <button
+                                                                        onClick={() => handleRemoveExclusion(filterType, exclusion)}
+                                                                        className="text-red-500 hover:text-red-700"
+                                                                    >
+                                                                        <XMarkIcon className="w-5 h-5" />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-sm text-gray-500">Нет исключений</p>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}

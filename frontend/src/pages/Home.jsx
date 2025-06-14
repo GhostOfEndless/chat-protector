@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { UsersIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'; // Опциональные иконки
+import { UsersIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 const Home = () => {
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
             <div className="w-full max-w-md">
                 <div className="bg-white shadow-xl rounded-lg overflow-hidden">
-                    <div className="bg-[#3366ff] p-5 sm:p-6"> {/* Используем ваш фирменный цвет */}
+                    <div className="bg-[#3366ff] p-5 sm:p-6">
                         <h1 className="text-2xl sm:text-3xl font-bold text-white text-center">
                             Панель управления
                         </h1>

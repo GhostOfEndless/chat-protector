@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getChat } from '../services/api';
-import { CogIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { CogIcon, TrashIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const Chat = () => {
     const { chatId } = useParams();
@@ -106,6 +106,13 @@ const Chat = () => {
                         >
                             <CogIcon className="h-5 w-5 mr-2" />
                             Настройки модерации
+                        </Link>
+                        <Link
+                            to={`/chats/${chatId}/spam-protection`}
+                            className="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 transition duration-150 ease-in-out"
+                        >
+                            <ShieldCheckIcon className="h-5 w-5 mr-2" />
+                            Защита от спама
                         </Link>
                     </div>
                 </div>

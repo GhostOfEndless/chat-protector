@@ -5,6 +5,7 @@ import ChatList from './pages/ChatList';
 import Chat from './pages/Chat';
 import User from './pages/User';
 import Moderation from './pages/Moderation';
+import SpamProtection from './pages/SpamProtection';
 import DeletedMessages from './pages/DeletedMessages';
 import ProtectedRoute from './components/ProtectedRoute';
 import UsersList from './pages/UsersList';
@@ -20,6 +21,7 @@ const App = () => (
                 <Route path="/chats" element={<ChatList />} />
                 <Route path="/chats/:chatId" element={<Chat />} />
                 <Route path="/chats/:chatId/moderation" element={<Moderation />} />
+                <Route path="/chats/:chatId/spam-protection" element={<SpamProtection />} />
                 <Route path="/chats/:chatId/deleted-messages" element={<DeletedMessages />} />
                 <Route path="/users" element={<UsersList />} />
                 <Route path="/users/:userId" element={<User />} />
