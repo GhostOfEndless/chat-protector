@@ -221,7 +221,6 @@ describe('UsersList', () => {
             expect(screen.getByText('Тест')).toBeInTheDocument();
         });
 
-        // Проверяем, что есть кнопки "Предыдущая" и "Следующая" для мобильной версии
         const mobileButtons = screen.getAllByRole('button');
         const prevButtons = mobileButtons.filter(btn => btn.textContent.includes('Предыдущая'));
         const nextButtons = mobileButtons.filter(btn => btn.textContent.includes('Следующая'));
