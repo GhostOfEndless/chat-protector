@@ -26,7 +26,7 @@ import ru.tbank.processor.service.personal.payload.ProcessingResult;
 @Slf4j
 @NullMarked
 @Component
-public class SpamProtectionStateHandler extends PersonalUpdateHandler {
+public final class SpamProtectionStateHandler extends PersonalUpdateHandler {
 
     private final SpamProtectionSettingsService spamProtectionSettingsService;
     private final GroupChatService groupChatService;
