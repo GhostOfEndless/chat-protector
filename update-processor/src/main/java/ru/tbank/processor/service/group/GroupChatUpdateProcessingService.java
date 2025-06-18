@@ -92,7 +92,7 @@ public class GroupChatUpdateProcessingService {
     }
 
     @Timed("groupTextMessageProcessing")
-    private void processTextMessage(Message message, ChatModerationSettings chatModerationSettings) {
+    protected void processTextMessage(Message message, ChatModerationSettings chatModerationSettings) {
         log.debug("Start processing message with id={}", message.messageId());
         // *** text filters processing ***
         var textModerationSettings = chatModerationSettings.getTextModerationSettings();
